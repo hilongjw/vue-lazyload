@@ -57,5 +57,5 @@ export default {
 
 ### todo
 
-* set loading
-* custom setting
+* more custom setting
+* css loading

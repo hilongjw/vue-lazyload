@@ -1,6 +1,6 @@
 {
   "name": "vue-lazyload",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Vue module for lazyloading images in your vue.js applications.",
   "main": "lazyload.js",
   "scripts": {
