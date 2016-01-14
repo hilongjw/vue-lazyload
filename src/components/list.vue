@@ -75,7 +75,7 @@
 export default {
   data () {
     return {
-      list: ['dist/test1.jpg', 'dist/test2.jpg', 'dist/test3.jpg', 'dist/test4.jpg', 'dist/test5.jpg', 'dist/test6.jpg', 'dist/test7.jpg', 'dist/test8.jpg']
+      list: ['dist/test1.jpg', 'dist/test2.jpg', 'dist/test0.jpg', 'dist/test4.jpg', 'dist/test5.jpg', 'dist/test6.jpg', 'dist/test7.jpg', 'dist/test8.jpg']
     }
   },
   ready () {},
