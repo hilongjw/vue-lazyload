@@ -1,6 +1,6 @@
-Vue-Lazyload
+Vue-Lazyload 
 ========
-
+see demo[http://hilongjw.github.io/vue-lazyload/](http://hilongjw.github.io/vue-lazyload/)
 Vue module for lazyloading images in your applications. Some of goals of this project worth noting include:
 
 * Be lightweight, powerful and easy to use
