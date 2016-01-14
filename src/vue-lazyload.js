@@ -11,7 +11,9 @@ module.exports = function(obj) {
       let winH = window.screen.availWidth
       let top = document.documentElement.scrollTop || document.body.scrollTop;
       for (let item of self.img) {
-        if (item.y < (top + winH) && !item.loaded ) {
+        //img in viewport and unload and less than 5 attempts
+        if (item.y < (top + winH) && !item.loaded && item.tryed < 5) {
+          item.tryed++
           this.loadImageAsync(item.el, item.src).then(function(url) {
             item.loaded = true
             item.el.setAttribute('src', item.src)
@@ -111,6 +113,7 @@ module.exports = function(obj) {
       this.vm.$nextTick(function() {
         let pos = self.getPst(self.el);
         self.img.add({
+          tryed: 0,
           loaded:false,
           el: self.el,
           src: src,
@@ -121,10 +124,11 @@ module.exports = function(obj) {
       })
 
       this.el.addEventListener('click', function() {
-        self.el.setAttribute('src', src)
-        console.log(self.img)
+        self.show()
       })
     },
-    unbind: function() {}
+    unbind: function() {
+      window.onscroll = null;
+    }
   }
 }

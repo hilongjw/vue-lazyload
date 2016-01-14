@@ -3,8 +3,8 @@ import App from './App.vue'
 import lazyload from './vue-lazyload.js'
 
 Vue.directive('lazy', lazyload({
-  error:'dist/error.png',
-  loading:'dist/loading.gif'
+  error: 'dist/error.png',
+  loading: 'dist/loading.gif'
 }))
 
 /* eslint-disable no-new */
