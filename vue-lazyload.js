@@ -13,14 +13,17 @@ exports.install = function(Vue, options) {
       let self = this
       let winH = window.screen.availWidth
       let top = document.documentElement.scrollTop || document.body.scrollTop;
+
       for (let item of self.img) {
         //img in viewport and unload and less than 5 attempts
-        if (item.y < (top + winH) && !item.loaded && item.tryed < 5) {
-          item.tryed++
+        if (item.y < (top + winH) && !item.loaded && item.testCount < 5) {
+          item.testCount++
             this.loadImageAsync(item.el, item.src).then(function(url) {
               item.loaded = true
               item.el.setAttribute('src', item.src)
+              item.el.removeAttribute('lazy')
             }, function(error) {
+              item.el.setAttribute('lazy','error')
               item.el.setAttribute('src', self.init.error)
             })
         }
@@ -34,8 +37,9 @@ exports.install = function(Vue, options) {
      */
     loadImageAsync(el, url) {
       el.setAttribute('src', this.init.loading)
+      el.setAttribute('lazy', 'loading')
       return new Promise(function(resolve, reject) {
-        var image = new Image();
+        let image = new Image();
         image.src = url;
 
         image.onload = function() {
@@ -46,7 +50,6 @@ exports.install = function(Vue, options) {
           reject(new Error('Could not load image at ' + url));
         };
 
-        
       });
     },
     /**
@@ -118,18 +121,18 @@ exports.install = function(Vue, options) {
     },
     bind: function(src) {
       let self = this
-      if(!this.init.hasbind){
+     if(!this.init.hasbind){
         this.init.hasbind = true
         window.addEventListener('scroll', function(){self.show()}, false);
       }
     },
     update: function(src) {
       let self = this
-      this.el.setAttribute('src', self.loading)
+      this.el.setAttribute('src', self.init.loading)
       this.vm.$nextTick(function() {
         let pos = self.getPst(self.el);
         self.img.add({
-          tryed: 0,
+          testCount: 0,
           loaded: false,
           el: self.el,
           src: src,

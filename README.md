@@ -1,11 +1,24 @@
 Vue-Lazyload 
 ========
-see demo[http://hilongjw.github.io/vue-lazyload/](http://hilongjw.github.io/vue-lazyload/)
-Vue module for lazyloading images in your applications. Some of goals of this project worth noting include:
+
+ - see demo[http://hilongjw.github.io/vue-lazyload/](http://hilongjw.github.io/vue-lazyload/)
+ - Vue module for lazyloading images in your applications. Some of goals of this project worth noting include:
 
 * Be lightweight, powerful and easy to use
 * Work on any image type
 * Add loading class while image is loading
+
+## Requirements
+
+- vue: ^1.0.0
+
+## Install
+
+From npm:
+
+``` sh
+$ npm install vue-focus --save
+```
 
 ##Usage
 
@@ -31,16 +44,6 @@ new Vue({
 
 ```html
 <!--your.vue-->
-
-<template>
-  <div class="img-list">
-    <ul>
-      <li v-for="img in list" track-by="$index">
-        <img v-lazy="img">
-      </li>
-    </ul>
-  </div>
-</template>
 <script>
 export default {
   data () {
@@ -52,6 +55,25 @@ export default {
   destroyed () {}
 }
 </script>
+
+<template>
+  <div class="img-list">
+    <ul>
+      <li v-for="img in list" track-by="$index">
+        <img v-lazy="img">
+      </li>
+    </ul>
+  </div>
+</template>
+
+<style>
+  img[lazy=loading]{
+    /*your style here*/
+  }
+  img[lazy=error]{
+    /*your style here*/
+  }
+</style>
 
 ```
 
