@@ -14,12 +14,12 @@ Vue module for lazyloading images in your applications. Some of goals of this pr
 
 import Vue from 'vue'
 import App from './App.vue'
-import lazyload from './vue-lazyload.js'
+import lazyload from 'vue-lazyload'
 
-Vue.directive('lazy', lazyload({
-  error:'dist/error.png',
-  loading:'dist/loading.gif'
-}))
+Vue.use(lazyload, {
+  error: 'dist/error.png',
+  loading: 'dist/loading.gif'
+})
 
 new Vue({
   el: 'body',
