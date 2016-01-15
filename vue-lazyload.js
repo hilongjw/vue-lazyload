@@ -1,3 +1,4 @@
+'use strict'
 exports.install = function(Vue, options) {
   /* set the vue directive */
   Vue.directive('lazy', {
@@ -117,9 +118,9 @@ exports.install = function(Vue, options) {
     },
     bind: function(src) {
       let self = this
-      if(this.init.hasbind){
+      if(!this.init.hasbind){
         this.init.hasbind = true
-        window.addEventListener('scroll', T.debounce(self.show(), 100), false);
+        window.addEventListener('scroll', function(){self.show()}, false);
       }
     },
     update: function(src) {
@@ -142,8 +143,8 @@ exports.install = function(Vue, options) {
         self.show()
       })
     },
-    unbind: function() {
-      window.onscroll = null;
+    unbind: function() { 
+      window.removeEventListener('scroll', function(){this.show()}, false);
     }
 
   })

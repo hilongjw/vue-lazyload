@@ -2,12 +2,11 @@
   "name": "vue-lazyload",
   "version": "0.1.2",
   "description": "Vue module for lazyloading images in your vue.js applications.",
-  "main": "lazyload.js",
-  "scripts": {
-  },
-  "dependencies": {
-  },
+  "main": "vue-lazyload.js",
+  "scripts": {},
+  "dependencies": {},
   "devDependencies": {
+    "babel-cli": "^6.4.0"
   },
   "repository": {
     "type": "git",
