@@ -1,10 +1,13 @@
-exports.install = function(Vue, obj) {
+exports.install = function(Vue, options) {
+  /* set the vue directive */
   Vue.directive('lazy', {
     init: {
-      error: obj.error,
-      loading: obj.loading
+      error: options.error,
+      loading: options.loading,
+      hasbind: false
     },
     img: new Set(),
+    /* set the img show with it state */
     show() {
       let self = this
       let winH = window.screen.availWidth
@@ -22,6 +25,12 @@ exports.install = function(Vue, obj) {
         }
       }
     },
+    /**
+     * get the img load state
+     * @param  {object} image's dom
+     * @param  {string} image url
+     * @return {Promise} image load
+     */
     loadImageAsync(el, url) {
       el.setAttribute('src', this.init.loading)
       return new Promise(function(resolve, reject) {
@@ -39,6 +48,11 @@ exports.install = function(Vue, obj) {
         
       });
     },
+    /**
+     * get the dom coordinates
+     * @param  {object} images
+     * @return {object} coordinates
+     */
     getPst(el) {
       let ua = navigator.userAgent.toLowerCase();
       let isOpera = (ua.indexOf('opera') != -1);
@@ -103,8 +117,9 @@ exports.install = function(Vue, obj) {
     },
     bind: function(src) {
       let self = this
-      window.onscroll = function() {
-        self.show()
+      if(this.init.hasbind){
+        this.init.hasbind = true
+        window.addEventListener('scroll', T.debounce(self.show(), 100), false);
       }
     },
     update: function(src) {
