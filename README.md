@@ -17,7 +17,7 @@ Vue-Lazyload
 From npm:
 
 ``` sh
-$ npm install vue-focus --save
+$ npm install vue-lazyload --save
 ```
 
 ##Usage
