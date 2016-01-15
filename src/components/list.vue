@@ -2,7 +2,7 @@
   <div class="img-list">
     <ul>
       <li v-for="img in list" track-by="$index">
-        <img v-lazy="img">
+        <img v-lazy="img" width="100%" height="400">
       </li>
     </ul>
   </div>
@@ -38,6 +38,13 @@
 
 .img-list ul li img {
   width: 100%;
+}
+
+img[lazy=loading]{
+  border-radius: 2px;
+}
+img[lazy=error]{
+  border-radius: 2px;
 }
 
 .cov-imageviewer {
