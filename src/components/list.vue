@@ -30,7 +30,7 @@
   width: 330px;
   z-index: 1;
   position: relative;
-  background: #fff;
+  background: #D6D6D6;
   border-radius: 2px;
   box-sizing: border-box;
   margin: 1rem;
@@ -41,7 +41,8 @@
 }
 
 img[lazy=loading]{
-  border-radius: 2px;
+  width: 40px!important;
+  margin: auto;
 }
 img[lazy=error]{
   border-radius: 2px;

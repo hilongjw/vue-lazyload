@@ -4,7 +4,7 @@ import lazyload from './vue-lazyload.js'
 
 Vue.use(lazyload, {
   error: 'dist/error.png',
-  loading: 'dist/loading.gif'
+  loading: 'dist/loading-spin.svg'
 })
 
 /* eslint-disable no-new */

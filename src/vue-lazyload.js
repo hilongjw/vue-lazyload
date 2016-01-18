@@ -129,6 +129,7 @@ exports.install = function(Vue, options) {
     update: function(src) {
       let self = this
       this.el.setAttribute('src', self.init.loading)
+      this.el.setAttribute('lazy', 'loading')
       this.vm.$nextTick(function() {
         let pos = self.getPst(self.el);
         self.img.add({
