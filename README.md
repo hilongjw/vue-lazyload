@@ -1,8 +1,9 @@
 Vue-Lazyload 
 ========
 
- - see demo[http://hilongjw.github.io/vue-lazyload/](http://hilongjw.github.io/vue-lazyload/)
- - Vue module for lazyloading images in your applications. Some of goals of this project worth noting include:
+see demo: [http://hilongjw.github.io/vue-lazyload/](http://hilongjw.github.io/vue-lazyload/)
+
+Vue module for lazyloading images in your applications. Some of goals of this project worth noting include:
 
 * Be lightweight, powerful and easy to use
 * Work on any image type
@@ -76,8 +77,3 @@ export default {
 </style>
 
 ```
-
-### todo
-
-* more custom setting
-* css loading
