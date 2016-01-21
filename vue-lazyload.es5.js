@@ -8,39 +8,67 @@ exports.install = function (Vue, options) {
       loading: options.loading,
       hasbind: false
     },
-    img: new Set(),
+    img: [],
     /* set the img show with it state */
-    show() {
-      let self = this;
-      let winH = window.screen.availWidth;
-      let top = document.documentElement.scrollTop || document.body.scrollTop;
+    show: function show() {
+      var _this = this;
 
-      for (let item of self.img) {
-        //img in viewport and unload and less than 5 attempts
-        if (item.y < top + winH && !item.loaded && item.testCount < 5) {
-          item.testCount++;
-          this.loadImageAsync(item.el, item.src).then(function (url) {
-            item.loaded = true;
-            item.el.setAttribute('src', item.src);
-            item.el.removeAttribute('lazy');
-          }, function (error) {
-            item.el.setAttribute('lazy', 'error');
-            item.el.setAttribute('src', self.init.error);
-          });
+      var self = this;
+      var winH = window.screen.availWidth;
+      var top = document.documentElement.scrollTop || document.body.scrollTop;
+
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        var _loop = function _loop() {
+          var item = _step.value;
+
+          //img in viewport and unload and less than 5 attempts
+          if (item.y < top + winH && !item.loaded && item.testCount < 5) {
+            item.testCount++;
+            _this.loadImageAsync(item.el, item.src).then(function (url) {
+              item.loaded = true;
+              item.el.setAttribute('src', item.src);
+              item.el.removeAttribute('lazy');
+            }, function (error) {
+              item.el.setAttribute('lazy', 'error');
+              item.el.setAttribute('src', self.init.error);
+            });
+          }
+        };
+
+        for (var _iterator = self.img[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          _loop();
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
         }
       }
     },
+
     /**
      * get the img load state
      * @param  {object} image's dom
      * @param  {string} image url
      * @return {Promise} image load
      */
-    loadImageAsync(el, url) {
+    loadImageAsync: function loadImageAsync(el, url) {
       el.setAttribute('src', this.init.loading);
       el.setAttribute('lazy', 'loading');
       return new Promise(function (resolve, reject) {
-        let image = new Image();
+        var image = new Image();
         image.src = url;
 
         image.onload = function () {
@@ -52,26 +80,27 @@ exports.install = function (Vue, options) {
         };
       });
     },
+
     /**
      * get the dom coordinates
      * @param  {object} images
      * @return {object} coordinates
      */
-    getPst(el) {
-      let ua = navigator.userAgent.toLowerCase();
-      let isOpera = ua.indexOf('opera') != -1;
-      let isIE = ua.indexOf('msie') != -1 && !isOpera; // not opera spoof 
+    getPst: function getPst(el) {
+      var ua = navigator.userAgent.toLowerCase();
+      var isOpera = ua.indexOf('opera') != -1;
+      var isIE = ua.indexOf('msie') != -1 && !isOpera; // not opera spoof 
       if (el.parentNode === null || el.style.display == 'none') {
         return false;
       }
-      let parent = null;
-      let pos = [];
-      let box;
+      var parent = null;
+      var pos = [];
+      var box = undefined;
       if (el.getBoundingClientRect) // IE 
         {
           box = el.getBoundingClientRect();
-          let scrollTop = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
-          let scrollLeft = Math.max(document.documentElement.scrollLeft, document.body.scrollLeft);
+          var scrollTop = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
+          var scrollLeft = Math.max(document.documentElement.scrollLeft, document.body.scrollLeft);
           return {
             x: box.left + scrollLeft,
             y: box.top + scrollTop
@@ -79,8 +108,8 @@ exports.install = function (Vue, options) {
         } else if (document.getBoxObjectFor) // gecko 
         {
           box = document.getBoxObjectFor(el);
-          let borderLeft = el.style.borderLeftWidth ? parseInt(el.style.borderLeftWidth) : 0;
-          let borderTop = el.style.borderTopWidth ? parseInt(el.style.borderTopWidth) : 0;
+          var borderLeft = el.style.borderLeftWidth ? parseInt(el.style.borderLeftWidth) : 0;
+          var borderTop = el.style.borderTopWidth ? parseInt(el.style.borderTopWidth) : 0;
           pos = [box.x - borderLeft, box.y - borderTop];
         } else // safari & opera 
         {
@@ -118,8 +147,9 @@ exports.install = function (Vue, options) {
         y: pos[1]
       };
     },
-    bind: function (src) {
-      let self = this;
+
+    bind: function bind(src) {
+      var self = this;
       if (!this.init.hasbind) {
         this.init.hasbind = true;
         window.addEventListener('scroll', function () {
@@ -127,13 +157,13 @@ exports.install = function (Vue, options) {
         }, false);
       }
     },
-    update: function (src) {
-      let self = this;
+    update: function update(src) {
+      var self = this;
       this.el.setAttribute('src', self.init.loading);
       this.el.setAttribute('lazy', 'loading');
       this.vm.$nextTick(function () {
-        let pos = self.getPst(self.el);
-        self.img.add({
+        var pos = self.getPst(self.el);
+        self.img.push({
           testCount: 0,
           loaded: false,
           el: self.el,
@@ -148,7 +178,7 @@ exports.install = function (Vue, options) {
         self.show();
       });
     },
-    unbind: function () {
+    unbind: function unbind() {
       window.removeEventListener('scroll', function () {
         this.show();
       }, false);

@@ -1,9 +1,11 @@
 {
   "name": "vue-lazyload",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Vue module for lazyloading images in your vue.js applications.",
   "main": "vue-lazyload.es5.js",
-  "scripts": {},
+  "scripts": {
+    "start": "babel vue-lazyload.js -o vue-lazyload.es5.js"
+  },
   "dependencies": {},
   "repository": {
     "type": "git",
@@ -19,5 +21,9 @@
   "bugs": {
     "url": "https://github.com/hilongjw/vue-lazyload/issues"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "babel-cli": "^6.4.5",
+    "babel-preset-es2015": "^6.3.13"
+  }
 }
