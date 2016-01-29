@@ -1,12 +1,3 @@
-<template>
-  <div class="img-list">
-    <ul>
-      <li v-for="img in list" track-by="$index">
-        <img v-lazy="img" width="100%" height="400">
-      </li>
-    </ul>
-  </div>
-</template>
 <style>
 .img-list ul {
   margin: 0;
@@ -40,11 +31,12 @@
   width: 100%;
 }
 
-img[lazy=loading]{
+img[lazy=loading] {
   width: 40px!important;
   margin: auto;
 }
-img[lazy=error]{
+
+img[lazy=error] {
   border-radius: 2px;
 }
 
@@ -63,30 +55,53 @@ img[lazy=error]{
   z-index: 200;
   position: fixed;
 }
-.cov-imageviewer-mask{
+
+.cov-imageviewer-mask {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.67);
 }
-.cov-imageviewer-header img{
+
+.cov-imageviewer-header img {
   position: fixed;
   margin: 0 auto;
   top: 0;
   width: 100%;
   bottom: 0;
   left: 50%;
-  transform: translate(-50%,-50%);
+  transform: translate(-50%, -50%);
   top: 50%;
 }
 </style>
 <script>
 export default {
-  data () {
+  data() {
     return {
-      list: ['dist/test1.jpg', 'dist/test2.jpg', 'dist/test0.jpg', 'dist/test4.jpg', 'dist/test5.jpg', 'dist/test6.jpg', 'dist/test7.jpg', 'dist/test8.jpg']
+      list: []
     }
   },
-  ready () {},
-  destroyed () {}
+  asyncData: function(resolve, reject) {
+    this.$http.get('dist/imgs.json').then(function(response) {
+      console.log(response.data)
+      resolve({
+        list: response.data
+      })
+
+    }, function(response) {
+      console.log('failed')
+    })
+
+  },
+  ready() {},
+  destroyed() {}
 }
 </script>
+<template>
+  <div class="img-list">
+    <ul>
+      <li v-for="img in list" track-by="$index">
+        <img v-lazy="img" width="100%" height="400">
+      </li>
+    </ul>
+  </div>
+</template>

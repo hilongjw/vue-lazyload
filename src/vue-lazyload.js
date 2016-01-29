@@ -1,4 +1,3 @@
-'use strict'
 exports.install = function(Vue, options) {
   /* set the vue directive */
   Vue.directive('lazy', {
@@ -7,7 +6,7 @@ exports.install = function(Vue, options) {
       loading: options.loading,
       hasbind: false
     },
-    img: new Set(),
+    img: [],
     /* set the img show with it state */
     show() {
       let self = this
@@ -132,7 +131,7 @@ exports.install = function(Vue, options) {
       this.el.setAttribute('lazy', 'loading')
       this.vm.$nextTick(function() {
         let pos = self.getPst(self.el);
-        self.img.add({
+        self.img.push({
           testCount: 0,
           loaded: false,
           el: self.el,
