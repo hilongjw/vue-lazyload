@@ -13,8 +13,7 @@ exports.install = function (Vue, options) {
     show: function show() {
       var _this = this;
 
-      var self = this;
-      var winH = window.screen.availWidth;
+      var winH = window.screen.availHeight * window.devicePixelRatio;
       var top = document.documentElement.scrollTop || document.body.scrollTop;
 
       var _iteratorNormalCompletion = true;
@@ -22,7 +21,7 @@ exports.install = function (Vue, options) {
       var _iteratorError = undefined;
 
       try {
-        var _loop = function _loop() {
+        var _loop = function () {
           var item = _step.value;
 
           //img in viewport and unload and less than 5 attempts
@@ -34,12 +33,12 @@ exports.install = function (Vue, options) {
               item.el.removeAttribute('lazy');
             }, function (error) {
               item.el.setAttribute('lazy', 'error');
-              item.el.setAttribute('src', self.init.error);
+              item.el.setAttribute('src', _this.init.error);
             });
           }
         };
 
-        for (var _iterator = self.img[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        for (var _iterator = this.img[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           _loop();
         }
       } catch (err) {
@@ -47,8 +46,8 @@ exports.install = function (Vue, options) {
         _iteratorError = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion && _iterator.return) {
-            _iterator.return();
+          if (!_iteratorNormalCompletion && _iterator['return']) {
+            _iterator['return']();
           }
         } finally {
           if (_didIteratorError) {
@@ -57,7 +56,6 @@ exports.install = function (Vue, options) {
         }
       }
     },
-
     /**
      * get the img load state
      * @param  {object} image's dom
@@ -80,7 +78,6 @@ exports.install = function (Vue, options) {
         };
       });
     },
-
     /**
      * get the dom coordinates
      * @param  {object} images
@@ -147,7 +144,6 @@ exports.install = function (Vue, options) {
         y: pos[1]
       };
     },
-
     bind: function bind(src) {
       var self = this;
       if (!this.init.hasbind) {
@@ -158,24 +154,25 @@ exports.install = function (Vue, options) {
       }
     },
     update: function update(src) {
-      var self = this;
-      this.el.setAttribute('src', self.init.loading);
+      var _this2 = this;
+
+      this.el.setAttribute('src', this.init.loading);
       this.el.setAttribute('lazy', 'loading');
       this.vm.$nextTick(function () {
-        var pos = self.getPst(self.el);
-        self.img.push({
+        var pos = _this2.getPst(_this2.el);
+        _this2.img.push({
           testCount: 0,
           loaded: false,
-          el: self.el,
+          el: _this2.el,
           src: src,
           x: pos.x,
           y: pos.y
         });
-        self.show();
+        _this2.show();
       });
 
       this.el.addEventListener('click', function () {
-        self.show();
+        _this2.show();
       });
     },
     unbind: function unbind() {

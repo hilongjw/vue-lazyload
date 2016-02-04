@@ -9,21 +9,20 @@ exports.install = function(Vue, options) {
     img: [],
     /* set the img show with it state */
     show() {
-      let self = this
-      let winH = window.screen.availWidth
-      let top = document.documentElement.scrollTop || document.body.scrollTop;
+      let winH = window.screen.availHeight * window.devicePixelRatio
+      let top = document.documentElement.scrollTop || document.body.scrollTop
 
-      for (let item of self.img) {
+      for (let item of this.img) {
         //img in viewport and unload and less than 5 attempts
         if (item.y < (top + winH) && !item.loaded && item.testCount < 5) {
           item.testCount++
-            this.loadImageAsync(item.el, item.src).then(function(url) {
+            this.loadImageAsync(item.el, item.src).then((url) => {
               item.loaded = true
               item.el.setAttribute('src', item.src)
               item.el.removeAttribute('lazy')
-            }, function(error) {
+            }, (error) => {
               item.el.setAttribute('lazy','error')
-              item.el.setAttribute('src', self.init.error)
+              item.el.setAttribute('src', this.init.error)
             })
         }
       }
@@ -126,24 +125,23 @@ exports.install = function(Vue, options) {
       }
     },
     update: function(src) {
-      let self = this
-      this.el.setAttribute('src', self.init.loading)
+      this.el.setAttribute('src', this.init.loading)
       this.el.setAttribute('lazy', 'loading')
-      this.vm.$nextTick(function() {
-        let pos = self.getPst(self.el);
-        self.img.push({
+      this.vm.$nextTick(() => {
+        let pos = this.getPst(this.el);
+        this.img.push({
           testCount: 0,
           loaded: false,
-          el: self.el,
+          el: this.el,
           src: src,
           x: pos.x,
           y: pos.y
         })
-        self.show()
+        this.show()
       })
 
-      this.el.addEventListener('click', function() {
-        self.show()
+      this.el.addEventListener('click', () => {
+        this.show()
       })
     },
     unbind: function() { 
