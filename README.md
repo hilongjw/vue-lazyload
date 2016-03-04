@@ -60,8 +60,11 @@ export default {
 <template>
   <div class="img-list">
     <ul>
-      <li v-for="img in list" track-by="$index">
+      <li v-for="img in list">
         <img v-lazy="img">
+      </li>
+      <li v-for="img in list">
+        <div v-lazy:background-image="img" class="bg-box"></div>
       </li>
     </ul>
   </div>
@@ -72,6 +75,9 @@ export default {
     /*your style here*/
   }
   img[lazy=error]{
+    /*your style here*/
+  }
+  .bg-box[lazy=loading] {
     /*your style here*/
   }
 </style>
