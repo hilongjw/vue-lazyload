@@ -1,176 +1,156 @@
-exports.install = function(Vue, options) {
-    /* set the vue directive */
-    Vue.directive('lazy', {
-        init: {
-            error: options.error,
-            loading: options.loading,
-            hasbind: false
-        },
-        img: [],
-        /* set the img show with it state */
-        show() {
-            let winH = window.screen.availHeight * window.devicePixelRatio
-            let top = document.documentElement.scrollTop || document.body.scrollTop
+exports.install = function (Vue, options) {
+    const init = {
+        error: options.error,
+        loading: options.loading,
+        hasbind: false,
+        try: options.try || 2
+    }
 
-            for (let item of this.img) {
-                //img in viewport and unload and less than 5 attempts
-                if (item.y < (top + winH) && !item.loaded && item.testCount < 5) {
-                    item.testCount++
-                        this.loadImageAsync(item.el, item.src, item.bindType).then((url) => {
-                            item.loaded = true
-                            if (!item.bindType) {
-                                item.el.setAttribute('src', item.src)
-                                item.el.removeAttribute('lazy')
-                            } else {
-                                item.el.setAttribute('style', item.bindType + ': url(' + item.src + ')')
-                                item.el.removeAttribute('lazy')
-                            }
+    const listeners = []
 
-                        }, (error) => {
+    const debounce = function (action, idle) {
+        let last
+        return function () {
+            let args = arguments
+            clearTimeout(last)
+            last = setTimeout(() => {
+                action.apply(this, args)
+            }, idle)
+        }
+    }
 
-                            if (!item.bindType) {
-                                item.el.setAttribute('lazy', 'error')
-                                item.el.setAttribute('src', this.init.error)
-                            } else {
-                                item.el.setAttribute('style', item.bindType + ': url(' + this.init.error + ')')
-                                item.el.setAttribute('lazy', 'error')
-                            }
-                        })
-                }
+    const lazyLoadHandler = debounce(() => {
+        for(let i = 0; i < listeners.length; ++i) {
+            const listener = listeners[i]
+            checkCanShow(listener)
+        }
+    }, 300)
+
+    const checkCanShow = function (listener) {
+        let winH = window.screen.availHeight
+        let top = document.documentElement.scrollTop || document.body.scrollTop
+        let height = (top + winH) * window.devicePixelRatio * 1.3
+        if ( listener.y < height) {
+            render(listener)
+        }
+    }
+
+    const render = function (item) {
+        if (item.try >= init.try) {
+            return false
+        }
+        item.try++
+
+        loadImageAsync(item)
+        .then((url) => {
+            let index = listeners.indexOf(item)
+            if (index !== -1) {
+                listeners.splice(index, 1)
             }
-        },
-        /**
-         * get the img load state
-         * @param  {object} image's dom
-         * @param  {string} image url
-         * @return {Promise} image load
-         */
-        loadImageAsync(el, url, bindType) {
-            if (!bindType) {
-                el.setAttribute('src', this.init.loading)
-                el.setAttribute('lazy', 'loading')
+            if (!item.bindType) {
+                item.el.setAttribute('src', item.src)
+                item.el.removeAttribute('lazy')
             } else {
-                el.setAttribute('style', bindType + ': url(' + this.init.loading + ')')
-                el.setAttribute('lazy', 'loading')
+                item.el.setAttribute('style', item.bindType + ': url(' + item.src + ')')
+                item.el.removeAttribute('lazy')
             }
-            
-            return new Promise(function(resolve, reject) {
-                let image = new Image();
-                image.src = url;
 
-                image.onload = function() {
-                    resolve(url);
-                };
-
-                image.onerror = function() {
-                    reject(new Error('Could not load image at ' + url));
-                };
-
-            });
-        },
-        /**
-         * get the dom coordinates
-         * @param  {object} images
-         * @return {object} coordinates
-         */
-        getPst(el) {
-            let ua = navigator.userAgent.toLowerCase();
-            let isOpera = (ua.indexOf('opera') != -1);
-            let isIE = (ua.indexOf('msie') != -1 && !isOpera); // not opera spoof  
-            if (el.parentNode === null || el.style.display == 'none') {
-                return false;
-            }
-            let parent = null;
-            let pos = [];
-            let box;
-            if (el.getBoundingClientRect) // IE  
-            {
-                box = el.getBoundingClientRect();
-                let scrollTop = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
-                let scrollLeft = Math.max(document.documentElement.scrollLeft, document.body.scrollLeft);
-                return {
-                    x: box.left + scrollLeft,
-                    y: box.top + scrollTop
-                };
-            } else
-            if (document.getBoxObjectFor) // gecko  
-            {
-                box = document.getBoxObjectFor(el);
-                let borderLeft = (el.style.borderLeftWidth) ? parseInt(el.style.borderLeftWidth) : 0;
-                let borderTop = (el.style.borderTopWidth) ? parseInt(el.style.borderTopWidth) : 0;
-                pos = [box.x - borderLeft, box.y - borderTop];
-            } else // safari & opera  
-            {
-                pos = [el.offsetLeft, el.offsetTop];
-                parent = el.offsetParent;
-                if (parent != el) {
-                    while (parent) {
-                        pos[0] += parent.offsetLeft;
-                        pos[1] += parent.offsetTop;
-                        parent = parent.offsetParent;
-                    }
-                }
-                if (ua.indexOf('opera') != -1 ||
-                    (ua.indexOf('safari') != -1 && el.style.position == 'absolute')) {
-                    pos[0] -= document.body.offsetLeft;
-                    pos[1] -= document.body.offsetTop;
-                }
-            }
-            if (el.parentNode) {
-                parent = el.parentNode;
+        })
+        .catch((error) => {
+            if (!item.bindType) {
+                item.el.setAttribute('lazy', 'error')
+                item.el.setAttribute('src', init.error)
             } else {
-                parent = null;
+                item.el.setAttribute('style', item.bindType + ': url(' + init.error + ')')
+                item.el.setAttribute('lazy', 'error')
             }
-            while (parent && parent.tagName != 'BODY' && parent.tagName != 'HTML') { // account for any scrolled ancestors  
-                pos[0] -= parent.scrollLeft;
-                pos[1] -= parent.scrollTop;
-                if (parent.parentNode) {
-                    parent = parent.parentNode;
-                } else {
-                    parent = null
-                }
-            }
-            return {
-                x: pos[0],
-                y: pos[1]
-            };
-        },
-        bind: function(src) {
-            let self = this
-            if (!this.init.hasbind) {
-                this.init.hasbind = true
-                window.addEventListener('scroll', () => { this.show() }, false);
-            }
-        },
-        update: function(src) {
-            if (!this.arg) {
-                this.el.setAttribute('src', this.init.loading)
-                this.el.setAttribute('lazy', 'loading')
-            } else {
-                this.el.setAttribute('style', this.arg + ': url(' + this.init.loading + ')')
-                this.el.setAttribute('lazy', 'loading')
-            }
-            this.vm.$nextTick(() => {
-                let pos = this.getPst(this.el);
-                this.img.push({
-                    bindType: this.arg,
-                    testCount: 0,
-                    loaded: false,
-                    el: this.el,
-                    src: src,
-                    x: pos.x,
-                    y: pos.y
-                })
-                this.show()
-            })
+        })
+    }
 
-            this.el.addEventListener('click', () => {
-                this.show()
-            })
-        },
-        unbind: function() {
-            window.removeEventListener('scroll', () =>{ this.show() }, false);
+    const loadImageAsync = function (item) {
+        if (!item.bindType) {
+            item.el.setAttribute('src', init.loading)
+            item.el.setAttribute('lazy', 'loading')
+        } else {
+            item.el.setAttribute('style', item.bindType + ': url(' + init.loading + ')')
+            item.el.setAttribute('lazy', 'loading')
         }
 
+        return new Promise(function(resolve, reject) {
+            let image = new Image()
+            image.src = item.src
+
+            image.onload = function() {
+                resolve(item.src)
+            }
+
+            image.onerror = function() {
+                reject()
+            }
+
+        })
+    }
+
+    const componentWillUnmount = function (src) {
+        let i
+        let len = listeners.length
+        for (i=0; i<len; i++) {
+            if (listeners[i].src == src) {
+                listeners.splice(i,1)
+            }
+        }
+
+        if (listeners.length == 0) {
+            window.removeEventListener('scroll', lazyLoadHandler)
+            window.removeEventListener('wheel', lazyLoadHandler)
+            window.removeEventListener('mousewheel', lazyLoadHandler)
+            window.removeEventListener('resize', lazyLoadHandler)
+        }
+      }
+
+    const getPosition = function (el) {
+        let t = el.offsetTop
+        let elHeight = el.offsetHeight
+        for (t; el = el.offsetParent;) {  
+                t += el.offsetTop
+        }
+        return {
+            y: (t+elHeight) * window.devicePixelRatio
+        }
+    }
+
+    Vue.directive('lazy', {
+        bind: function() {
+            if (!init.hasbind) {
+                init.hasbind = true
+                window.addEventListener('scroll', lazyLoadHandler)
+                window.addEventListener('wheel', lazyLoadHandler)
+                window.addEventListener('mousewheel', lazyLoadHandler)
+                window.addEventListener('resize', lazyLoadHandler)
+                lazyLoadHandler()
+            }
+        },
+        update: function(newValue, oldValue) {
+            this.el.setAttribute('lazy', 'loading')
+            if (!this.arg) {
+                this.el.setAttribute('src', init.loading)
+            } else {
+                this.el.setAttribute('style', this.arg + ': url(' + init.loading + ')')
+            }
+            this.vm.$nextTick(() => {
+                let pos = getPosition(this.el)
+                listeners.push({
+                    bindType: this.arg,
+                    try: 0,
+                    el: this.el,
+                    src: newValue,
+                    y: pos.y
+                })
+                lazyLoadHandler()
+            })
+        },
+        unbind: function (src) {
+            componentWillUnmount(src)
+        }
     })
 }
