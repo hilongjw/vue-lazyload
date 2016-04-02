@@ -5,7 +5,9 @@ exports.install = function (Vue, options) {
         error: options.error,
         loading: options.loading,
         hasbind: false,
-        try: options.try || 2
+        isInChild: false,
+        childEl: null,
+        try: 2
     };
 
     var listeners = [];
@@ -31,8 +33,16 @@ exports.install = function (Vue, options) {
     }, 300);
 
     var checkCanShow = function checkCanShow(listener) {
-        var winH = window.screen.availHeight;
-        var top = document.documentElement.scrollTop || document.body.scrollTop;
+        var winH = void 0;
+        var top = void 0;
+        if (listener.parentEl) {
+            winH = listener.parentEl.offsetHeight;
+            top = listener.parentEl.scrollTop;
+        } else {
+            winH = window.screen.availHeight;
+            top = document.documentElement.scrollTop || document.body.scrollTop;
+        }
+
         var height = (top + winH) * window.devicePixelRatio * 1.3;
         if (listener.y < height) {
             render(listener);
@@ -58,12 +68,11 @@ exports.install = function (Vue, options) {
                 item.el.removeAttribute('lazy');
             }
         }).catch(function (error) {
+            item.el.setAttribute('lazy', 'error');
             if (!item.bindType) {
-                item.el.setAttribute('lazy', 'error');
                 item.el.setAttribute('src', init.error);
             } else {
                 item.el.setAttribute('style', item.bindType + ': url(' + init.error + ')');
-                item.el.setAttribute('lazy', 'error');
             }
         });
     };
@@ -71,10 +80,8 @@ exports.install = function (Vue, options) {
     var loadImageAsync = function loadImageAsync(item) {
         if (!item.bindType) {
             item.el.setAttribute('src', init.loading);
-            item.el.setAttribute('lazy', 'loading');
         } else {
             item.el.setAttribute('style', item.bindType + ': url(' + init.loading + ')');
-            item.el.setAttribute('lazy', 'loading');
         }
 
         return new Promise(function (resolve, reject) {
@@ -122,7 +129,14 @@ exports.install = function (Vue, options) {
     Vue.directive('lazy', {
         bind: function bind() {
             if (!init.hasbind) {
+                if (document.getElementById(Object.keys(this.modifiers)[0])) {
+                    init.isInChild = true;
+                    init.childEl = document.getElementById(Object.keys(this.modifiers)[0]);
+                }
                 init.hasbind = true;
+                if (init.isInChild) {
+                    init.childEl.addEventListener('scroll', lazyLoadHandler);
+                }
                 window.addEventListener('scroll', lazyLoadHandler);
                 window.addEventListener('wheel', lazyLoadHandler);
                 window.addEventListener('mousewheel', lazyLoadHandler);
@@ -139,11 +153,16 @@ exports.install = function (Vue, options) {
             } else {
                 this.el.setAttribute('style', this.arg + ': url(' + init.loading + ')');
             }
+            var parentEl = null;
+            if (document.getElementById(Object.keys(this.modifiers)[0])) {
+                parentEl = document.getElementById(Object.keys(this.modifiers)[0]);
+            }
             this.vm.$nextTick(function () {
                 var pos = getPosition(_this2.el);
                 listeners.push({
                     bindType: _this2.arg,
                     try: 0,
+                    parentEl: parentEl,
                     el: _this2.el,
                     src: newValue,
                     y: pos.y

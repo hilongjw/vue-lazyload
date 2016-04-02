@@ -3,7 +3,9 @@ exports.install = function (Vue, options) {
         error: options.error,
         loading: options.loading,
         hasbind: false,
-        try: options.try || 2
+        isInChild: false,
+        childEl: null,
+        try: 2
     }
 
     const listeners = []
@@ -27,10 +29,18 @@ exports.install = function (Vue, options) {
     }, 300)
 
     const checkCanShow = function (listener) {
-        let winH = window.screen.availHeight
-        let top = document.documentElement.scrollTop || document.body.scrollTop
+        let winH
+        let top
+        if (listener.parentEl) {
+            winH = listener.parentEl.offsetHeight
+            top = listener.parentEl.scrollTop
+        } else {
+            winH = window.screen.availHeight
+            top = document.documentElement.scrollTop || document.body.scrollTop
+        }
+        
         let height = (top + winH) * window.devicePixelRatio * 1.3
-        if ( listener.y < height) {
+        if (listener.y < height) {
             render(listener)
         }
     }
@@ -57,12 +67,11 @@ exports.install = function (Vue, options) {
 
         })
         .catch((error) => {
+            item.el.setAttribute('lazy', 'error')
             if (!item.bindType) {
-                item.el.setAttribute('lazy', 'error')
                 item.el.setAttribute('src', init.error)
             } else {
                 item.el.setAttribute('style', item.bindType + ': url(' + init.error + ')')
-                item.el.setAttribute('lazy', 'error')
             }
         })
     }
@@ -70,10 +79,8 @@ exports.install = function (Vue, options) {
     const loadImageAsync = function (item) {
         if (!item.bindType) {
             item.el.setAttribute('src', init.loading)
-            item.el.setAttribute('lazy', 'loading')
         } else {
             item.el.setAttribute('style', item.bindType + ': url(' + init.loading + ')')
-            item.el.setAttribute('lazy', 'loading')
         }
 
         return new Promise(function(resolve, reject) {
@@ -122,7 +129,14 @@ exports.install = function (Vue, options) {
     Vue.directive('lazy', {
         bind: function() {
             if (!init.hasbind) {
+                if(document.getElementById(Object.keys(this.modifiers)[0])) {
+                    init.isInChild = true
+                    init.childEl = document.getElementById(Object.keys(this.modifiers)[0])
+                }
                 init.hasbind = true
+                if(init.isInChild) {
+                    init.childEl.addEventListener('scroll', lazyLoadHandler)
+                }
                 window.addEventListener('scroll', lazyLoadHandler)
                 window.addEventListener('wheel', lazyLoadHandler)
                 window.addEventListener('mousewheel', lazyLoadHandler)
@@ -137,11 +151,16 @@ exports.install = function (Vue, options) {
             } else {
                 this.el.setAttribute('style', this.arg + ': url(' + init.loading + ')')
             }
+            let parentEl = null
+            if(document.getElementById(Object.keys(this.modifiers)[0])) {
+                parentEl = document.getElementById(Object.keys(this.modifiers)[0])
+            }
             this.vm.$nextTick(() => {
                 let pos = getPosition(this.el)
                 listeners.push({
                     bindType: this.arg,
                     try: 0,
+                    parentEl: parentEl,
                     el: this.el,
                     src: newValue,
                     y: pos.y

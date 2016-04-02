@@ -60,13 +60,21 @@ export default {
 
 <template>
   <div class="img-list">
-    <ul>
+    <ul id="container">
       <li v-for="img in list">
         <img v-lazy="img">
       </li>
+      <!-- 
+      for custom container
+      <li v-for="img in list">
+        <img v-lazy.container="img">
+      </li> 
+
+      for background-image
       <li v-for="img in list">
         <div v-lazy:background-image="img" class="bg-box"></div>
       </li>
+      -->
     </ul>
   </div>
 </template>
