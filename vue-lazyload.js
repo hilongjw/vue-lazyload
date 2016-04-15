@@ -1,3 +1,4 @@
+import Promise from 'bluebird'
 exports.install = function (Vue, options) {
     const init = {
         error: options.error,

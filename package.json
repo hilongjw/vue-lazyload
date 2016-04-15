@@ -6,10 +6,12 @@
   "scripts": {
     "start": "babel vue-lazyload.js -o vue-lazyload.es5.js"
   },
-  "dependencies": {},
+  "dependencies": {
+    "bluebird": "^3.3.5"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hilongjw/vue-lazyload.git"
+    "url": "git+https://github.com/hilongjw/vue-lazyload.git"
   },
   "keywords": [
     "vue-lazyload",
@@ -17,7 +19,10 @@
     "lazyload",
     "vue-directive"
   ],
-  "author": "Awe <hilongjw@gmail.com>",
+  "author": {
+    "name": "Awe",
+    "email": "hilongjw@gmail.com"
+  },
   "bugs": {
     "url": "https://github.com/hilongjw/vue-lazyload/issues"
   },
@@ -25,5 +30,32 @@
   "devDependencies": {
     "babel-cli": "^6.4.5",
     "babel-preset-es2015": "^6.3.13"
-  }
+  },
+  "gitHead": "35044bcea38a2391be01dbb07431b451318abe74",
+  "homepage": "https://github.com/hilongjw/vue-lazyload#readme",
+  "_id": "vue-lazyload@0.4.0",
+  "_shasum": "1b00d8428534ffa44720e01cf2e3ac8ccf1680f1",
+  "_from": "vue-lazyload@",
+  "_npmVersion": "3.6.0",
+  "_nodeVersion": "5.7.0",
+  "_npmUser": {
+    "name": "imawe",
+    "email": "hilongjw@qq.com"
+  },
+  "dist": {
+    "shasum": "1b00d8428534ffa44720e01cf2e3ac8ccf1680f1",
+    "tarball": "https://registry.npmjs.org/vue-lazyload/-/vue-lazyload-0.4.0.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "imawe",
+      "email": "hilongjw@qq.com"
+    }
+  ],
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/vue-lazyload-0.4.0.tgz_1459592003834_0.7160406508482993"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/vue-lazyload/-/vue-lazyload-0.4.0.tgz"
 }
