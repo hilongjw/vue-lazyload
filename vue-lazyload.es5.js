@@ -1,5 +1,11 @@
 'use strict';
 
+var _bluebird = require('bluebird');
+
+var _bluebird2 = _interopRequireDefault(_bluebird);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 exports.install = function (Vue, options) {
     var init = {
         error: options.error,
@@ -84,7 +90,7 @@ exports.install = function (Vue, options) {
             item.el.setAttribute('style', item.bindType + ': url(' + init.loading + ')');
         }
 
-        return new Promise(function (resolve, reject) {
+        return new _bluebird2.default(function (resolve, reject) {
             var image = new Image();
             image.src = item.src;
 
