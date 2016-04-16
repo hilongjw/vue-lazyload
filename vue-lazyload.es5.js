@@ -1,19 +1,27 @@
 'use strict';
 
 exports.install = function (Vue, options) {
+    var DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
+    if (!options) {
+        options = {
+            error: DEFAULT_URL,
+            loading: DEFAULT_URL,
+            try: 3
+        };
+    }
     var init = {
-        error: options.error,
-        loading: options.loading,
+        error: options.error ? options.error : DEFAULT_URL,
+        loading: options.loading ? options.loading : DEFAULT_URL,
         hasbind: false,
         isInChild: false,
         childEl: null,
-        try: 2
+        try: options.try ? options.try : 1
     };
 
     var listeners = [];
 
     var debounce = function debounce(action, idle) {
-        var last = void 0;
+        var last = undefined;
         return function () {
             var _this = this;
 
@@ -33,8 +41,8 @@ exports.install = function (Vue, options) {
     }, 300);
 
     var checkCanShow = function checkCanShow(listener) {
-        var winH = void 0;
-        var top = void 0;
+        var winH = undefined;
+        var top = undefined;
         if (listener.parentEl) {
             winH = listener.parentEl.offsetHeight;
             top = listener.parentEl.scrollTop;
@@ -62,18 +70,17 @@ exports.install = function (Vue, options) {
             }
             if (!item.bindType) {
                 item.el.setAttribute('src', item.src);
-                item.el.removeAttribute('lazy');
             } else {
                 item.el.setAttribute('style', item.bindType + ': url(' + item.src + ')');
-                item.el.removeAttribute('lazy');
             }
+            item.el.setAttribute('lazy', 'loaded');
         }).catch(function (error) {
-            item.el.setAttribute('lazy', 'error');
             if (!item.bindType) {
                 item.el.setAttribute('src', init.error);
             } else {
                 item.el.setAttribute('style', item.bindType + ': url(' + init.error + ')');
             }
+            item.el.setAttribute('lazy', 'error');
         });
     };
 
@@ -99,7 +106,7 @@ exports.install = function (Vue, options) {
     };
 
     var componentWillUnmount = function componentWillUnmount(src) {
-        var i = void 0;
+        var i = undefined;
         var len = listeners.length;
         for (i = 0; i < len; i++) {
             if (listeners[i].src == src) {

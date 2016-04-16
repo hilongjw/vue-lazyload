@@ -1,11 +1,19 @@
 exports.install = function (Vue, options) {
+    const DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg=='
+    if (!options) {
+        options = {
+          error: DEFAULT_URL,
+          loading: DEFAULT_URL,
+          try: 3
+        }
+    }
     const init = {
-        error: options.error,
-        loading: options.loading,
+        error: options.error ? options.error : DEFAULT_URL,
+        loading: options.loading ? options.loading : DEFAULT_URL,
         hasbind: false,
         isInChild: false,
         childEl: null,
-        try: 2
+        try: options.try ? options.try : 1
     }
 
     const listeners = []
@@ -59,20 +67,19 @@ exports.install = function (Vue, options) {
             }
             if (!item.bindType) {
                 item.el.setAttribute('src', item.src)
-                item.el.removeAttribute('lazy')
             } else {
                 item.el.setAttribute('style', item.bindType + ': url(' + item.src + ')')
-                item.el.removeAttribute('lazy')
             }
+            item.el.setAttribute('lazy', 'loaded')
 
         })
         .catch((error) => {
-            item.el.setAttribute('lazy', 'error')
             if (!item.bindType) {
                 item.el.setAttribute('src', init.error)
             } else {
                 item.el.setAttribute('style', item.bindType + ': url(' + init.error + ')')
             }
+            item.el.setAttribute('lazy', 'error')
         })
     }
 

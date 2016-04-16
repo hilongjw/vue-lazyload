@@ -6,7 +6,9 @@
   "scripts": {
     "start": "babel vue-lazyload.js -o vue-lazyload.es5.js"
   },
-  "dependencies": {},
+  "dependencies": {
+    "babel-polyfill": "^6.7.4"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/hilongjw/vue-lazyload.git"
