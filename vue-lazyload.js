@@ -108,6 +108,7 @@ exports.install = function (Vue, options) {
     const componentWillUnmount = function (src) {
         let i
         let len = listeners.length
+        src = src || DEFAULT_URL
         for (i=0; i<len; i++) {
             if (listeners[i].src == src) {
                 listeners.splice(i,1)
