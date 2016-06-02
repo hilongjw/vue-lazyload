@@ -1,12 +1,12 @@
 'use strict';
-var Promise = require('es6-promise').Promise;
+
 exports.install = function (Vue, options) {
     var DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
     if (!options) {
         options = {
             error: DEFAULT_URL,
             loading: DEFAULT_URL,
-            try: 1
+            try: 3
         };
     }
     var init = {
@@ -108,6 +108,7 @@ exports.install = function (Vue, options) {
     var componentWillUnmount = function componentWillUnmount(src) {
         var i = undefined;
         var len = listeners.length;
+        src = src || DEFAULT_URL;
         for (i = 0; i < len; i++) {
             if (listeners[i].src == src) {
                 listeners.splice(i, 1);
@@ -135,24 +136,28 @@ exports.install = function (Vue, options) {
 
     Vue.directive('lazy', {
         bind: function bind() {
+            var _this2 = this;
+
             if (!init.hasbind) {
-                if (document.getElementById(Object.keys(this.modifiers)[0])) {
-                    init.isInChild = true;
-                    init.childEl = document.getElementById(Object.keys(this.modifiers)[0]);
-                }
-                init.hasbind = true;
-                if (init.isInChild) {
-                    init.childEl.addEventListener('scroll', lazyLoadHandler);
-                }
-                window.addEventListener('scroll', lazyLoadHandler);
-                window.addEventListener('wheel', lazyLoadHandler);
-                window.addEventListener('mousewheel', lazyLoadHandler);
-                window.addEventListener('resize', lazyLoadHandler);
-                lazyLoadHandler();
+                Vue.nextTick(function () {
+                    if (document.getElementById(Object.keys(_this2.modifiers)[0])) {
+                        init.isInChild = true;
+                        init.childEl = document.getElementById(Object.keys(_this2.modifiers)[0]);
+                    }
+                    init.hasbind = true;
+                    if (init.isInChild) {
+                        init.childEl.addEventListener('scroll', lazyLoadHandler);
+                    }
+                    window.addEventListener('scroll', lazyLoadHandler);
+                    window.addEventListener('wheel', lazyLoadHandler);
+                    window.addEventListener('mousewheel', lazyLoadHandler);
+                    window.addEventListener('resize', lazyLoadHandler);
+                    lazyLoadHandler();
+                });
             }
         },
         update: function update(newValue, oldValue) {
-            var _this2 = this;
+            var _this3 = this;
 
             this.el.setAttribute('lazy', 'loading');
             if (!this.arg) {
@@ -161,16 +166,16 @@ exports.install = function (Vue, options) {
                 this.el.setAttribute('style', this.arg + ': url(' + init.loading + ')');
             }
             var parentEl = null;
-            if (document.getElementById(Object.keys(this.modifiers)[0])) {
-                parentEl = document.getElementById(Object.keys(this.modifiers)[0]);
-            }
             this.vm.$nextTick(function () {
-                var pos = getPosition(_this2.el);
+                if (document.getElementById(Object.keys(_this3.modifiers)[0])) {
+                    parentEl = document.getElementById(Object.keys(_this3.modifiers)[0]);
+                }
+                var pos = getPosition(_this3.el);
                 listeners.push({
-                    bindType: _this2.arg,
+                    bindType: _this3.arg,
                     try: 0,
                     parentEl: parentEl,
-                    el: _this2.el,
+                    el: _this3.el,
                     src: newValue,
                     y: pos.y
                 });
