@@ -137,19 +137,21 @@ exports.install = function (Vue, options) {
     Vue.directive('lazy', {
         bind: function() {
             if (!init.hasbind) {
-                if(document.getElementById(Object.keys(this.modifiers)[0])) {
-                    init.isInChild = true
-                    init.childEl = document.getElementById(Object.keys(this.modifiers)[0])
-                }
-                init.hasbind = true
-                if(init.isInChild) {
-                    init.childEl.addEventListener('scroll', lazyLoadHandler)
-                }
-                window.addEventListener('scroll', lazyLoadHandler)
-                window.addEventListener('wheel', lazyLoadHandler)
-                window.addEventListener('mousewheel', lazyLoadHandler)
-                window.addEventListener('resize', lazyLoadHandler)
-                lazyLoadHandler()
+                Vue.nextTick(() => {
+                    if(document.getElementById(Object.keys(this.modifiers)[0])) {
+                      init.isInChild = true
+                      init.childEl = document.getElementById(Object.keys(this.modifiers)[0])
+                    }
+                    init.hasbind = true
+                    if(init.isInChild) {
+                      init.childEl.addEventListener('scroll', lazyLoadHandler)
+                    }
+                    window.addEventListener('scroll', lazyLoadHandler)
+                    window.addEventListener('wheel', lazyLoadHandler)
+                    window.addEventListener('mousewheel', lazyLoadHandler)
+                    window.addEventListener('resize', lazyLoadHandler)
+                    lazyLoadHandler()
+                })
             }
         },
         update: function(newValue, oldValue) {
@@ -160,10 +162,10 @@ exports.install = function (Vue, options) {
                 this.el.setAttribute('style', this.arg + ': url(' + init.loading + ')')
             }
             let parentEl = null
-            if(document.getElementById(Object.keys(this.modifiers)[0])) {
-                parentEl = document.getElementById(Object.keys(this.modifiers)[0])
-            }
             this.vm.$nextTick(() => {
+                if(document.getElementById(Object.keys(this.modifiers)[0])) {
+                  parentEl = document.getElementById(Object.keys(this.modifiers)[0])
+                }
                 let pos = getPosition(this.el)
                 listeners.push({
                     bindType: this.arg,
