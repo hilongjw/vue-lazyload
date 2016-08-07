@@ -116,6 +116,7 @@ exports.install = function (Vue, options) {
         }
 
         if (listeners.length == 0) {
+            init.hasbind = false;
             window.removeEventListener('scroll', lazyLoadHandler)
             window.removeEventListener('wheel', lazyLoadHandler)
             window.removeEventListener('mousewheel', lazyLoadHandler)
