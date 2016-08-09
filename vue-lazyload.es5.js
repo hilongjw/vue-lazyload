@@ -1,5 +1,5 @@
 'use strict';
-
+var Promise = require('es6-promise').Promise;
 exports.install = function (Vue, options) {
     var DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
     if (!options) {
