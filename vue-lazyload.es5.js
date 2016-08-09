@@ -21,7 +21,7 @@ exports.install = function (Vue, options) {
     var listeners = [];
 
     var debounce = function debounce(action, idle) {
-        var last = undefined;
+        var last = void 0;
         return function () {
             var _this = this;
 
@@ -41,8 +41,8 @@ exports.install = function (Vue, options) {
     }, 300);
 
     var checkCanShow = function checkCanShow(listener) {
-        var winH = undefined;
-        var top = undefined;
+        var winH = void 0;
+        var top = void 0;
         if (listener.parentEl) {
             winH = listener.parentEl.offsetHeight;
             top = listener.parentEl.scrollTop;
@@ -106,7 +106,7 @@ exports.install = function (Vue, options) {
     };
 
     var componentWillUnmount = function componentWillUnmount(src) {
-        var i = undefined;
+        var i = void 0;
         var len = listeners.length;
         src = src || DEFAULT_URL;
         for (i = 0; i < len; i++) {
@@ -116,6 +116,7 @@ exports.install = function (Vue, options) {
         }
 
         if (listeners.length == 0) {
+            init.hasbind = false;
             window.removeEventListener('scroll', lazyLoadHandler);
             window.removeEventListener('wheel', lazyLoadHandler);
             window.removeEventListener('mousewheel', lazyLoadHandler);
