@@ -105,12 +105,11 @@ exports.install = function (Vue, options) {
         });
     };
 
-    var componentWillUnmount = function componentWillUnmount(src) {
+    var componentWillUnmount = function componentWillUnmount(el) {
         var i = void 0;
         var len = listeners.length;
-        src = src || DEFAULT_URL;
         for (i = 0; i < len; i++) {
-            if (listeners[i].src == src) {
+            if (listeners[i].el === el) {
                 listeners.splice(i, 1);
             }
         }
@@ -160,6 +159,7 @@ exports.install = function (Vue, options) {
         update: function update(newValue, oldValue) {
             var _this3 = this;
 
+            if (!newValue) return;
             this.el.setAttribute('lazy', 'loading');
             if (!this.arg) {
                 this.el.setAttribute('src', init.loading);
@@ -183,8 +183,9 @@ exports.install = function (Vue, options) {
                 lazyLoadHandler();
             });
         },
-        unbind: function unbind(src) {
-            componentWillUnmount(src);
+        unbind: function unbind() {
+            if (!this.el) return;
+            componentWillUnmount(this.el);
         }
     });
 };
