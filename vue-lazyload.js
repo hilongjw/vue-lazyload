@@ -16,7 +16,7 @@ exports.install = function(Vue, options) {
         try: options.try ? options.try : 1
     }
 
-    const listeners = []
+    const Listeners = []
 
     const debounce = function(action, idle) {
         let last
@@ -30,8 +30,8 @@ exports.install = function(Vue, options) {
     }
 
     const lazyLoadHandler = debounce(() => {
-        for (let i = 0; i < listeners.length; ++i) {
-            const listener = listeners[i]
+        for (let i = 0; i < Listeners.length; ++i) {
+            const listener = Listeners[i]
             checkCanShow(listener)
         }
     }, 300)
@@ -57,30 +57,31 @@ exports.install = function(Vue, options) {
         if (item.try >= init.try) {
             return false
         }
+
         item.try++
 
-            loadImageAsync(item)
-            .then((url) => {
-                let index = listeners.indexOf(item)
-                if (index !== -1) {
-                    listeners.splice(index, 1)
-                }
-                if (!item.bindType) {
-                    item.el.setAttribute('src', item.src)
-                } else {
-                    item.el.setAttribute('style', item.bindType + ': url(' + item.src + ')')
-                }
-                item.el.setAttribute('lazy', 'loaded')
+        loadImageAsync(item)
+        .then((url) => {
+            let index = Listeners.indexOf(item)
+            if (index !== -1) {
+                Listeners.splice(index, 1)
+            }
+            if (!item.bindType) {
+                item.el.setAttribute('src', item.src)
+            } else {
+                item.el.setAttribute('style', item.bindType + ': url(' + item.src + ')')
+            }
+            item.el.setAttribute('lazy', 'loaded')
 
-            })
-            .catch((error) => {
-                if (!item.bindType) {
-                    item.el.setAttribute('src', init.error)
-                } else {
-                    item.el.setAttribute('style', item.bindType + ': url(' + init.error + ')')
-                }
-                item.el.setAttribute('lazy', 'error')
-            })
+        })
+        .catch((error) => {
+            if (!item.bindType) {
+                item.el.setAttribute('src', init.error)
+            } else {
+                item.el.setAttribute('style', item.bindType + ': url(' + init.error + ')')
+            }
+            item.el.setAttribute('lazy', 'error')
+        })
     }
 
     const loadImageAsync = function(item) {
@@ -107,14 +108,14 @@ exports.install = function(Vue, options) {
 
     const componentWillUnmount = function(el) {
         let i
-        let len = listeners.length
+        let len = Listeners.length
         for (i = 0; i < len; i++) {
-            if (listeners[i].el === el) {
-                listeners.splice(i, 1)
+            if (Listeners[i] && Listeners[i].el === el) {
+                Listeners.splice(i, 1)
             }
         }
 
-        if (listeners.length == 0) {
+        if (Listeners.length == 0) {
             init.hasbind = false;
             window.removeEventListener('scroll', lazyLoadHandler)
             window.removeEventListener('wheel', lazyLoadHandler)
@@ -168,7 +169,7 @@ exports.install = function(Vue, options) {
                     parentEl = document.getElementById(Object.keys(this.modifiers)[0])
                 }
                 let pos = getPosition(this.el)
-                listeners.push({
+                Listeners.push({
                     bindType: this.arg,
                     try: 0,
                     parentEl: parentEl,
