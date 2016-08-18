@@ -11,7 +11,8 @@ Vue module for lazyloading images in your applications. Some of goals of this pr
 
 ## Requirements
 
-- vue: ^1.0.0
+- Vue: ^1.0.0
+- Vue: ^2.0.0 
 
 ## Install
 
@@ -30,7 +31,12 @@ $ npm install vue-lazyload --save
 
 import Vue from 'vue'
 import App from './App.vue'
-import lazyload from 'vue-lazyload'
+
+// for Vue 1.0
+import VueLazyload from 'vue-lazyload'
+
+// for Vue 2.0
+import VueLazyload from 'vue-lazyload/vue-lazyload-next'
 
 Vue.use(lazyload, {
   error: 'dist/error.png',
