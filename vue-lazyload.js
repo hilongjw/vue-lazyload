@@ -19,7 +19,7 @@ exports.install = function(Vue, options) {
     const Listeners = []
 
     const debounce = function(action, idle) {
-        let last
+        let last = null
         return function() {
             let args = arguments
             clearTimeout(last)
