@@ -38,7 +38,7 @@ import VueLazyload from 'vue-lazyload'
 // for Vue 2.0
 import VueLazyload from 'vue-lazyload/vue-lazyload-next'
 
-Vue.use(lazyload, {
+Vue.use(VueLazyload, {
   error: 'dist/error.png',
   loading: 'dist/loading.gif',
   try: 3 // default 1
