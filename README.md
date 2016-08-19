@@ -8,6 +8,7 @@ Vue module for lazyloading images in your applications. Some of goals of this pr
 * Be lightweight, powerful and easy to use
 * Work on any image type
 * Add loading class while image is loading
+* Supports both of Vue 1.0 and Vue 2.0
 
 ## Requirements
 
@@ -32,7 +33,7 @@ $ npm install vue-lazyload --save
 import Vue from 'vue'
 import App from './App.vue'
 
-// support both of Vue 1.0 and Vue 2.0
+// supports both of Vue 1.0 and Vue 2.0
 import VueLazyload from 'vue-lazyload'
 
 Vue.use(VueLazyload, {
