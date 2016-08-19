@@ -32,11 +32,8 @@ $ npm install vue-lazyload --save
 import Vue from 'vue'
 import App from './App.vue'
 
-// for Vue 1.0
+// support both of Vue 1.0 and Vue 2.0
 import VueLazyload from 'vue-lazyload'
-
-// for Vue 2.0
-import VueLazyload from 'vue-lazyload/vue-lazyload-next'
 
 Vue.use(VueLazyload, {
   error: 'dist/error.png',

@@ -1,27 +1,30 @@
 'use strict';
+
 var Promise = require('es6-promise').Promise;
-exports.install = function (Vue, options) {
+
+exports.install = function (Vue, Options) {
+    var isVueNext = Vue.version.split('.')[0] === '2';
     var DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
-    if (!options) {
-        options = {
+    if (!Options) {
+        Options = {
             error: DEFAULT_URL,
             loading: DEFAULT_URL,
             try: 3
         };
     }
     var init = {
-        error: options.error ? options.error : DEFAULT_URL,
-        loading: options.loading ? options.loading : DEFAULT_URL,
+        error: Options.error ? Options.error : DEFAULT_URL,
+        loading: Options.loading ? Options.loading : DEFAULT_URL,
         hasbind: false,
         isInChild: false,
         childEl: null,
-        try: options.try ? options.try : 1
+        try: Options.try ? Options.try : 1
     };
 
     var Listeners = [];
 
     var debounce = function debounce(action, idle) {
-        var last = null;
+        var last = void 0;
         return function () {
             var _this = this;
 
@@ -33,12 +36,36 @@ exports.install = function (Vue, options) {
         };
     };
 
+    var _ = {
+        on: function on(type, func) {
+            window.addEventListener(type, func);
+        },
+        off: function off(type, func) {
+            window.removeEventListener(type, func);
+        }
+    };
+
     var lazyLoadHandler = debounce(function () {
         for (var i = 0; i < Listeners.length; ++i) {
             var listener = Listeners[i];
             checkCanShow(listener);
         }
     }, 300);
+
+    var onListen = function onListen(start) {
+        if (start) {
+            _.on('scroll', lazyLoadHandler);
+            _.on('wheel', lazyLoadHandler);
+            _.on('mousewheel', lazyLoadHandler);
+            _.on('resize', lazyLoadHandler);
+        } else {
+            init.hasbind = false;
+            _.off('scroll', lazyLoadHandler);
+            _.off('wheel', lazyLoadHandler);
+            _.off('mousewheel', lazyLoadHandler);
+            _.off('resize', lazyLoadHandler);
+        }
+    };
 
     var checkCanShow = function checkCanShow(listener) {
         var winH = void 0;
@@ -61,7 +88,6 @@ exports.install = function (Vue, options) {
         if (item.try >= init.try) {
             return false;
         }
-
         item.try++;
 
         loadImageAsync(item).then(function (url) {
@@ -106,9 +132,11 @@ exports.install = function (Vue, options) {
         });
     };
 
-    var componentWillUnmount = function componentWillUnmount(el) {
+    var componentWillUnmount = function componentWillUnmount(el, binding, vnode, OldVnode) {
+        if (!el) return;
         var i = void 0;
         var len = Listeners.length;
+
         for (i = 0; i < len; i++) {
             if (Listeners[i] && Listeners[i].el === el) {
                 Listeners.splice(i, 1);
@@ -116,15 +144,12 @@ exports.install = function (Vue, options) {
         }
 
         if (Listeners.length == 0) {
-            init.hasbind = false;
-            window.removeEventListener('scroll', lazyLoadHandler);
-            window.removeEventListener('wheel', lazyLoadHandler);
-            window.removeEventListener('mousewheel', lazyLoadHandler);
-            window.removeEventListener('resize', lazyLoadHandler);
+            onListen(false);
         }
     };
 
     var getPosition = function getPosition(el) {
+        if (!el) return { y: 0 };
         var t = el.offsetTop;
         var elHeight = el.offsetHeight;
         for (t; el = el.offsetParent;) {
@@ -135,58 +160,54 @@ exports.install = function (Vue, options) {
         };
     };
 
-    Vue.directive('lazy', {
-        bind: function bind() {
-            var _this2 = this;
-
-            if (!init.hasbind) {
-                Vue.nextTick(function () {
-                    if (document.getElementById(Object.keys(_this2.modifiers)[0])) {
-                        init.isInChild = true;
-                        init.childEl = document.getElementById(Object.keys(_this2.modifiers)[0]);
-                    }
-                    init.hasbind = true;
-                    if (init.isInChild) {
-                        init.childEl.addEventListener('scroll', lazyLoadHandler);
-                    }
-                    window.addEventListener('scroll', lazyLoadHandler);
-                    window.addEventListener('wheel', lazyLoadHandler);
-                    window.addEventListener('mousewheel', lazyLoadHandler);
-                    window.addEventListener('resize', lazyLoadHandler);
-                    lazyLoadHandler();
-                });
-            }
-        },
-        update: function update(newValue, oldValue) {
-            var _this3 = this;
-
-            if (!newValue) return;
-            this.el.setAttribute('lazy', 'loading');
-            if (!this.arg) {
-                this.el.setAttribute('src', init.loading);
-            } else {
-                this.el.setAttribute('style', this.arg + ': url(' + init.loading + ')');
-            }
-            var parentEl = null;
-            this.vm.$nextTick(function () {
-                if (document.getElementById(Object.keys(_this3.modifiers)[0])) {
-                    parentEl = document.getElementById(Object.keys(_this3.modifiers)[0]);
-                }
-                var pos = getPosition(_this3.el);
-                Listeners.push({
-                    bindType: _this3.arg,
-                    try: 0,
-                    parentEl: parentEl,
-                    el: _this3.el,
-                    src: newValue,
-                    y: pos.y
-                });
-                lazyLoadHandler();
-            });
-        },
-        unbind: function unbind() {
-            if (!this.el) return;
-            componentWillUnmount(this.el);
+    var addListener = function addListener(el, binding, vnode) {
+        if (!init.hasbind) {
+            onListen(true);
         }
-    });
+        var parentEl = null;
+        var pos = getPosition(el);
+        if (binding.modifiers) {
+            parentEl = window.document.getElementById(Object.keys(binding.modifiers)[0]);
+        }
+        if (!binding.arg) {
+            el.setAttribute('lazy', 'loading');
+            el.setAttribute('src', init.loading);
+        } else {
+            el.setAttribute('lazy', 'loading');
+            el.setAttribute('style', binding.arg + ': url(' + init.loading + ')');
+        }
+
+        Listeners.push({
+            bindType: binding.arg,
+            try: 0,
+            parentEl: parentEl,
+            el: el,
+            src: binding.value,
+            y: pos.y
+        });
+        lazyLoadHandler();
+    };
+
+    if (isVueNext) {
+        Vue.directive('lazy', {
+            bind: addListener,
+            update: addListener,
+            unbind: componentWillUnmount
+        });
+    } else {
+        Vue.directive('lazy', {
+            bind: function bind() {},
+            update: function update(newValue, oldValue) {
+                addListener(this.el, {
+                    modifiers: this.modifiers,
+                    arg: this.arg,
+                    value: newValue,
+                    oldValue: oldValue
+                });
+            },
+            unbind: function unbind() {
+                componentWillUnmount(this.el);
+            }
+        });
+    }
 };
