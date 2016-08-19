@@ -17,12 +17,11 @@ exports.install = function(Vue, Options) {
         error: Options.error ? Options.error : DEFAULT_URL,
         loading: Options.loading ? Options.loading : DEFAULT_URL,
         hasbind: false,
-        isInChild: false,
-        childEl: null,
         try: Options.try ? Options.try : 1
     }
 
     const Listeners = []
+    const Loaded = []
 
     const debounce = function(action, idle) {
         let last
@@ -54,7 +53,6 @@ exports.install = function(Vue, Options) {
 
     const onListen = (start) => {
         if (start) {
-            console.log('start')
             _.on('scroll', lazyLoadHandler)
             _.on('wheel', lazyLoadHandler)
             _.on('mousewheel', lazyLoadHandler)
@@ -65,14 +63,24 @@ exports.install = function(Vue, Options) {
             _.off('wheel', lazyLoadHandler)
             _.off('mousewheel', lazyLoadHandler)
             _.off('resize', lazyLoadHandler)
-            console.log('removed!')
         }
     }
 
     const checkCanShow = function(listener) {
-        if (listener.el.getBoundingClientRect().top < window.innerHeight * Init.preLoad) {
+        if (Loaded.indexOf(listener.src) > -1) return setElRender(listener.el, listener.bindType, listener.src, 'loaded')
+        let rect = listener.el.getBoundingClientRect()
+        if (rect.top < window.innerHeight * Init.preLoad && rect.bottom > 0) {
             render(listener)
         }
+    }
+
+    const setElRender = (el, bindType, src, state) => {
+        if (!bindType) {
+            el.setAttribute('src', src)
+        } else {
+            el.setAttribute('style', bindType + ': url(' + src + ')')
+        }
+        el.setAttribute('lazy', state)
     }
 
     const render = function(item) {
@@ -87,31 +95,16 @@ exports.install = function(Vue, Options) {
             if (index !== -1) {
                 Listeners.splice(index, 1)
             }
-            if (!item.bindType) {
-                item.el.setAttribute('src', item.src)
-            } else {
-                item.el.setAttribute('style', item.bindType + ': url(' + item.src + ')')
-            }
-            item.el.setAttribute('lazy', 'loaded')
+            setElRender(item.el, item.bindType, item.src, 'loaded')
+            Loaded.push(item.src)
 
         })
         .catch((error) => {
-            if (!item.bindType) {
-                item.el.setAttribute('src', Init.error)
-            } else {
-                item.el.setAttribute('style', item.bindType + ': url(' + Init.error + ')')
-            }
-            item.el.setAttribute('lazy', 'error')
+            setElRender(item.el, item.bindType, Init.error, 'error')
         })
     }
 
     const loadImageAsync = function(item) {
-        if (!item.bindType) {
-            item.el.setAttribute('src', Init.loading)
-        } else {
-            item.el.setAttribute('style', item.bindType + ': url(' + Init.loading + ')')
-        }
-
         return new Promise(function(resolve, reject) {
             let image = new Image()
             image.src = item.src
@@ -123,7 +116,6 @@ exports.install = function(Vue, Options) {
             image.onerror = function() {
                 reject()
             }
-
         })
     }
 
@@ -144,18 +136,14 @@ exports.install = function(Vue, Options) {
     }
 
     const addListener = (el, binding, vnode) => {
+        if (el.getAttribute('lazy') === 'loaded') return
         let parentEl = null
         
         if (binding.modifiers) {
             parentEl = window.document.getElementById(Object.keys(binding.modifiers)[0])
         }
-        if (!binding.arg) {
-            el.setAttribute('lazy', 'loading')
-            el.setAttribute('src', Init.loading)
-        } else {
-            el.setAttribute('lazy', 'loading')
-            el.setAttribute('style', binding.arg + ': url(' + Init.loading + ')')
-        }
+
+        setElRender(el, binding.arg, Init.loading, 'loading')
 
         Vue.nextTick(() => {
             Listeners.push({
