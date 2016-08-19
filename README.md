@@ -12,8 +12,7 @@ Vue module for lazyloading images in your applications. Some of goals of this pr
 
 ## Requirements
 
-- Vue: ^1.0.0
-- Vue: ^2.0.0 
+- Vue: ^1.0.0 or ^2.0.0 
 
 ## Install
 
@@ -37,6 +36,7 @@ import App from './App.vue'
 import VueLazyload from 'vue-lazyload'
 
 Vue.use(VueLazyload, {
+  preLoad: 1.3,
   error: 'dist/error.png',
   loading: 'dist/loading.gif',
   try: 3 // default 1

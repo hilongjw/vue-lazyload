@@ -4,15 +4,18 @@ var Promise = require('es6-promise').Promise;
 
 exports.install = function (Vue, Options) {
     var isVueNext = Vue.version.split('.')[0] === '2';
+    var DEFAULT_PRE = 1.3;
     var DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
     if (!Options) {
         Options = {
+            preLoad: preLoad,
             error: DEFAULT_URL,
             loading: DEFAULT_URL,
             try: 3
         };
     }
-    var init = {
+    var Init = {
+        preLoad: Options.preLoad || DEFAULT_PRE,
         error: Options.error ? Options.error : DEFAULT_URL,
         loading: Options.loading ? Options.loading : DEFAULT_URL,
         hasbind: false,
@@ -46,46 +49,38 @@ exports.install = function (Vue, Options) {
     };
 
     var lazyLoadHandler = debounce(function () {
-        for (var i = 0; i < Listeners.length; ++i) {
-            var listener = Listeners[i];
-            checkCanShow(listener);
+        var i = 0;
+        var len = Listeners.length;
+        for (var _i = 0; _i < len; ++_i) {
+            checkCanShow(Listeners[_i]);
         }
     }, 300);
 
     var onListen = function onListen(start) {
         if (start) {
+            console.log('start');
             _.on('scroll', lazyLoadHandler);
             _.on('wheel', lazyLoadHandler);
             _.on('mousewheel', lazyLoadHandler);
             _.on('resize', lazyLoadHandler);
         } else {
-            init.hasbind = false;
+            Init.hasbind = false;
             _.off('scroll', lazyLoadHandler);
             _.off('wheel', lazyLoadHandler);
             _.off('mousewheel', lazyLoadHandler);
             _.off('resize', lazyLoadHandler);
+            console.log('removed!');
         }
     };
 
     var checkCanShow = function checkCanShow(listener) {
-        var winH = void 0;
-        var top = void 0;
-        if (listener.parentEl) {
-            winH = listener.parentEl.offsetHeight;
-            top = listener.parentEl.scrollTop;
-        } else {
-            winH = window.screen.availHeight;
-            top = document.documentElement.scrollTop || document.body.scrollTop;
-        }
-
-        var height = (top + winH) * window.devicePixelRatio * 1.3;
-        if (listener.y < height) {
+        if (listener.el.getBoundingClientRect().top < window.innerHeight * Init.preLoad) {
             render(listener);
         }
     };
 
     var render = function render(item) {
-        if (item.try >= init.try) {
+        if (item.try >= Init.try) {
             return false;
         }
         item.try++;
@@ -103,9 +98,9 @@ exports.install = function (Vue, Options) {
             item.el.setAttribute('lazy', 'loaded');
         }).catch(function (error) {
             if (!item.bindType) {
-                item.el.setAttribute('src', init.error);
+                item.el.setAttribute('src', Init.error);
             } else {
-                item.el.setAttribute('style', item.bindType + ': url(' + init.error + ')');
+                item.el.setAttribute('style', item.bindType + ': url(' + Init.error + ')');
             }
             item.el.setAttribute('lazy', 'error');
         });
@@ -113,9 +108,9 @@ exports.install = function (Vue, Options) {
 
     var loadImageAsync = function loadImageAsync(item) {
         if (!item.bindType) {
-            item.el.setAttribute('src', init.loading);
+            item.el.setAttribute('src', Init.loading);
         } else {
-            item.el.setAttribute('style', item.bindType + ': url(' + init.loading + ')');
+            item.el.setAttribute('style', item.bindType + ': url(' + Init.loading + ')');
         }
 
         return new Promise(function (resolve, reject) {
@@ -143,49 +138,39 @@ exports.install = function (Vue, Options) {
             }
         }
 
-        if (Listeners.length == 0) {
+        if (Init.hasbind && Listeners.length == 0) {
             onListen(false);
         }
     };
 
-    var getPosition = function getPosition(el) {
-        if (!el) return { y: 0 };
-        var t = el.offsetTop;
-        var elHeight = el.offsetHeight;
-        for (t; el = el.offsetParent;) {
-            t += el.offsetTop;
-        }
-        return {
-            y: (t + elHeight) * window.devicePixelRatio
-        };
-    };
-
     var addListener = function addListener(el, binding, vnode) {
-        if (!init.hasbind) {
-            onListen(true);
-        }
         var parentEl = null;
-        var pos = getPosition(el);
+
         if (binding.modifiers) {
             parentEl = window.document.getElementById(Object.keys(binding.modifiers)[0]);
         }
         if (!binding.arg) {
             el.setAttribute('lazy', 'loading');
-            el.setAttribute('src', init.loading);
+            el.setAttribute('src', Init.loading);
         } else {
             el.setAttribute('lazy', 'loading');
-            el.setAttribute('style', binding.arg + ': url(' + init.loading + ')');
+            el.setAttribute('style', binding.arg + ': url(' + Init.loading + ')');
         }
 
-        Listeners.push({
-            bindType: binding.arg,
-            try: 0,
-            parentEl: parentEl,
-            el: el,
-            src: binding.value,
-            y: pos.y
+        Vue.nextTick(function () {
+            Listeners.push({
+                bindType: binding.arg,
+                try: 0,
+                parentEl: parentEl,
+                el: el,
+                src: binding.value
+            });
+            lazyLoadHandler();
+            if (Listeners.length > 0 && !Init.hasbind) {
+                Init.hasbind = true;
+                onListen(true);
+            }
         });
-        lazyLoadHandler();
     };
 
     if (isVueNext) {
