@@ -8,7 +8,7 @@ exports.install = function (Vue, Options) {
     var DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
     if (!Options) {
         Options = {
-            preLoad: preLoad,
+            preLoad: DEFAULT_PRE,
             error: DEFAULT_URL,
             loading: DEFAULT_URL,
             try: 3
