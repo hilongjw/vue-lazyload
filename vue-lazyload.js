@@ -23,14 +23,28 @@ exports.install = function(Vue, Options) {
     const Listeners = []
     const Loaded = []
 
-    const debounce = function(action, idle) {
-        let last
-        return function() {
+    const throttle = function (action, delay) {
+        let timeout = null
+        let lastRun = 0
+        return function () {
+            if (timeout) {
+                return
+            }
+            let elapsed = (+new Date()) - lastRun
+            let context = this
             let args = arguments
-            clearTimeout(last)
-            last = setTimeout(() => {
-                action.apply(this, args)
-            }, idle)
+            let runCallback = function () {
+                    lastRun = +new Date()
+                    timeout = false
+                    action.apply(context, args)
+                }
+                
+            if (elapsed >= delay) {
+                runCallback()
+            }
+            else {
+                timeout = setTimeout(runCallback, delay)
+            }
         }
     }
 
@@ -43,7 +57,7 @@ exports.install = function(Vue, Options) {
         },
     }
 
-    const lazyLoadHandler = debounce(() => {
+    const lazyLoadHandler = throttle(() => {
         let i = 0
         let len = Listeners.length
         for (let i = 0; i < len; ++i) {

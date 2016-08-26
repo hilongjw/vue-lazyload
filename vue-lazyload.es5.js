@@ -25,16 +25,27 @@ exports.install = function (Vue, Options) {
     var Listeners = [];
     var Loaded = [];
 
-    var debounce = function debounce(action, idle) {
-        var last = void 0;
+    var throttle = function throttle(action, delay) {
+        var timeout = null;
+        var lastRun = 0;
         return function () {
-            var _this = this;
-
+            if (timeout) {
+                return;
+            }
+            var elapsed = +new Date() - lastRun;
+            var context = this;
             var args = arguments;
-            clearTimeout(last);
-            last = setTimeout(function () {
-                action.apply(_this, args);
-            }, idle);
+            var runCallback = function runCallback() {
+                lastRun = +new Date();
+                timeout = false;
+                action.apply(context, args);
+            };
+
+            if (elapsed >= delay) {
+                runCallback();
+            } else {
+                timeout = setTimeout(runCallback, delay);
+            }
         };
     };
 
@@ -47,7 +58,7 @@ exports.install = function (Vue, Options) {
         }
     };
 
-    var lazyLoadHandler = debounce(function () {
+    var lazyLoadHandler = throttle(function () {
         var i = 0;
         var len = Listeners.length;
         for (var _i = 0; _i < len; ++_i) {
