@@ -39,7 +39,7 @@ exports.install = function(Vue, Options) {
                     action.apply(context, args)
                 }
                 
-            if (elapsed >= delay) {
+            if (elapsed >= delay && delay < 1500) {
                 runCallback()
             }
             else {
@@ -65,18 +65,28 @@ exports.install = function(Vue, Options) {
         }
     }, 300)
 
+    const lazyLoadHandler2 = throttle(() => {
+        let i = 0
+        let len = Listeners.length
+        for (let i = 0; i < len; ++i) {
+            checkCanShow(Listeners[i])
+        }
+    }, 1500)
+
     const onListen = (start) => {
         if (start) {
             _.on('scroll', lazyLoadHandler)
             _.on('wheel', lazyLoadHandler)
             _.on('mousewheel', lazyLoadHandler)
             _.on('resize', lazyLoadHandler)
+            _.on('touchend', lazyLoadHandler2)
         } else {
             Init.hasbind = false
             _.off('scroll', lazyLoadHandler)
             _.off('wheel', lazyLoadHandler)
             _.off('mousewheel', lazyLoadHandler)
             _.off('resize', lazyLoadHandler)
+            _.off('touchend', lazyLoadHandler2)
         }
     }
 

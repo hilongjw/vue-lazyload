@@ -41,7 +41,7 @@ exports.install = function (Vue, Options) {
                 action.apply(context, args);
             };
 
-            if (elapsed >= delay) {
+            if (elapsed >= delay && delay < 1500) {
                 runCallback();
             } else {
                 timeout = setTimeout(runCallback, delay);
@@ -66,18 +66,28 @@ exports.install = function (Vue, Options) {
         }
     }, 300);
 
+    var lazyLoadHandler2 = throttle(function () {
+        var i = 0;
+        var len = Listeners.length;
+        for (var _i = 0; _i < len; ++_i) {
+            checkCanShow(Listeners[_i]);
+        }
+    }, 1500);
+
     var onListen = function onListen(start) {
         if (start) {
             _.on('scroll', lazyLoadHandler);
             _.on('wheel', lazyLoadHandler);
             _.on('mousewheel', lazyLoadHandler);
             _.on('resize', lazyLoadHandler);
+            _.on('touchend', lazyLoadHandler2);
         } else {
             Init.hasbind = false;
             _.off('scroll', lazyLoadHandler);
             _.off('wheel', lazyLoadHandler);
             _.off('mousewheel', lazyLoadHandler);
             _.off('resize', lazyLoadHandler);
+            _.off('touchend', lazyLoadHandler2);
         }
     };
 
