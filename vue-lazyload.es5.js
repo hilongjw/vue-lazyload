@@ -6,7 +6,7 @@ exports.install = function (Vue, Options) {
     var isVueNext = Vue.version.split('.')[0] === '2';
     var DEFAULT_PRE = 1.3;
     var DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
-    const DEFAULT_SCROLLELEMENT = window;
+    var DEFAULT_SCROLLELEMENT = window;
     if (!Options) {
         Options = {
             preLoad: DEFAULT_PRE,
