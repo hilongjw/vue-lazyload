@@ -39,7 +39,7 @@ exports.install = function(Vue, Options) {
                     action.apply(context, args)
                 }
                 
-            if (elapsed >= delay && delay < 1500) {
+            if (elapsed >= delay) {
                 runCallback()
             }
             else {
@@ -49,11 +49,19 @@ exports.install = function(Vue, Options) {
     }
 
     const _ = {
-        on (type, func) {
-            window.addEventListener(type, func)
+        on (type, func, element) {
+            if (typeof element === 'undefined') {
+                window.addEventListener(type, func);
+            } else if (typeof element.length !== 'undefined' && element.length > 0) {
+                element[0].addEventListener(type, func);
+            }
         },
-        off (type, func) {
-            window.removeEventListener(type, func)
+        off (type, func, element) {
+            if (typeof element === 'undefined') {
+                window.removeEventListener(type, func);
+            } else if (typeof element.length !== 'undefined' && element.length > 0) {
+                element.removeEventListener(type, func);
+            }
         },
     }
 
@@ -65,28 +73,18 @@ exports.install = function(Vue, Options) {
         }
     }, 300)
 
-    const lazyLoadHandler2 = throttle(() => {
-        let i = 0
-        let len = Listeners.length
-        for (let i = 0; i < len; ++i) {
-            checkCanShow(Listeners[i])
-        }
-    }, 1500)
-
     const onListen = (start) => {
         if (start) {
-            _.on('scroll', lazyLoadHandler)
+            _.on('scroll', lazyLoadHandler, document.getElementsByClassName('scroll'))
             _.on('wheel', lazyLoadHandler)
             _.on('mousewheel', lazyLoadHandler)
             _.on('resize', lazyLoadHandler)
-            _.on('touchend', lazyLoadHandler2)
         } else {
             Init.hasbind = false
-            _.off('scroll', lazyLoadHandler)
+            _.off('scroll', lazyLoadHandler, document.getElementsByClassName('scroll'))
             _.off('wheel', lazyLoadHandler)
             _.off('mousewheel', lazyLoadHandler)
             _.off('resize', lazyLoadHandler)
-            _.off('touchend', lazyLoadHandler2)
         }
     }
 

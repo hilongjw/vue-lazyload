@@ -41,7 +41,7 @@ exports.install = function (Vue, Options) {
                 action.apply(context, args);
             };
 
-            if (elapsed >= delay && delay < 1500) {
+            if (elapsed >= delay) {
                 runCallback();
             } else {
                 timeout = setTimeout(runCallback, delay);
@@ -50,11 +50,19 @@ exports.install = function (Vue, Options) {
     };
 
     var _ = {
-        on: function on(type, func) {
-            window.addEventListener(type, func);
+        on: function on(type, func, element) {
+            if (typeof element === 'undefined') {
+                window.addEventListener(type, func);
+            } else if (typeof element.length !== 'undefined' && element.length > 0) {
+                element[0].addEventListener(type, func);
+            }
         },
-        off: function off(type, func) {
-            window.removeEventListener(type, func);
+        off: function off(type, func, element) {
+            if (typeof element === 'undefined') {
+                window.removeEventListener(type, func);
+            } else if (typeof element.length !== 'undefined' && element.length > 0) {
+                element.removeEventListener(type, func);
+            }
         }
     };
 
@@ -66,28 +74,18 @@ exports.install = function (Vue, Options) {
         }
     }, 300);
 
-    var lazyLoadHandler2 = throttle(function () {
-        var i = 0;
-        var len = Listeners.length;
-        for (var _i = 0; _i < len; ++_i) {
-            checkCanShow(Listeners[_i]);
-        }
-    }, 1500);
-
     var onListen = function onListen(start) {
         if (start) {
-            _.on('scroll', lazyLoadHandler);
+            _.on('scroll', lazyLoadHandler, document.getElementsByClassName('scroll'));
             _.on('wheel', lazyLoadHandler);
             _.on('mousewheel', lazyLoadHandler);
             _.on('resize', lazyLoadHandler);
-            _.on('touchend', lazyLoadHandler2);
         } else {
             Init.hasbind = false;
-            _.off('scroll', lazyLoadHandler);
+            _.off('scroll', lazyLoadHandler, document.getElementsByClassName('scroll'));
             _.off('wheel', lazyLoadHandler);
             _.off('mousewheel', lazyLoadHandler);
             _.off('resize', lazyLoadHandler);
-            _.off('touchend', lazyLoadHandler2);
         }
     };
 
