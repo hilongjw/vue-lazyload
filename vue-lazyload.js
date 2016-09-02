@@ -4,12 +4,14 @@ exports.install = function(Vue, Options) {
     const isVueNext = Vue.version.split('.')[0] === '2'
     const DEFAULT_PRE = 1.3
     const DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg=='
+    const DEFAULT_SCROLLELEMENT = window
     if (!Options) {
         Options = {
             preLoad: DEFAULT_PRE,
             error: DEFAULT_URL,
             loading: DEFAULT_URL,
-            try: 3
+            try: 3,
+            scrollElement: DEFAULT_SCROLLELEMENT
         }
     }
     const Init = {
@@ -17,7 +19,8 @@ exports.install = function(Vue, Options) {
         error: Options.error ? Options.error : DEFAULT_URL,
         loading: Options.loading ? Options.loading : DEFAULT_URL,
         hasbind: false,
-        try: Options.try ? Options.try : 1
+        try: Options.try ? Options.try : 1,
+        scrollElement: Options.scrollElement || DEFAULT_SCROLLELEMENT
     }
 
     const Listeners = []
@@ -49,11 +52,23 @@ exports.install = function(Vue, Options) {
     }
 
     const _ = {
-        on (type, func) {
-            window.addEventListener(type, func)
+        on (type, func, element) {
+            if (typeof element === 'undefined') {
+                window.addEventListener(type, func);
+            } else if (typeof element.length !== 'undefined' && element.length > 0) {
+                element[0].addEventListener(type, func);
+            } else {
+                element.addEventListener(type, func);
+            }
         },
-        off (type, func) {
-            window.removeEventListener(type, func)
+        off (type, func, element) {
+            if (typeof element === 'undefined') {
+                window.removeEventListener(type, func);
+            } else if (typeof element.length !== 'undefined' && element.length > 0) {
+                element[0].removeEventListener(type, func);
+            } else {
+                element.removeEventListener(type, func);
+            }
         },
     }
 
@@ -67,13 +82,13 @@ exports.install = function(Vue, Options) {
 
     const onListen = (start) => {
         if (start) {
-            _.on('scroll', lazyLoadHandler)
+            _.on('scroll', lazyLoadHandler, Init.scrollElement)
             _.on('wheel', lazyLoadHandler)
             _.on('mousewheel', lazyLoadHandler)
             _.on('resize', lazyLoadHandler)
         } else {
             Init.hasbind = false
-            _.off('scroll', lazyLoadHandler)
+            _.off('scroll', lazyLoadHandler, Init.scrollElement)
             _.off('wheel', lazyLoadHandler)
             _.off('mousewheel', lazyLoadHandler)
             _.off('resize', lazyLoadHandler)
