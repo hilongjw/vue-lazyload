@@ -54,13 +54,11 @@ exports.install = function(Vue, Options) {
         },
         off (type, func) {
             window.removeEventListener(type, func)
-        },
+        }
     }
 
     const lazyLoadHandler = throttle(() => {
-        let i = 0
-        let len = Listeners.length
-        for (let i = 0; i < len; ++i) {
+        for (let i = 0, len = Listeners.length; i < len; ++i) {
             checkCanShow(Listeners[i])
         }
     }, 300)
@@ -71,18 +69,23 @@ exports.install = function(Vue, Options) {
             _.on('wheel', lazyLoadHandler)
             _.on('mousewheel', lazyLoadHandler)
             _.on('resize', lazyLoadHandler)
+            _.on('animationend', lazyLoadHandler)
+            _.on('transitionend', lazyLoadHandler)
         } else {
             Init.hasbind = false
             _.off('scroll', lazyLoadHandler)
             _.off('wheel', lazyLoadHandler)
             _.off('mousewheel', lazyLoadHandler)
             _.off('resize', lazyLoadHandler)
+            _.off('animationend', lazyLoadHandler)
+            _.on('transitionend', lazyLoadHandler)
         }
     }
 
     const checkCanShow = function(listener) {
         if (Loaded.indexOf(listener.src) > -1) return setElRender(listener.el, listener.bindType, listener.src, 'loaded')
         let rect = listener.el.getBoundingClientRect()
+        
         if (rect.top < window.innerHeight * Init.preLoad && rect.bottom > 0) {
             render(listener)
         }
@@ -111,15 +114,14 @@ exports.install = function(Vue, Options) {
             }
             setElRender(item.el, item.bindType, item.src, 'loaded')
             Loaded.push(item.src)
-
         })
         .catch((error) => {
             setElRender(item.el, item.bindType, Init.error, 'error')
         })
     }
 
-    const loadImageAsync = function(item) {
-        return new Promise(function(resolve, reject) {
+    const loadImageAsync = (item) => {
+        return new Promise((resolve, reject) => {
             let image = new Image()
             image.src = item.src
 
@@ -135,10 +137,8 @@ exports.install = function(Vue, Options) {
 
     const componentWillUnmount = (el, binding, vnode, OldVnode) => {
         if (!el) return
-        let i
-        let len = Listeners.length
 
-        for (i = 0; i < len; i++) {
+        for (let i = 0, len = Listeners.length; i < len; i++) {
             if (Listeners[i] && Listeners[i].el === el) {
                 Listeners.splice(i, 1)
             }
@@ -151,6 +151,17 @@ exports.install = function(Vue, Options) {
 
     const addListener = (el, binding, vnode) => {
         if (el.getAttribute('lazy') === 'loaded') return
+        let hasIt = Listeners.find((item) => {
+            return item.el === el
+        })
+        if (hasIt) {
+            return Vue.nextTick(() => {
+                setTimeout(() => {
+                    lazyLoadHandler()
+                }, 0)
+            })
+        }
+
         let parentEl = null
         
         if (binding.modifiers) {
@@ -179,6 +190,7 @@ exports.install = function(Vue, Options) {
         Vue.directive('lazy', {
             bind: addListener,
             update: addListener,
+            componentUpdated: lazyLoadHandler,
             unbind : componentWillUnmount
         })
     } else {

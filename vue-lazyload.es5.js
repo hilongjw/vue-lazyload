@@ -59,10 +59,8 @@ exports.install = function (Vue, Options) {
     };
 
     var lazyLoadHandler = throttle(function () {
-        var i = 0;
-        var len = Listeners.length;
-        for (var _i = 0; _i < len; ++_i) {
-            checkCanShow(Listeners[_i]);
+        for (var i = 0, len = Listeners.length; i < len; ++i) {
+            checkCanShow(Listeners[i]);
         }
     }, 300);
 
@@ -72,18 +70,23 @@ exports.install = function (Vue, Options) {
             _.on('wheel', lazyLoadHandler);
             _.on('mousewheel', lazyLoadHandler);
             _.on('resize', lazyLoadHandler);
+            _.on('animationend', lazyLoadHandler);
+            _.on('transitionend', lazyLoadHandler);
         } else {
             Init.hasbind = false;
             _.off('scroll', lazyLoadHandler);
             _.off('wheel', lazyLoadHandler);
             _.off('mousewheel', lazyLoadHandler);
             _.off('resize', lazyLoadHandler);
+            _.off('animationend', lazyLoadHandler);
+            _.on('transitionend', lazyLoadHandler);
         }
     };
 
     var checkCanShow = function checkCanShow(listener) {
         if (Loaded.indexOf(listener.src) > -1) return setElRender(listener.el, listener.bindType, listener.src, 'loaded');
         var rect = listener.el.getBoundingClientRect();
+
         if (rect.top < window.innerHeight * Init.preLoad && rect.bottom > 0) {
             render(listener);
         }
@@ -133,10 +136,8 @@ exports.install = function (Vue, Options) {
 
     var componentWillUnmount = function componentWillUnmount(el, binding, vnode, OldVnode) {
         if (!el) return;
-        var i = void 0;
-        var len = Listeners.length;
 
-        for (i = 0; i < len; i++) {
+        for (var i = 0, len = Listeners.length; i < len; i++) {
             if (Listeners[i] && Listeners[i].el === el) {
                 Listeners.splice(i, 1);
             }
@@ -149,6 +150,17 @@ exports.install = function (Vue, Options) {
 
     var addListener = function addListener(el, binding, vnode) {
         if (el.getAttribute('lazy') === 'loaded') return;
+        var hasIt = Listeners.find(function (item) {
+            return item.el === el;
+        });
+        if (hasIt) {
+            return Vue.nextTick(function () {
+                setTimeout(function () {
+                    lazyLoadHandler();
+                }, 0);
+            });
+        }
+
         var parentEl = null;
 
         if (binding.modifiers) {
@@ -177,6 +189,7 @@ exports.install = function (Vue, Options) {
         Vue.directive('lazy', {
             bind: addListener,
             update: addListener,
+            componentUpdated: lazyLoadHandler,
             unbind: componentWillUnmount
         });
     } else {

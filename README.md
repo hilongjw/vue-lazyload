@@ -24,7 +24,7 @@ $ npm install vue-lazyload --save
 
 ```
 
-##Usage
+## Usage
 
 ```javascript
 //main.js
@@ -72,21 +72,65 @@ export default {
       <li v-for="img in list">
         <img v-lazy="img">
       </li>
-      <!-- 
-      for custom container
-      <li v-for="img in list">
-        <img v-lazy.container="img">
-      </li> 
-
-      for background-image
-      <li v-for="img in list">
-        <div v-lazy:background-image="img" class="bg-box"></div>
-      </li>
-      -->
     </ul>
   </div>
 </template>
 
+## API
+
+** Directive **
+
+Basic
+
+vue-lazyload will set this img element's `src` with `imgUrl`
+
+```
+data: {
+  imgUrl: 'http://xx.com/logo.png'
+}
+```
+```
+<img v-lazy="imgUrl" />
+```
+
+Elemet with background-image 
+
+```
+<div v-lazy:background-image="img" ></div>
+
+<!-- rendered-->
+<div style="background-image: url(dist/test3.jpg)"></div>
+```
+
+Customer scrollable element
+
+```
+<ul id="container">
+  <li v-for="img in list">
+    <img v-lazy.container="img">
+  </li> 
+</ul>
+```
+
+** Options **
+
+| params         | type         | detail      |
+| :------------- |:-------------|:------------|
+| preLoad        | Number       | proportion of pre-loading height     |
+| error          | String       | error img src |
+| loading        | String       | loading img src |
+| try            | Number       | attempts count |
+
+
+** CSS state **
+
+```
+<img src="http://xxx.io/logo.png" lazy="loaded">
+```
+
+loading, loaded, error
+
+```
 <style>
   img[lazy=loading] {
     /*your style here*/
@@ -110,5 +154,5 @@ export default {
     /*your style here*/
   }
 </style>
-
 ```
+
