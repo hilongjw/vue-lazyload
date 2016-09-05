@@ -85,18 +85,18 @@ Basic
 
 vue-lazyload will set this img element's `src` with `imgUrl`
 
-```
+```javascript
 data: {
   imgUrl: 'http://xx.com/logo.png'
 }
 ```
-```
+```html
 <img v-lazy="imgUrl" />
 ```
 
 Elemet with background-image 
 
-```
+```html
 <div v-lazy:background-image="img" ></div>
 
 <!-- rendered-->
@@ -105,7 +105,7 @@ Elemet with background-image
 
 Customer scrollable element
 
-```
+```html
 <ul id="container">
   <li v-for="img in list">
     <img v-lazy.container="img">
@@ -131,7 +131,7 @@ Customer scrollable element
 
 loading, loaded, error
 
-```
+```html
 <style>
   img[lazy=loading] {
     /*your style here*/
