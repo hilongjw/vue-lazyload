@@ -79,7 +79,7 @@ export default {
 
 ## API
 
-** Directive **
+**Directive**
 
 Basic
 
@@ -113,7 +113,7 @@ Customer scrollable element
 </ul>
 ```
 
-** Options **
+**Options**
 
 | params         | type         | detail      |
 | :------------- |:-------------|:------------|
@@ -123,7 +123,7 @@ Customer scrollable element
 | try            | Number       | attempts count|
 
 
-** CSS state **
+**CSS state**
 
 ```
 <img src="http://xxx.io/logo.png" lazy="loaded">
