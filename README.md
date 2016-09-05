@@ -75,6 +75,7 @@ export default {
     </ul>
   </div>
 </template>
+```
 
 ## API
 
@@ -116,10 +117,10 @@ Customer scrollable element
 
 | params         | type         | detail      |
 | :------------- |:-------------|:------------|
-| preLoad        | Number       | proportion of pre-loading height     |
+| preLoad        | Number       | proportion of pre-loading height|
 | error          | String       | error img src |
 | loading        | String       | loading img src |
-| try            | Number       | attempts count |
+| try            | Number       | attempts count|
 
 
 ** CSS state **
