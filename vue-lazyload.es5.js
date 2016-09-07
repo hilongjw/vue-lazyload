@@ -75,11 +75,11 @@ exports.install = function (Vue, Options) {
     };
 
     var _ = {
-        on: function on(type, func) {
-            window.addEventListener(type, func);
+        on: function on(el, type, func) {
+            el.addEventListener(type, func);
         },
-        off: function off(type, func) {
-            window.removeEventListener(type, func);
+        off: function off(el, type, func) {
+            el.removeEventListener(type, func);
         }
     };
 
@@ -89,22 +89,22 @@ exports.install = function (Vue, Options) {
         }
     }, 300);
 
-    var onListen = function onListen(start) {
+    var onListen = function onListen(el, start) {
         if (start) {
-            _.on('scroll', lazyLoadHandler);
-            _.on('wheel', lazyLoadHandler);
-            _.on('mousewheel', lazyLoadHandler);
-            _.on('resize', lazyLoadHandler);
-            _.on('animationend', lazyLoadHandler);
-            _.on('transitionend', lazyLoadHandler);
+            _.on(el, 'scroll', lazyLoadHandler);
+            _.on(el, 'wheel', lazyLoadHandler);
+            _.on(el, 'mousewheel', lazyLoadHandler);
+            _.on(el, 'resize', lazyLoadHandler);
+            _.on(el, 'animationend', lazyLoadHandler);
+            _.on(el, 'transitionend', lazyLoadHandler);
         } else {
             Init.hasbind = false;
-            _.off('scroll', lazyLoadHandler);
-            _.off('wheel', lazyLoadHandler);
-            _.off('mousewheel', lazyLoadHandler);
-            _.off('resize', lazyLoadHandler);
-            _.off('animationend', lazyLoadHandler);
-            _.off('transitionend', lazyLoadHandler);
+            _.off(el, 'scroll', lazyLoadHandler);
+            _.off(el, 'wheel', lazyLoadHandler);
+            _.off(el, 'mousewheel', lazyLoadHandler);
+            _.off(el, 'resize', lazyLoadHandler);
+            _.off(el, 'animationend', lazyLoadHandler);
+            _.off(el, 'transitionend', lazyLoadHandler);
         }
     };
 
@@ -169,7 +169,7 @@ exports.install = function (Vue, Options) {
         }
 
         if (Init.hasbind && Listeners.length == 0) {
-            onListen(false);
+            onListen(window, false);
         }
     };
 
@@ -205,7 +205,10 @@ exports.install = function (Vue, Options) {
             lazyLoadHandler();
             if (Listeners.length > 0 && !Init.hasbind) {
                 Init.hasbind = true;
-                onListen(true);
+                onListen(window, true);
+            }
+            if (parentEl) {
+                onListen(parentEl, true);
             }
         });
     };
