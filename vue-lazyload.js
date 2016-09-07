@@ -78,7 +78,7 @@ exports.install = function(Vue, Options) {
             _.off('mousewheel', lazyLoadHandler)
             _.off('resize', lazyLoadHandler)
             _.off('animationend', lazyLoadHandler)
-            _.on('transitionend', lazyLoadHandler)
+            _.off('transitionend', lazyLoadHandler)
         }
     }
 
