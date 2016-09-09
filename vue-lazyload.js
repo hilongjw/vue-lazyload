@@ -110,7 +110,7 @@ exports.install = function(Vue, Options) {
         if (Loaded.indexOf(listener.src) > -1) return setElRender(listener.el, listener.bindType, listener.src, 'loaded')
         let rect = listener.el.getBoundingClientRect()
         
-        if (rect.top < window.innerHeight * Init.preLoad && rect.bottom > 0) {
+        if ((rect.top < window.innerHeight * Init.preLoad && rect.bottom > 0) && (rect.left < window.innerWidth * Init.preLoad && rect.right > 0)) {
             render(listener)
         }
     }
