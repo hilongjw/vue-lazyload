@@ -79,20 +79,36 @@ export default {
 
 ## API
 
-**Directive**
+### Directive
 
-Basic
+**Basic**
 
-vue-lazyload will set this img element's `src` with `imgUrl`
+vue-lazyload will set this img element's `src` with `imgUrl` string
 
 ```javascript
 data: {
-  imgUrl: 'http://xx.com/logo.png'
+  imgUrl: 'http://xx.com/logo.png' // String
 }
 ```
 ```html
 <img v-lazy="imgUrl" />
 ```
+
+or Object
+
+```javascript
+data: {
+  imgObj: {
+    src: 'http://xx.com/logo.png',
+    error: 'http://xx.com/error.png',
+    loading: 'http://xx.com/loading-spin.svg'
+  }
+}
+```
+```html
+<img v-lazy="imgObj" />
+```
+
 
 Elemet with background-image 
 

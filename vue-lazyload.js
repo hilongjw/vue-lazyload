@@ -1,29 +1,5 @@
 const Promise = require('es6-promise').Promise
 
-if (!Array.prototype.find) {
-  Array.prototype.find = function(predicate) {
-    'use strict';
-    if (this == null) {
-      throw new TypeError('Array.prototype.find called on null or undefined');
-    }
-    if (typeof predicate !== 'function') {
-      throw new TypeError('predicate must be a function');
-    }
-    var list = Object(this);
-    var length = list.length >>> 0;
-    var thisArg = arguments[1];
-    var value;
-
-    for (var i = 0; i < length; i++) {
-      value = list[i];
-      if (predicate.call(thisArg, value, i, list)) {
-        return value;
-      }
-    }
-    return undefined;
-  };
-}
-
 exports.install = function(Vue, Options) {
     const isVueNext = Vue.version.split('.')[0] === '2'
     const DEFAULT_PRE = 1.3
@@ -140,7 +116,7 @@ exports.install = function(Vue, Options) {
             Loaded.push(item.src)
         })
         .catch((error) => {
-            setElRender(item.el, item.bindType, Init.error, 'error')
+            setElRender(item.el, item.bindType, item.error, 'error')
         })
     }
 
@@ -173,26 +149,40 @@ exports.install = function(Vue, Options) {
         }
     }
 
-    const addListener = (el, binding, vnode) => {
-        if (el.getAttribute('lazy') === 'loaded') return
-        let hasIt = Listeners.find((item) => {
-            return item.el === el
+    const checkElExist = (el) => {
+        let hasIt = false
+
+        Listeners.forEach((item) => {
+            if (item.el === el) hasIt = true
         })
+
         if (hasIt) {
             return Vue.nextTick(() => {
-                setTimeout(() => {
-                    lazyLoadHandler()
-                }, 0)
+                lazyLoadHandler()
             })
         }
+        return hasIt
+    }
+
+    const addListener = (el, binding, vnode) => {
+        if (el.getAttribute('lazy') === 'loaded') return
+        if (checkElExist(el)) return
 
         let parentEl = null
-        
+        let imageSrc = binding.value
+        let imageLoading = Init.loading
+        let imageError = Init.error
+
+        if (typeof(binding.value) !== 'string') {
+            imageSrc = binding.value.src
+            imageLoading = binding.value.loading || Init.loading
+            imageError = binding.value.error || Init.error
+        }
         if (binding.modifiers) {
             parentEl = window.document.getElementById(Object.keys(binding.modifiers)[0])
         }
 
-        setElRender(el, binding.arg, Init.loading, 'loading')
+        setElRender(el, binding.arg, imageLoading, 'loading')
 
         Vue.nextTick(() => {
             Listeners.push({
@@ -200,7 +190,8 @@ exports.install = function(Vue, Options) {
                 try: 0,
                 parentEl: parentEl,
                 el: el,
-                src: binding.value
+                error: imageError,
+                src: imageSrc
             })
             lazyLoadHandler()
             if (Listeners.length > 0 && !Init.hasbind) {
@@ -222,7 +213,7 @@ exports.install = function(Vue, Options) {
         })
     } else {
         Vue.directive('lazy', {
-            bind () {},
+            bind: lazyLoadHandler,
             update (newValue, oldValue) {
                 addListener(this.el, {
                     modifiers: this.modifiers,
