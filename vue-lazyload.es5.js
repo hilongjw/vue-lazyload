@@ -1,25 +1,33 @@
-'use strict';
+/*!
+ * Vue-Lazyload.js v0.8.1
+ * (c) 2016 Awe <hilongjw@gmail.com>
+ * Released under the MIT License.
+ */
+(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+    typeof define === 'function' && define.amd ? define(factory) :
+    (global.install = factory());
+}(this, (function () { 'use strict';
 
 var Promise = require('es6-promise').Promise;
 
-exports.install = function (Vue, Options) {
+var vueLazyload = (function (Vue, _ref) {
+    var _ref$preLoad = _ref.preLoad;
+    var preLoad = _ref$preLoad === undefined ? 1.3 : _ref$preLoad;
+    var error = _ref.error;
+    var loading = _ref.loading;
+    var _ref$attempt = _ref.attempt;
+    var attempt = _ref$attempt === undefined ? 3 : _ref$attempt;
+
     var isVueNext = Vue.version.split('.')[0] === '2';
-    var DEFAULT_PRE = 1.3;
     var DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
-    if (!Options) {
-        Options = {
-            preLoad: DEFAULT_PRE,
-            error: DEFAULT_URL,
-            loading: DEFAULT_URL,
-            try: 3
-        };
-    }
+
     var Init = {
-        preLoad: Options.preLoad || DEFAULT_PRE,
-        error: Options.error ? Options.error : DEFAULT_URL,
-        loading: Options.loading ? Options.loading : DEFAULT_URL,
+        preLoad: preLoad,
+        error: error || DEFAULT_URL,
+        loading: loading || DEFAULT_URL,
         hasbind: false,
-        try: Options.try ? Options.try : 1
+        try: attempt
     };
 
     var Listeners = [];
@@ -102,9 +110,8 @@ exports.install = function (Vue, Options) {
     };
 
     var render = function render(item) {
-        if (item.try >= Init.try) {
-            return false;
-        }
+        if (item.try >= Init.try) return false;
+
         item.try++;
 
         loadImageAsync(item).then(function (url) {
@@ -226,4 +233,8 @@ exports.install = function (Vue, Options) {
             }
         });
     }
-};
+});
+
+return vueLazyload;
+
+})));

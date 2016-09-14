@@ -1,23 +1,15 @@
 const Promise = require('es6-promise').Promise
 
-exports.install = function(Vue, Options) {
+export default (Vue, { preLoad = 1.3, error, loading, attempt = 3 }) => {
     const isVueNext = Vue.version.split('.')[0] === '2'
-    const DEFAULT_PRE = 1.3
     const DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg=='
-    if (!Options) {
-        Options = {
-            preLoad: DEFAULT_PRE,
-            error: DEFAULT_URL,
-            loading: DEFAULT_URL,
-            try: 3
-        }
-    }
+
     const Init = {
-        preLoad: Options.preLoad || DEFAULT_PRE,
-        error: Options.error ? Options.error : DEFAULT_URL,
-        loading: Options.loading ? Options.loading : DEFAULT_URL,
+        preLoad: preLoad,
+        error: error || DEFAULT_URL,
+        loading: loading || DEFAULT_URL,
         hasbind: false,
-        try: Options.try ? Options.try : 1
+        try: attempt
     }
 
     const Listeners = []
@@ -101,23 +93,22 @@ exports.install = function(Vue, Options) {
     }
 
     const render = function(item) {
-        if (item.try >= Init.try) {
-            return false
-        }
+        if (item.try >= Init.try) return false
+
         item.try++
 
         loadImageAsync(item)
-        .then((url) => {
-            let index = Listeners.indexOf(item)
-            if (index !== -1) {
-                Listeners.splice(index, 1)
-            }
-            setElRender(item.el, item.bindType, item.src, 'loaded')
-            Loaded.push(item.src)
-        })
-        .catch((error) => {
-            setElRender(item.el, item.bindType, item.error, 'error')
-        })
+            .then((url) => {
+                let index = Listeners.indexOf(item)
+                if (index !== -1) {
+                    Listeners.splice(index, 1)
+                }
+                setElRender(item.el, item.bindType, item.src, 'loaded')
+                Loaded.push(item.src)
+            })
+            .catch((error) => {
+                setElRender(item.el, item.bindType, item.error, 'error')
+            })
     }
 
     const loadImageAsync = (item) => {
@@ -125,11 +116,11 @@ exports.install = function(Vue, Options) {
             let image = new Image()
             image.src = item.src
 
-            image.onload = function() {
+            image.onload = function () {
                 resolve(item.src)
             }
 
-            image.onerror = function() {
+            image.onerror = function () {
                 reject()
             }
         })
