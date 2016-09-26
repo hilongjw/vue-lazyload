@@ -1,5 +1,5 @@
 /*!
- * Vue-Lazyload.js v0.8.1
+ * Vue-Lazyload.js v0.8.2
  * (c) 2016 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
@@ -11,27 +11,33 @@
 
 var Promise = require('es6-promise').Promise;
 
-var vueLazyload = (function (Vue, _ref) {
-    var _ref$preLoad = _ref.preLoad;
-    var preLoad = _ref$preLoad === undefined ? 1.3 : _ref$preLoad;
-    var error = _ref.error;
-    var loading = _ref.loading;
-    var _ref$attempt = _ref.attempt;
-    var attempt = _ref$attempt === undefined ? 3 : _ref$attempt;
+if (!Array.prototype.$remove) {
+    Array.prototype.$remove = function (item) {
+        if (!this.length) return;
+        var index = this.indexOf(item);
+        if (index > -1) {
+            return this.splice(index, 1);
+        }
+    };
+}
+
+var vueLazyload = (function (Vue) {
+    var Options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     var isVueNext = Vue.version.split('.')[0] === '2';
     var DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
 
     var Init = {
-        preLoad: preLoad,
-        error: error || DEFAULT_URL,
-        loading: loading || DEFAULT_URL,
-        hasbind: false,
-        try: attempt
+        preLoad: Options.preLoad || 1.3,
+        error: Options.error || DEFAULT_URL,
+        loading: Options.loading || DEFAULT_URL,
+        attempt: Options.attempt || 3,
+        scale: Options.scale || window.devicePixelRatio,
+        hasbind: false
     };
 
     var Listeners = [];
-    var Loaded = [];
+    var imageCache = [];
 
     var throttle = function throttle(action, delay) {
         var timeout = null;
@@ -48,7 +54,6 @@ var vueLazyload = (function (Vue, _ref) {
                 timeout = false;
                 action.apply(context, args);
             };
-
             if (elapsed >= delay) {
                 runCallback();
             } else {
@@ -92,7 +97,7 @@ var vueLazyload = (function (Vue, _ref) {
     };
 
     var checkCanShow = function checkCanShow(listener) {
-        if (Loaded.indexOf(listener.src) > -1) return setElRender(listener.el, listener.bindType, listener.src, 'loaded');
+        if (imageCache.indexOf(listener.src) > -1) return setElRender(listener.el, listener.bindType, listener.src, 'loaded');
         var rect = listener.el.getBoundingClientRect();
 
         if (rect.top < window.innerHeight * Init.preLoad && rect.bottom > 0 && rect.left < window.innerWidth * Init.preLoad && rect.right > 0) {
@@ -110,17 +115,14 @@ var vueLazyload = (function (Vue, _ref) {
     };
 
     var render = function render(item) {
-        if (item.try >= Init.try) return false;
+        if (item.attempt >= Init.attempt) return false;
 
-        item.try++;
+        item.attempt++;
 
-        loadImageAsync(item).then(function (url) {
-            var index = Listeners.indexOf(item);
-            if (index !== -1) {
-                Listeners.splice(index, 1);
-            }
+        loadImageAsync(item).then(function (image) {
             setElRender(item.el, item.bindType, item.src, 'loaded');
-            Loaded.push(item.src);
+            imageCache.push(item.src);
+            Listeners.$remove(item);
         }).catch(function (error) {
             setElRender(item.el, item.bindType, item.error, 'error');
         });
@@ -132,7 +134,11 @@ var vueLazyload = (function (Vue, _ref) {
             image.src = item.src;
 
             image.onload = function () {
-                resolve(item.src);
+                resolve({
+                    naturalHeight: image.naturalHeight,
+                    naturalWidth: image.naturalWidth,
+                    src: item.src
+                });
             };
 
             image.onerror = function () {
@@ -193,7 +199,7 @@ var vueLazyload = (function (Vue, _ref) {
         Vue.nextTick(function () {
             Listeners.push({
                 bindType: binding.arg,
-                try: 0,
+                attempt: 0,
                 parentEl: parentEl,
                 el: el,
                 error: imageError,

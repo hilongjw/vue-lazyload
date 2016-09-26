@@ -1,19 +1,30 @@
 const Promise = require('es6-promise').Promise
 
-export default (Vue, { preLoad = 1.3, error, loading, attempt = 3 }) => {
+if (!Array.prototype.$remove) {
+    Array.prototype.$remove = function (item) {
+        if (!this.length) return
+        const index = this.indexOf(item)
+        if (index > -1) {
+          return this.splice(index, 1)
+        }
+    }
+}
+
+export default (Vue, Options = {}) => {
     const isVueNext = Vue.version.split('.')[0] === '2'
     const DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg=='
 
     const Init = {
-        preLoad: preLoad,
-        error: error || DEFAULT_URL,
-        loading: loading || DEFAULT_URL,
+        preLoad: Options.preLoad || 1.3,
+        error: Options.error || DEFAULT_URL,
+        loading: Options.loading || DEFAULT_URL,
+        attempt: Options.attempt || 3,
+        scale: Options.scale || window.devicePixelRatio,
         hasbind: false,
-        try: attempt
     }
 
     const Listeners = []
-    const Loaded = []
+    const imageCache = []
 
     const throttle = function (action, delay) {
         let timeout = null
@@ -30,7 +41,6 @@ export default (Vue, { preLoad = 1.3, error, loading, attempt = 3 }) => {
                     timeout = false
                     action.apply(context, args)
                 }
-                
             if (elapsed >= delay) {
                 runCallback()
             }
@@ -74,8 +84,8 @@ export default (Vue, { preLoad = 1.3, error, loading, attempt = 3 }) => {
         }
     }
 
-    const checkCanShow = function(listener) {
-        if (Loaded.indexOf(listener.src) > -1) return setElRender(listener.el, listener.bindType, listener.src, 'loaded')
+    const checkCanShow = (listener) => {
+        if (imageCache.indexOf(listener.src) > -1) return setElRender(listener.el, listener.bindType, listener.src, 'loaded')
         let rect = listener.el.getBoundingClientRect()
         
         if ((rect.top < window.innerHeight * Init.preLoad && rect.bottom > 0) && (rect.left < window.innerWidth * Init.preLoad && rect.right > 0)) {
@@ -92,19 +102,17 @@ export default (Vue, { preLoad = 1.3, error, loading, attempt = 3 }) => {
         el.setAttribute('lazy', state)
     }
 
-    const render = function(item) {
-        if (item.try >= Init.try) return false
 
-        item.try++
+    const render = (item) => {
+        if (item.attempt >= Init.attempt) return false
+
+        item.attempt++
 
         loadImageAsync(item)
-            .then((url) => {
-                let index = Listeners.indexOf(item)
-                if (index !== -1) {
-                    Listeners.splice(index, 1)
-                }
+            .then((image) => {
                 setElRender(item.el, item.bindType, item.src, 'loaded')
-                Loaded.push(item.src)
+                imageCache.push(item.src)
+                Listeners.$remove(item)
             })
             .catch((error) => {
                 setElRender(item.el, item.bindType, item.error, 'error')
@@ -117,7 +125,11 @@ export default (Vue, { preLoad = 1.3, error, loading, attempt = 3 }) => {
             image.src = item.src
 
             image.onload = function () {
-                resolve(item.src)
+                resolve({
+                    naturalHeight: image.naturalHeight,
+                    naturalWidth: image.naturalWidth,
+                    src: item.src
+                })
             }
 
             image.onerror = function () {
@@ -178,7 +190,7 @@ export default (Vue, { preLoad = 1.3, error, loading, attempt = 3 }) => {
         Vue.nextTick(() => {
             Listeners.push({
                 bindType: binding.arg,
-                try: 0,
+                attempt: 0,
                 parentEl: parentEl,
                 el: el,
                 error: imageError,
