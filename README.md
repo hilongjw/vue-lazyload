@@ -35,12 +35,7 @@ import App from './App.vue'
 // supports both of Vue 1.0 and Vue 2.0
 import VueLazyload from 'vue-lazyload'
 
-Vue.use(VueLazyload, {
-  preLoad: 1.3,
-  error: 'dist/error.png',
-  loading: 'dist/loading.gif',
-  try: 3 // default 1
-})
+Vue.use(VueLazyload)
 
 new Vue({
   el: 'body',
@@ -59,7 +54,12 @@ export default {
       list: [
         'your_images_url', 
         'your_images_url', 
-        'your_images_url'
+        // you can customer any image's placeholder while loading or load failed
+        {
+          src: 'your_images_url.png',
+          error: 'another-error.png',
+          loading: 'another-loading-spin.svg'
+        }
       ]
     }
   }
@@ -136,7 +136,7 @@ Customer scrollable element
 | preLoad        | Number       | proportion of pre-loading height|
 | error          | String       | error img src |
 | loading        | String       | loading img src |
-| try            | Number       | attempts count|
+| attempt        | Number       | attempts count|
 
 
 **CSS state**
