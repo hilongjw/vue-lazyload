@@ -177,7 +177,7 @@ export default (Vue, Options = {}) => {
         let imageError = Init.error
 
         if (typeof(binding.value) !== 'string') {
-            imageSrc = binding.value.src
+            imageSrc = binding.value ? binding.value.src || ''
             imageLoading = binding.value.loading || Init.loading
             imageError = binding.value.error || Init.error
         }
