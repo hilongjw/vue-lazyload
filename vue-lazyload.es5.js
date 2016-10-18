@@ -22,7 +22,7 @@ if (!Array.prototype.$remove) {
 }
 
 var vueLazyload = (function (Vue) {
-    var Options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var Options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     var isVueNext = Vue.version.split('.')[0] === '2';
     var DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
@@ -185,7 +185,7 @@ var vueLazyload = (function (Vue) {
         var imageLoading = Init.loading;
         var imageError = Init.error;
 
-        if (typeof binding.value !== 'string') {
+        if (typeof binding.value !== 'string' && binding.value) {
             imageSrc = binding.value.src;
             imageLoading = binding.value.loading || Init.loading;
             imageError = binding.value.error || Init.error;
