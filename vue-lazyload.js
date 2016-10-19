@@ -1,4 +1,5 @@
 const Promise = require('es6-promise').Promise
+const inBrowser = typeof window !== 'undefined'
 
 if (!Array.prototype.$remove) {
     Array.prototype.$remove = function (item) {
@@ -19,7 +20,7 @@ export default (Vue, Options = {}) => {
         error: Options.error || DEFAULT_URL,
         loading: Options.loading || DEFAULT_URL,
         attempt: Options.attempt || 3,
-        scale: Options.scale || window.devicePixelRatio,
+        scale: Options.scale || inBrowser ? window.devicePixelRatio : 1,
         hasbind: false,
     }
 
@@ -211,6 +212,7 @@ export default (Vue, Options = {}) => {
         Vue.directive('lazy', {
             bind: addListener,
             update: addListener,
+            inserted: addListener,
             componentUpdated: lazyLoadHandler,
             unbind : componentWillUnmount
         })

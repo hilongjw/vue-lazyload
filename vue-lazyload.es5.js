@@ -1,5 +1,5 @@
 /*!
- * Vue-Lazyload.js v0.8.2
+ * Vue-Lazyload.js v0.8.3
  * (c) 2016 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
@@ -10,6 +10,7 @@
 }(this, (function () { 'use strict';
 
 var Promise = require('es6-promise').Promise;
+var inBrowser = typeof window !== 'undefined';
 
 if (!Array.prototype.$remove) {
     Array.prototype.$remove = function (item) {
@@ -22,7 +23,7 @@ if (!Array.prototype.$remove) {
 }
 
 var vueLazyload = (function (Vue) {
-    var Options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var Options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     var isVueNext = Vue.version.split('.')[0] === '2';
     var DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
@@ -32,7 +33,7 @@ var vueLazyload = (function (Vue) {
         error: Options.error || DEFAULT_URL,
         loading: Options.loading || DEFAULT_URL,
         attempt: Options.attempt || 3,
-        scale: Options.scale || window.devicePixelRatio,
+        scale: Options.scale || inBrowser ? window.devicePixelRatio : 1,
         hasbind: false
     };
 
@@ -220,6 +221,7 @@ var vueLazyload = (function (Vue) {
         Vue.directive('lazy', {
             bind: addListener,
             update: addListener,
+            inserted: addListener,
             componentUpdated: lazyLoadHandler,
             unbind: componentWillUnmount
         });
