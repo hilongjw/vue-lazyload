@@ -1,13 +1,14 @@
 const Promise = require('es6-promise').Promise
 const inBrowser = typeof window !== 'undefined'
-
-if (!Array.prototype.$remove) {
-  Array.prototype.$remove = function (item) {
-    if (!this.length) return
-    const index = this.indexOf(item)
+const $remove = (arr, item) => {
+  if (!Array.prototype.$remove) {
+    if (!arr.length) return
+    const index = arr.indexOf(item)
     if (index > -1) {
-      return this.splice(index, 1)
+      return arr.splice(index, 1)
     }
+  } else {
+    return arr.$remove(item)
   }
 }
 
@@ -44,8 +45,7 @@ export default (Vue, Options = {}) => {
       }
       if (elapsed >= delay) {
         runCallback()
-      }
-      else {
+      } else {
         timeout = setTimeout(runCallback, delay)
       }
     }
@@ -112,16 +112,16 @@ export default (Vue, Options = {}) => {
             .then((image) => {
               setElRender(item.el, item.bindType, item.src, 'loaded')
               imageCache.push(item.src)
-              Listeners.$remove(item)
+              $remove(Listeners, item)
             })
-            .catch((error) => {
+            .catch(() => {
               setElRender(item.el, item.bindType, item.error, 'error')
             })
   }
 
   const loadImageAsync = (item) => {
     return new Promise((resolve, reject) => {
-      let image = new Image()
+      let image = new window.Image()
       image.src = item.src
 
       image.onload = function () {
@@ -147,7 +147,7 @@ export default (Vue, Options = {}) => {
       }
     }
 
-    if (Init.hasbind && Listeners.length == 0) {
+    if (Init.hasbind && Listeners.length === 0) {
       onListen(window, false)
     }
   }

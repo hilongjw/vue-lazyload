@@ -8,17 +8,18 @@
     typeof define === 'function' && define.amd ? define(factory) :
     (global.install = factory())
 }(this, function () { 'use strict'
-
   var Promise = require('es6-promise').Promise
   var inBrowser = typeof window !== 'undefined'
 
-  if (!Array.prototype.$remove) {
-    Array.prototype.$remove = function (item) {
-      if (!this.length) return
-      var index = this.indexOf(item)
+  var $remove = function (arr, item) {
+    if (!Array.prototype.$remove) {
+      if (!arr.length) return
+      const index = arr.indexOf(item)
       if (index > -1) {
-        return this.splice(index, 1)
+        return arr.splice(index, 1)
       }
+    } else {
+      return arr.$remove(item)
     }
   }
 
@@ -123,15 +124,15 @@
       loadImageAsync(item).then(function (image) {
         setElRender(item.el, item.bindType, item.src, 'loaded')
         imageCache.push(item.src)
-        Listeners.$remove(item)
-      }).catch(function (error) {
+        $remove(Listeners, item)
+      }).catch(function () {
         setElRender(item.el, item.bindType, item.error, 'error')
       })
     }
 
     var loadImageAsync = function loadImageAsync (item) {
       return new Promise(function (resolve, reject) {
-        var image = new Image()
+        var image = new window.Image()
         image.src = item.src
 
         image.onload = function () {
@@ -157,7 +158,7 @@
         }
       }
 
-      if (Init.hasbind && Listeners.length == 0) {
+      if (Init.hasbind && Listeners.length === 0) {
         onListen(window, false)
       }
     }
