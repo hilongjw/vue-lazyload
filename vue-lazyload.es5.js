@@ -23,7 +23,7 @@ if (!Array.prototype.$remove) {
 }
 
 var vueLazyload = (function (Vue) {
-    var Options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var Options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     var isVueNext = Vue.version.split('.')[0] === '2';
     var DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
@@ -191,13 +191,14 @@ var vueLazyload = (function (Vue) {
             imageLoading = binding.value.loading || Init.loading;
             imageError = binding.value.error || Init.error;
         }
-        if (binding.modifiers) {
-            parentEl = window.document.getElementById(Object.keys(binding.modifiers)[0]);
-        }
 
         setElRender(el, binding.arg, imageLoading, 'loading');
 
         Vue.nextTick(function () {
+            if (binding.modifiers) {
+                parentEl = window.document.getElementById(Object.keys(binding.modifiers)[0]);
+            }
+
             Listeners.push({
                 bindType: binding.arg,
                 attempt: 0,
@@ -207,12 +208,14 @@ var vueLazyload = (function (Vue) {
                 src: imageSrc
             });
             lazyLoadHandler();
+
             if (Listeners.length > 0 && !Init.hasbind) {
                 Init.hasbind = true;
                 onListen(window, true);
-            }
-            if (parentEl) {
-                onListen(parentEl, true);
+
+                if (parentEl) {
+                    onListen(parentEl, true);
+                }
             }
         });
     };

@@ -182,13 +182,14 @@ export default (Vue, Options = {}) => {
             imageLoading = binding.value.loading || Init.loading
             imageError = binding.value.error || Init.error
         }
-        if (binding.modifiers) {
-            parentEl = window.document.getElementById(Object.keys(binding.modifiers)[0])
-        }
 
         setElRender(el, binding.arg, imageLoading, 'loading')
 
         Vue.nextTick(() => {
+            if (binding.modifiers) {
+                parentEl = window.document.getElementById(Object.keys(binding.modifiers)[0])
+            }
+
             Listeners.push({
                 bindType: binding.arg,
                 attempt: 0,
@@ -198,12 +199,14 @@ export default (Vue, Options = {}) => {
                 src: imageSrc
             })
             lazyLoadHandler()
+
             if (Listeners.length > 0 && !Init.hasbind) {
                 Init.hasbind = true
                 onListen(window, true)
-            }
-            if (parentEl) {
-                onListen(parentEl, true)
+                
+                if (parentEl) {
+                    onListen(parentEl, true)
+                }
             }
         })
     }
