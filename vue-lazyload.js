@@ -38,7 +38,7 @@ export default (Vue, Options = {}) => {
             let context = this
             let args = arguments
             let runCallback = function () {
-                    lastRun = +new Date()
+                    lastRun = new Date().getTime()
                     timeout = false
                     action.apply(context, args)
                 }
