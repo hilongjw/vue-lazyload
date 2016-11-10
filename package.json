@@ -1,14 +1,12 @@
 {
   "name": "vue-lazyload",
-  "version": "0.8.3",
+  "version": "0.9.0",
   "description": "Vue module for lazy-loading images in your vue.js applications.",
   "main": "vue-lazyload.es5.js",
   "scripts": {
     "start": "node build"
   },
-  "dependencies": {
-    "es6-promise": "^3.1.2"
-  },
+  "dependencies": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/hilongjw/vue-lazyload.git"

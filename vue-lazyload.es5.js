@@ -1,5 +1,5 @@
 /*!
- * Vue-Lazyload.js v0.8.3
+ * Vue-Lazyload.js v0.9.0
  * (c) 2016 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
@@ -9,7 +9,6 @@
     (global.install = factory());
 }(this, (function () { 'use strict';
 
-var Promise = require('es6-promise').Promise;
 var inBrowser = typeof window !== 'undefined';
 
 if (!Array.prototype.$remove) {
@@ -23,7 +22,7 @@ if (!Array.prototype.$remove) {
 }
 
 var vueLazyload = (function (Vue) {
-    var Options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var Options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     var isVueNext = Vue.version.split('.')[0] === '2';
     var DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
@@ -47,11 +46,11 @@ var vueLazyload = (function (Vue) {
             if (timeout) {
                 return;
             }
-            var elapsed = +new Date() - lastRun;
+            var elapsed = Date.now() - lastRun;
             var context = this;
             var args = arguments;
             var runCallback = function runCallback() {
-                lastRun = +new Date();
+                lastRun = Date.now();
                 timeout = false;
                 action.apply(context, args);
             };
@@ -120,32 +119,30 @@ var vueLazyload = (function (Vue) {
 
         item.attempt++;
 
-        loadImageAsync(item).then(function (image) {
+        loadImageAsync(item, function (image) {
             setElRender(item.el, item.bindType, item.src, 'loaded');
             imageCache.push(item.src);
             Listeners.$remove(item);
-        }).catch(function (error) {
+        }, function (error) {
             setElRender(item.el, item.bindType, item.error, 'error');
         });
     };
 
-    var loadImageAsync = function loadImageAsync(item) {
-        return new Promise(function (resolve, reject) {
-            var image = new Image();
-            image.src = item.src;
+    var loadImageAsync = function loadImageAsync(item, resolve, reject) {
+        var image = new Image();
+        image.src = item.src;
 
-            image.onload = function () {
-                resolve({
-                    naturalHeight: image.naturalHeight,
-                    naturalWidth: image.naturalWidth,
-                    src: item.src
-                });
-            };
+        image.onload = function () {
+            resolve({
+                naturalHeight: image.naturalHeight,
+                naturalWidth: image.naturalWidth,
+                src: item.src
+            });
+        };
 
-            image.onerror = function () {
-                reject();
-            };
-        });
+        image.onerror = function (e) {
+            reject(e);
+        };
     };
 
     var componentWillUnmount = function componentWillUnmount(el, binding, vnode, OldVnode) {
