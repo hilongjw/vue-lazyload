@@ -34,11 +34,11 @@ export default (Vue, Options = {}) => {
             if (timeout) {
                 return
             }
-            let elapsed = (+new Date()) - lastRun
+            let elapsed = Date.now() - lastRun
             let context = this
             let args = arguments
             let runCallback = function () {
-                    lastRun = new Date().getTime()
+                    lastRun = Date.now()
                     timeout = false
                     action.apply(context, args)
                 }
