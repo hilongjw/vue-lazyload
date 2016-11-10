@@ -1,4 +1,3 @@
-const Promise = require('es6-promise').Promise
 const inBrowser = typeof window !== 'undefined'
 
 if (!Array.prototype.$remove) {
@@ -109,34 +108,28 @@ export default (Vue, Options = {}) => {
 
         item.attempt++
 
-        loadImageAsync(item)
-            .then((image) => {
+        loadImage(item, (image) => {
                 setElRender(item.el, item.bindType, item.src, 'loaded')
                 imageCache.push(item.src)
                 Listeners.$remove(item)
-            })
-            .catch((error) => {
+            }, (error) => {
                 setElRender(item.el, item.bindType, item.error, 'error')
             })
     }
 
-    const loadImageAsync = (item) => {
-        return new Promise((resolve, reject) => {
-            let image = new Image()
-            image.src = item.src
+    const loadImage = (item, success, onerror) => {
+        let image = new Image()
+        image.src = item.src
 
-            image.onload = function () {
-                resolve({
-                    naturalHeight: image.naturalHeight,
-                    naturalWidth: image.naturalWidth,
-                    src: item.src
-                })
-            }
+        image.onload = function () {
+            success({
+                naturalHeight: image.naturalHeight,
+                naturalWidth: image.naturalWidth,
+                src: item.src
+            })
+        }
 
-            image.onerror = function () {
-                reject()
-            }
-        })
+        image.onerror = onerror
     }
 
     const componentWillUnmount = (el, binding, vnode, OldVnode) => {
