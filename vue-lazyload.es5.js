@@ -1,5 +1,5 @@
 /*!
- * Vue-Lazyload.js v0.9.0
+ * Vue-Lazyload.js v0.9.1
  * (c) 2016 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
@@ -26,6 +26,7 @@ var vueLazyload = (function (Vue) {
 
     var isVueNext = Vue.version.split('.')[0] === '2';
     var DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
+    var ListenEvents = ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend'];
 
     var Init = {
         preLoad: Options.preLoad || 1.3,
@@ -79,20 +80,14 @@ var vueLazyload = (function (Vue) {
 
     var onListen = function onListen(el, start) {
         if (start) {
-            _.on(el, 'scroll', lazyLoadHandler);
-            _.on(el, 'wheel', lazyLoadHandler);
-            _.on(el, 'mousewheel', lazyLoadHandler);
-            _.on(el, 'resize', lazyLoadHandler);
-            _.on(el, 'animationend', lazyLoadHandler);
-            _.on(el, 'transitionend', lazyLoadHandler);
+            ListenEvents.forEach(function (evt) {
+                _.on(el, evt, lazyLoadHandler);
+            });
         } else {
             Init.hasbind = false;
-            _.off(el, 'scroll', lazyLoadHandler);
-            _.off(el, 'wheel', lazyLoadHandler);
-            _.off(el, 'mousewheel', lazyLoadHandler);
-            _.off(el, 'resize', lazyLoadHandler);
-            _.off(el, 'animationend', lazyLoadHandler);
-            _.off(el, 'transitionend', lazyLoadHandler);
+            ListenEvents.forEach(function (evt) {
+                _.off(el, evt, lazyLoadHandler);
+            });
         }
     };
 
@@ -188,6 +183,8 @@ var vueLazyload = (function (Vue) {
             imageLoading = binding.value.loading || Init.loading;
             imageError = binding.value.error || Init.error;
         }
+
+        if (imageCache.indexOf(imageSrc) > -1) return setElRender(el, binding.arg, imageSrc, 'loaded');
 
         setElRender(el, binding.arg, imageLoading, 'loading');
 
