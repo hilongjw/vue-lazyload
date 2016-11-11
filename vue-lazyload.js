@@ -13,6 +13,7 @@ if (!Array.prototype.$remove) {
 export default (Vue, Options = {}) => {
     const isVueNext = Vue.version.split('.')[0] === '2'
     const DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg=='
+    const ListenEvents = ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend']
 
     const Init = {
         preLoad: Options.preLoad || 1.3,
@@ -67,27 +68,21 @@ export default (Vue, Options = {}) => {
 
     const onListen = (el, start) => {
         if (start) {
-            _.on(el, 'scroll', lazyLoadHandler)
-            _.on(el, 'wheel', lazyLoadHandler)
-            _.on(el, 'mousewheel', lazyLoadHandler)
-            _.on(el, 'resize', lazyLoadHandler)
-            _.on(el, 'animationend', lazyLoadHandler)
-            _.on(el, 'transitionend', lazyLoadHandler)
+            ListenEvents.forEach((evt) => {
+                _.on(el, evt, lazyLoadHandler)
+            })
         } else {
             Init.hasbind = false
-            _.off(el, 'scroll', lazyLoadHandler)
-            _.off(el, 'wheel', lazyLoadHandler)
-            _.off(el, 'mousewheel', lazyLoadHandler)
-            _.off(el, 'resize', lazyLoadHandler)
-            _.off(el, 'animationend', lazyLoadHandler)
-            _.off(el, 'transitionend', lazyLoadHandler)
+            ListenEvents.forEach((evt) => {
+                _.off(el, evt, lazyLoadHandler)
+            })
         }
     }
 
     const checkCanShow = (listener) => {
         if (imageCache.indexOf(listener.src) > -1) return setElRender(listener.el, listener.bindType, listener.src, 'loaded')
         let rect = listener.el.getBoundingClientRect()
-        
+
         if ((rect.top < window.innerHeight * Init.preLoad && rect.bottom > 0) && (rect.left < window.innerWidth * Init.preLoad && rect.right > 0)) {
             render(listener)
         }
@@ -118,20 +113,20 @@ export default (Vue, Options = {}) => {
     }
 
     const loadImageAsync = (item, resolve, reject) => {
-            let image = new Image()
-            image.src = item.src
+        let image = new Image()
+        image.src = item.src
 
-            image.onload = function () {
-                resolve({
-                    naturalHeight: image.naturalHeight,
-                    naturalWidth: image.naturalWidth,
-                    src: item.src
-                })
-            }
+        image.onload = function () {
+            resolve({
+                naturalHeight: image.naturalHeight,
+                naturalWidth: image.naturalWidth,
+                src: item.src
+            })
+        }
 
-            image.onerror = function (e) {
-                reject(e)
-            }
+        image.onerror = function (e) {
+            reject(e)
+        }
     }
 
     const componentWillUnmount = (el, binding, vnode, OldVnode) => {
@@ -178,6 +173,8 @@ export default (Vue, Options = {}) => {
             imageError = binding.value.error || Init.error
         }
 
+        if (imageCache.indexOf(imageSrc) > -1) return setElRender(el, binding.arg, imageSrc, 'loaded')
+
         setElRender(el, binding.arg, imageLoading, 'loading')
 
         Vue.nextTick(() => {
@@ -198,7 +195,7 @@ export default (Vue, Options = {}) => {
             if (Listeners.length > 0 && !Init.hasbind) {
                 Init.hasbind = true
                 onListen(window, true)
-                
+
                 if (parentEl) {
                     onListen(parentEl, true)
                 }
