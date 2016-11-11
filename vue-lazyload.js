@@ -12,7 +12,7 @@ if (!Array.prototype.$remove) {
 
 export default (Vue, Options = {}) => {
     const isVueNext = Vue.version.split('.')[0] === '2'
-    const DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg=='
+    const DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA='
     const ListenEvents = ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend']
 
     const Init = {

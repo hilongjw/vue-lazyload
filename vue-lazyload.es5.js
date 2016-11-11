@@ -25,7 +25,7 @@ var vueLazyload = (function (Vue) {
     var Options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     var isVueNext = Vue.version.split('.')[0] === '2';
-    var DEFAULT_URL = 'data:img/jpg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEXs7Oxc9QatAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==';
+    var DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
     var ListenEvents = ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend'];
 
     var Init = {
