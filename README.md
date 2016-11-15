@@ -193,7 +193,7 @@ loading, loaded, error
 #### Example
 
 ```javascript
-vm.$Lazyload.$on('loaded', function ({ el, src }}) {
+vm.$Lazyload.$on('loaded', function ({ el, src }) {
   console.log(el, src)
 })
 ```
@@ -210,7 +210,7 @@ Listen for a custom event, but only once. The listener will be removed once it t
 #### Example
 
 ```javascript
-vm.$Lazyload.$once('loaded', function ({ el, src }}) {
+vm.$Lazyload.$once('loaded', function ({ el, src }) {
   console.log(el, src)
 })
 ```
@@ -229,7 +229,7 @@ If only the event is provided, remove all listeners for that event
 #### Example
 
 ```javascript
-function handler ({ el, src }}) {
+function handler ({ el, src }) {
   console.log(el, src)
 } 
 vm.$Lazyload.$on('loaded', handler)
