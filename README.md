@@ -181,9 +181,9 @@ loading, loaded, error
 </style>
 ```
 
-### Instance Methods
+## Instance Methods
 
-*vm.$Lazyload.$on(event, callback)*
+### `vm.$Lazyload.$on(event, callback)`
 
 #### Arguments:
 
@@ -198,7 +198,7 @@ vm.$Lazyload.$on('loaded', function ({ el, src }}) {
 })
 ```
 
-*vm.$Lazyload.$once(event, callback)*
+### `vm.$Lazyload.$once(event, callback)`
 
 Listen for a custom event, but only once. The listener will be removed once it triggers for the first time.
 
@@ -215,7 +215,7 @@ vm.$Lazyload.$once('loaded', function ({ el, src }}) {
 })
 ```
 
-*vm.$Lazyload.$off(event, callback)*
+### `vm.$Lazyload.$off(event, callback)`
 
 Remove event listener(s).
 
