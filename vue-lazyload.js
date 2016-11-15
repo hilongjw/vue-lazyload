@@ -15,6 +15,37 @@ export default (Vue, Options = {}) => {
     const DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA='
     const ListenEvents = ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend']
 
+    const $Lazyload = {
+        listeners: {
+            loading: [],
+            loaded: [],
+            error: []
+        },
+        $on (event, func) {
+            this.listeners[event].push(func)
+        },
+        $once (event, func) {
+            const vm = this
+            function on () {
+                vm.$off(event, on)
+                func.apply(vm, arguments)
+            }
+            this.$on(event, on)
+        },
+        $off (event, func) {
+            if (!func) {
+                this.listeners[event] = []
+                return
+            }
+            this.listeners[event].$remove(func)
+        },
+        $emit (event, context) {
+            this.listeners[event].forEach(func => {
+                func(context)
+            })
+        }
+    }
+
     const Init = {
         preLoad: Options.preLoad || 1.3,
         error: Options.error || DEFAULT_URL,
@@ -80,7 +111,7 @@ export default (Vue, Options = {}) => {
     }
 
     const checkCanShow = (listener) => {
-        if (imageCache.indexOf(listener.src) > -1) return setElRender(listener.el, listener.bindType, listener.src, 'loaded')
+        if (imageCache.indexOf(listener.src) !== -1) return setElRender(listener.el, listener.bindType, listener.src, 'loaded')
         let rect = listener.el.getBoundingClientRect()
 
         if ((rect.top < window.innerHeight * Init.preLoad && rect.bottom > 0) && (rect.left < window.innerWidth * Init.preLoad && rect.right > 0)) {
@@ -88,27 +119,31 @@ export default (Vue, Options = {}) => {
         }
     }
 
-    const setElRender = (el, bindType, src, state) => {
+    const setElRender = (el, bindType, src, state, context) => {
         if (!bindType) {
             el.setAttribute('src', src)
         } else {
             el.setAttribute('style', bindType + ': url(' + src + ')')
         }
         el.setAttribute('lazy', state)
+        if (context) {
+            $Lazyload.$emit(state, context)
+        }
     }
-
 
     const render = (item) => {
         if (item.attempt >= Init.attempt) return false
-
         item.attempt++
 
+        if (imageCache.indexOf(item.src) !== -1) return setElRender(item.el, item.bindType, item.src, 'loaded')
+        imageCache.push(item.src)
+
         loadImageAsync(item, (image) => {
-                setElRender(item.el, item.bindType, item.src, 'loaded')
-                imageCache.push(item.src)
+                setElRender(item.el, item.bindType, item.src, 'loaded', item)
                 Listeners.$remove(item)
             }, (error) => {
-                setElRender(item.el, item.bindType, item.error, 'error')
+                imageCache.$remove(item.src)
+                setElRender(item.el, item.bindType, item.error, 'error', item)
             })
     }
 
@@ -167,7 +202,7 @@ export default (Vue, Options = {}) => {
         let imageLoading = Init.loading
         let imageError = Init.error
 
-        if (typeof(binding.value) !== 'string' && binding.value) {
+        if (binding.value && typeof(binding.value) !== 'string') {
             imageSrc = binding.value.src
             imageLoading = binding.value.loading || Init.loading
             imageError = binding.value.error || Init.error
@@ -175,21 +210,24 @@ export default (Vue, Options = {}) => {
 
         if (imageCache.indexOf(imageSrc) > -1) return setElRender(el, binding.arg, imageSrc, 'loaded')
 
-        setElRender(el, binding.arg, imageLoading, 'loading')
-
         Vue.nextTick(() => {
             if (binding.modifiers) {
                 parentEl = window.document.getElementById(Object.keys(binding.modifiers)[0])
             }
 
-            Listeners.push({
+            let listener = {
                 bindType: binding.arg,
                 attempt: 0,
                 parentEl: parentEl,
                 el: el,
                 error: imageError,
                 src: imageSrc
-            })
+            }
+
+            Listeners.push(listener)
+
+            setElRender(el, binding.arg, imageLoading, 'loading', listener)
+
             lazyLoadHandler()
 
             if (Listeners.length > 0 && !Init.hasbind) {
@@ -202,6 +240,8 @@ export default (Vue, Options = {}) => {
             }
         })
     }
+
+    Vue.prototype.$Lazyload = $Lazyload
 
     if (isVueNext) {
         Vue.directive('lazy', {

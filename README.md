@@ -181,3 +181,63 @@ loading, loaded, error
 </style>
 ```
 
+### Instance Methods
+
+*vm.$Lazyload.$on(event, callback)*
+
+#### Arguments:
+
+ * `{string} event`
+ * `{Function} callback`
+
+#### Example
+
+```javascript
+vm.$Lazyload.$on('loaded', function ({ el, src }}) {
+  console.log(el, src)
+})
+```
+
+*vm.$Lazyload.$once(event, callback)*
+
+Listen for a custom event, but only once. The listener will be removed once it triggers for the first time.
+
+#### Arguments:
+
+ * `{string} event`
+ * `{Function} callback`
+
+#### Example
+
+```javascript
+vm.$Lazyload.$once('loaded', function ({ el, src }}) {
+  console.log(el, src)
+})
+```
+
+*vm.$Lazyload.$off(event, callback)*
+
+Remove event listener(s).
+
+If only the event is provided, remove all listeners for that event
+
+#### Arguments:
+
+ * `{string} event`
+ * `{Function} callback`
+
+#### Example
+
+```javascript
+function handler ({ el, src }}) {
+  console.log(el, src)
+} 
+vm.$Lazyload.$on('loaded', handler)
+vm.$Lazyload.$off('loaded', handler)
+```
+
+
+
+# License
+
+[The MIT License](http://opensource.org/licenses/MIT)
