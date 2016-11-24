@@ -135,7 +135,7 @@ var vueLazyload = (function (Vue) {
         if (!bindType) {
             el.setAttribute('src', src);
         } else {
-            el.setAttribute('style', bindType + ': url(' + src + ')');
+            el.style[bindType] = 'url(' + src + ')';
         }
         el.setAttribute('lazy', state);
         if (context) {
