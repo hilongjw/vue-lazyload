@@ -12,7 +12,7 @@ if (!Array.prototype.$remove) {
 
 export default (Vue, Options = {}) => {
     const isVueNext = Vue.version.split('.')[0] === '2'
-    const DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA='
+    const DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
     const ListenEvents = ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend']
 
     const $Lazyload = {

@@ -1,5 +1,5 @@
 /*!
- * Vue-Lazyload.js v0.9.2
+ * Vue-Lazyload.js v0.9.3
  * (c) 2016 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
@@ -25,7 +25,7 @@ var vueLazyload = (function (Vue) {
     var Options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     var isVueNext = Vue.version.split('.')[0] === '2';
-    var DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
+    var DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
     var ListenEvents = ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend'];
 
     var $Lazyload = {
