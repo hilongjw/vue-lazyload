@@ -137,6 +137,14 @@ Customer scrollable element
 </ul>
 ```
 
+```html
+<ul id="container">
+  <li v-for="img in list">
+    <div v-lazy:background-image.container="img"></div>
+  </li> 
+</ul>
+```
+
 **Options**
 
 | params         | type         | detail      |
