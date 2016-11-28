@@ -244,6 +244,24 @@ vm.$Lazyload.$on('loaded', handler)
 vm.$Lazyload.$off('loaded', handler)
 ```
 
+# Desired Listen Events
+
+You can configure which events you want vue-lazyload by passing in an array
+of listener names.
+
+```
+Vue.use(VueLazyload, {
+  preLoad: 1.3,
+  error: 'dist/error.png',
+  loading: 'dist/loading.gif',
+  attempt: 1,
+  // the default is ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend']
+  listenEvents: [ 'scroll' ]
+})
+```
+
+This is useful if you are having trouble with this plugin resetting itself to loading
+when you have certain animations and transitions taking place
 
 
 # License
