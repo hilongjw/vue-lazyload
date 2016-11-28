@@ -154,7 +154,7 @@ var vueLazyload = (function (Vue) {
         if (imageCache.indexOf(item.src) !== -1) return setElRender(item.el, item.bindType, item.src, 'loaded');
         imageCache.push(item.src);
 
-        loadImageAsync(item, function(image) {
+        loadImageAsync(item, function (image) {
             setElRender(item.el, item.bindType, item.src, 'loaded', item, image);
             Listeners.$remove(item);
         }, function (error) {
