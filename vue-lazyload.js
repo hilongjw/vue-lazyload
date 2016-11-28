@@ -119,11 +119,15 @@ export default (Vue, Options = {}) => {
         }
     }
 
-    const setElRender = (el, bindType, src, state, context) => {
+    const setElRender = (el, bindType, src, state, context, imageAttributes) => {
         if (!bindType) {
             el.setAttribute('src', src)
         } else {
             el.style[bindType] = 'url(' + src + ')'
+            if (imageAttributes) {
+                el.setAttribute('data-width', imageAttributes.naturalWidth)
+                el.setAttribute('data-height', imageAttributes.naturalHeight)
+            }
         }
         el.setAttribute('lazy', state)
         if (context) {
@@ -139,7 +143,7 @@ export default (Vue, Options = {}) => {
         imageCache.push(item.src)
 
         loadImageAsync(item, (image) => {
-                setElRender(item.el, item.bindType, item.src, 'loaded', item)
+                setElRender(item.el, item.bindType, item.src, 'loaded', item, image)
                 Listeners.$remove(item)
             }, (error) => {
                 imageCache.$remove(item.src)

@@ -131,11 +131,15 @@ var vueLazyload = (function (Vue) {
         }
     };
 
-    var setElRender = function setElRender(el, bindType, src, state, context) {
+    var setElRender = function setElRender(el, bindType, src, state, context, imageAttributes) {
         if (!bindType) {
             el.setAttribute('src', src);
         } else {
             el.style[bindType] = 'url(' + src + ')';
+            if (imageAttributes) {
+                el.setAttribute('data-width', imageAttributes.naturalWidth)
+                el.setAttribute('data-height', imageAttributes.naturalHeight)
+            }
         }
         el.setAttribute('lazy', state);
         if (context) {
@@ -150,8 +154,8 @@ var vueLazyload = (function (Vue) {
         if (imageCache.indexOf(item.src) !== -1) return setElRender(item.el, item.bindType, item.src, 'loaded');
         imageCache.push(item.src);
 
-        loadImageAsync(item, function (image) {
-            setElRender(item.el, item.bindType, item.src, 'loaded', item);
+        loadImageAsync(item, function(image) {
+            setElRender(item.el, item.bindType, item.src, 'loaded', item, image);
             Listeners.$remove(item);
         }, function (error) {
             imageCache.$remove(item.src);
