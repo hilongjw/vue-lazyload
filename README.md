@@ -153,6 +153,7 @@ Customer scrollable element
 | error          | String       | error img src |
 | loading        | String       | loading img src |
 | attempt        | Number       | attempts count|
+| listenEvents   | Array        | events that you want vue listen for. [Desired Listen Events](https://github.com/hilongjw/vue-lazyload#Desired Listen Events)|
 
 
 **CSS state**
@@ -244,7 +245,7 @@ vm.$Lazyload.$on('loaded', handler)
 vm.$Lazyload.$off('loaded', handler)
 ```
 
-# Desired Listen Events
+## Desired Listen Events
 
 You can configure which events you want vue-lazyload by passing in an array
 of listener names.
