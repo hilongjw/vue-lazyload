@@ -118,13 +118,15 @@ data: {
 ```
 
 
-Elemet with background-image 
+Elemet with background-image. This gets the original image size set onto
+the element with data attributes, which may be  useful if you are doing
+anything with `background-size: cover`
 
 ```html
 <div v-lazy:background-image="img" ></div>
 
 <!-- rendered-->
-<div style="background-image: url(dist/test3.jpg)"></div>
+<div style="background-image: url(dist/test3.jpg)" data-width="400" data-height="200"></div>
 ```
 
 Customer scrollable element
