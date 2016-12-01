@@ -135,7 +135,12 @@ var vueLazyload = (function (Vue) {
         if (!bindType) {
             el.setAttribute('src', src);
         } else {
-            el.style[bindType] = 'url(' + src + ')';
+            // support srcset attribute e.g v-lazy:srcset="src". ugly but worked fine :)
+            if (!bindType.indexOf('-') > -1) {
+                el.style[bindType] = 'url(' + src + ')';
+            } else {
+                el.setAttribute(bindType, src)
+            }
         }
         el.setAttribute('lazy', state);
         if (context) {
