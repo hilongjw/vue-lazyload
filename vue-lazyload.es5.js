@@ -132,10 +132,10 @@ var vueLazyload = (function (Vue) {
     };
 
     var setElRender = function setElRender(el, bindType, src, state, context) {
-        if (!bindType) {
-            el.setAttribute('src', src);
+        if (bindType.indexOf('-') > -1) {
+          el.setAttribute(bindType, src);
         } else {
-            el.style[bindType] = 'url(' + src + ')';
+          el.style[bindType] = 'url(' + src + ')';
         }
         el.setAttribute('lazy', state);
         if (context) {
