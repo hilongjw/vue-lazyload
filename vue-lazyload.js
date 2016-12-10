@@ -127,11 +127,11 @@ export default (Vue, Options = {}) => {
     const setElRender = (el, bindType, src, state, context) => {
         if (bindType) {
             el.style[bindType] = 'url(' + src + ')'
-            emitEvent(el, state, context)
+            return emitEvent(el, state, context)
         }
 
         el.setAttribute('src', src)
-        return _.on(el, 'load', function () {
+        _.on(el, 'load', function () {
             emitEvent(el, state, context)
         })
     }
