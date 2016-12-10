@@ -119,29 +119,34 @@ export default (Vue, Options = {}) => {
         }
     }
 
-    const setElRender = (el, bindType, src, state, context) => {
-        if (!bindType) {
-            el.setAttribute('src', src)
-        } else {
-            el.style[bindType] = 'url(' + src + ')'
-        }
+    const emitEvent = (el, state, context) => {
         el.setAttribute('lazy', state)
-        if (context) {
-            $Lazyload.$emit(state, context)
-        }
+        context && $Lazyload.$emit(state, context)
     }
 
-    const render = (item) => {
+    const setElRender = (el, bindType, src, state, context) => {
+        if (bindType) {
+            el.style[bindType] = 'url(' + src + ')'
+            return emitEvent(el, state, context)
+        }
+
+        el.setAttribute('src', src)
+        _.on(el, 'load', function () {
+            emitEvent(el, state, context)
+        })
+    }
+
+    const render = item => {
         if (item.attempt >= Init.attempt) return false
         item.attempt++
 
         if (imageCache.indexOf(item.src) !== -1) return setElRender(item.el, item.bindType, item.src, 'loaded')
         imageCache.push(item.src)
 
-        loadImageAsync(item, (image) => {
+        loadImageAsync(item, image => {
                 setElRender(item.el, item.bindType, item.src, 'loaded', item)
                 Listeners.$remove(item)
-            }, (error) => {
+            }, error => {
                 imageCache.$remove(item.src)
                 setElRender(item.el, item.bindType, item.error, 'error', item)
             })
@@ -149,19 +154,19 @@ export default (Vue, Options = {}) => {
 
     const loadImageAsync = (item, resolve, reject) => {
         let image = new Image()
-        image.src = item.src
-
-        image.onload = function () {
+        _.on(image, 'load', function () {
             resolve({
                 naturalHeight: image.naturalHeight,
                 naturalWidth: image.naturalWidth,
                 src: item.src
-            })
-        }
+          })
+        })
 
-        image.onerror = function (e) {
+        _.on(image, 'error', function (e) {
             reject(e)
-        }
+        })
+
+        image.src = item.src
     }
 
     const componentWillUnmount = (el, binding, vnode, OldVnode) => {
@@ -178,10 +183,10 @@ export default (Vue, Options = {}) => {
         }
     }
 
-    const checkElExist = (el) => {
+    const checkElExist = el => {
         let hasIt = false
 
-        Listeners.forEach((item) => {
+        Listeners.forEach(item => {
             if (item.el === el) hasIt = true
         })
 

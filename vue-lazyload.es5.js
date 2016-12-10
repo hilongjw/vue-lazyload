@@ -22,7 +22,7 @@ if (!Array.prototype.$remove) {
 }
 
 var vueLazyload = (function (Vue) {
-    var Options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var Options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     var isVueNext = Vue.version.split('.')[0] === '2';
     var DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
@@ -131,16 +131,21 @@ var vueLazyload = (function (Vue) {
         }
     };
 
-    var setElRender = function setElRender(el, bindType, src, state, context) {
-        if (!bindType) {
-            el.setAttribute('src', src);
-        } else {
-            el.style[bindType] = 'url(' + src + ')';
-        }
+    var emitEvent = function emitEvent(el, state, context) {
         el.setAttribute('lazy', state);
-        if (context) {
-            $Lazyload.$emit(state, context);
+        context && $Lazyload.$emit(state, context);
+    };
+
+    var setElRender = function setElRender(el, bindType, src, state, context) {
+        if (bindType) {
+            el.style[bindType] = 'url(' + src + ')';
+            return emitEvent(el, state, context);
         }
+
+        el.setAttribute('src', src);
+        _.on(el, 'load', function () {
+            emitEvent(el, state, context);
+        });
     };
 
     var render = function render(item) {
@@ -161,19 +166,19 @@ var vueLazyload = (function (Vue) {
 
     var loadImageAsync = function loadImageAsync(item, resolve, reject) {
         var image = new Image();
-        image.src = item.src;
-
-        image.onload = function () {
+        _.on(image, 'load', function () {
             resolve({
                 naturalHeight: image.naturalHeight,
                 naturalWidth: image.naturalWidth,
                 src: item.src
             });
-        };
+        });
 
-        image.onerror = function (e) {
+        _.on(image, 'error', function (e) {
             reject(e);
-        };
+        });
+
+        image.src = item.src;
     };
 
     var componentWillUnmount = function componentWillUnmount(el, binding, vnode, OldVnode) {
