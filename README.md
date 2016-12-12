@@ -202,7 +202,7 @@ loading, loaded, error
 #### Example
 
 ```javascript
-vm.$Lazyload.$on('loaded', function ({ el, src }) {
+vm.$Lazyload.$on('loaded', function ({ bindType, el, naturalHeight, naturalWidth, parentEl, parentId, src, error }) {
   console.log(el, src)
 })
 ```
@@ -264,6 +264,59 @@ Vue.use(VueLazyload, {
 This is useful if you are having trouble with this plugin resetting itself to loading
 when you have certain animations and transitions taking place
 
+
+## image url Filter
+
+```javascript
+Vue.use(vueLazy, {
+    preLoad: 1.3,
+    error: 'dist/404.png',
+    loading: 'dist/loading-spin.svg',
+    adapter: {
+        loaded (listender, Init) {
+            console.log('loaded')
+        },
+        loading (listender, Init) {
+            console.log('loading')
+        },
+        error (listender, Init) {
+            console.log('error')
+        }
+    },
+    filter: {
+        webp ({ src }) {
+            const isCDN = /qiniudn.com/
+            if (isCDN.test(src)) {
+                src += '?imageView2/2/format/webp'
+            }
+            return src
+        }
+    }
+})
+```
+
+
+## Element Adapter
+
+```javascript
+Vue.use(vueLazy, {
+    preLoad: 1.3,
+    error: 'dist/404.png',
+    loading: 'dist/loading-spin.svg',
+    adapter: {
+        loaded ({ bindType, el, naturalHeight, naturalWidth, parentEl, parentId, src, error } , Init) {
+            // do something here
+            console.log('loaded')
+        },
+        loading (listender, Init) {
+            console.log('loading')
+        },
+        error (listender, Init) {
+            console.log('error')
+        }
+    }
+})
+```
 
 # License
 

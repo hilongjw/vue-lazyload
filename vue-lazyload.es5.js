@@ -180,7 +180,7 @@ var vueLazyload = (function (Vue) {
         if (emit) {
             $Lazyload.$emit(state, listener);
             if (Init.adapter[state]) {
-                Init.adapter[state](listener, state);
+                Init.adapter[state](listener, Init);
             }
         }
     };
