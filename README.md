@@ -250,7 +250,7 @@ vm.$Lazyload.$off('loaded', handler)
 You can configure which events you want vue-lazyload by passing in an array
 of listener names.
 
-```
+```javascript
 Vue.use(VueLazyload, {
   preLoad: 1.3,
   error: 'dist/error.png',
