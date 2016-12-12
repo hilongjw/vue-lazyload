@@ -1,5 +1,5 @@
 /*!
- * Vue-Lazyload.js v0.9.4
+ * Vue-Lazyload.js v0.9.5
  * (c) 2016 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
@@ -26,7 +26,8 @@ var vueLazyload = (function (Vue) {
 
     var isVueNext = Vue.version.split('.')[0] === '2';
     var DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-    var ListenEvents = Options.listenEvents || ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend'];
+    var Listeners = [];
+    var imageCache = [];
 
     var $Lazyload = {
         listeners: {
@@ -64,12 +65,41 @@ var vueLazyload = (function (Vue) {
         error: Options.error || DEFAULT_URL,
         loading: Options.loading || DEFAULT_URL,
         attempt: Options.attempt || 3,
-        scale: Options.scale || inBrowser ? window.devicePixelRatio : 1,
-        hasbind: false
+        scale: getDPR(Options.scale),
+        ListenEvents: Options.listenEvents || ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend'],
+        hasbind: false,
+        supportWebp: supportWebp(),
+        filter: Options.filter || {},
+        adapter: Options.adapter || {}
     };
 
-    var Listeners = [];
-    var imageCache = [];
+    function getDPR() {
+        var scale = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+
+        if (!inBrowser) return scale;
+        if (window.devicePixelRatio) {
+            return window.devicePixelRatio;
+        }
+        return scale;
+    }
+
+    function supportWebp() {
+        var support = true;
+        var d = document;
+
+        try {
+            var el = d.createElement('object');
+            el.type = 'image/webp';
+            el.innerHTML = '!';
+            d.body.appendChild(el);
+            support = !el.offsetWidth;
+            d.body.removeChild(el);
+        } catch (err) {
+            support = false;
+        }
+
+        return support;
+    }
 
     var throttle = function throttle(action, delay) {
         var timeout = null;
@@ -111,19 +141,19 @@ var vueLazyload = (function (Vue) {
 
     var onListen = function onListen(el, start) {
         if (start) {
-            ListenEvents.forEach(function (evt) {
+            Init.ListenEvents.forEach(function (evt) {
                 _.on(el, evt, lazyLoadHandler);
             });
         } else {
             Init.hasbind = false;
-            ListenEvents.forEach(function (evt) {
+            Init.ListenEvents.forEach(function (evt) {
                 _.off(el, evt, lazyLoadHandler);
             });
         }
     };
 
     var checkCanShow = function checkCanShow(listener) {
-        if (imageCache.indexOf(listener.src) !== -1) return setElRender(listener.el, listener.bindType, listener.src, 'loaded');
+        if (imageCache.indexOf(listener.src) !== -1) return setElRender(listener, 'loaded');
         var rect = listener.el.getBoundingClientRect();
 
         if (rect.top < window.innerHeight * Init.preLoad && rect.bottom > 0 && rect.left < window.innerWidth * Init.preLoad && rect.right > 0) {
@@ -131,31 +161,44 @@ var vueLazyload = (function (Vue) {
         }
     };
 
-    var setElRender = function setElRender(el, bindType, src, state, context) {
+    var setElRender = function setElRender(listener, state, emit) {
+        var el = listener.el;
+        var bindType = listener.bindType;
+
+        var src = state === 'error' ? listener.error : listener.src;
+
         if (!bindType) {
-            el.setAttribute('src', src);
+            if (el.getAttribute('src') !== src) {
+                el.setAttribute('src', src);
+            }
         } else {
             el.style[bindType] = 'url(' + src + ')';
         }
+
         el.setAttribute('lazy', state);
-        if (context) {
-            $Lazyload.$emit(state, context);
+
+        if (emit) {
+            $Lazyload.$emit(state, listener);
+            if (Init.adapter[state]) {
+                Init.adapter[state](listener, state);
+            }
         }
     };
 
-    var render = function render(item) {
-        if (item.attempt >= Init.attempt) return false;
-        item.attempt++;
+    var render = function render(listener) {
+        if (listener.attempt >= Init.attempt) return false;
+        listener.attempt++;
 
-        if (imageCache.indexOf(item.src) !== -1) return setElRender(item.el, item.bindType, item.src, 'loaded');
-        imageCache.push(item.src);
+        if (imageCache.indexOf(listener.src) !== -1) return setElRender(listener, 'loaded');
+        imageCache.push(listener.src);
 
-        loadImageAsync(item, function (image) {
-            setElRender(item.el, item.bindType, item.src, 'loaded', item);
-            Listeners.$remove(item);
+        loadImageAsync(listener, function (image) {
+            listener = Object.assign(listener, image);
+            setElRender(listener, 'loaded', true);
+            Listeners.$remove(listener);
         }, function (error) {
-            imageCache.$remove(item.src);
-            setElRender(item.el, item.bindType, item.error, 'error', item);
+            imageCache.$remove(listener.src);
+            setElRender(listener, 'error', true);
         });
     };
 
@@ -205,6 +248,16 @@ var vueLazyload = (function (Vue) {
         return hasIt;
     };
 
+    function listenerFilter(listener) {
+        if (Init.filter.webp && Init.supportWebp) {
+            listener.src = Init.filter.webp(listener, Init);
+        }
+        if (Init.filter.customer) {
+            listener.src = Init.filter.customer(listener, Init);
+        }
+        return listener;
+    }
+
     var addListener = function addListener(el, binding, vnode) {
         if (el.getAttribute('lazy') === 'loaded') return;
         if (checkElExist(el)) return;
@@ -220,15 +273,24 @@ var vueLazyload = (function (Vue) {
             imageError = binding.value.error || Init.error;
         }
 
-        if (imageCache.indexOf(imageSrc) > -1) return setElRender(el, binding.arg, imageSrc, 'loaded');
+        if (imageCache.indexOf(imageSrc) > -1) {
+            return setElRender({
+                el: el,
+                bindType: binding.arg,
+                src: imageSrc
+            }, 'loaded');
+        }
 
         Vue.nextTick(function () {
+            var parentId = void 0;
             if (binding.modifiers) {
-                parentEl = window.document.getElementById(Object.keys(binding.modifiers)[0]);
+                parentId = Object.keys(binding.modifiers)[0];
+                parentEl = window.document.getElementById(parentId);
             }
 
             var listener = {
                 bindType: binding.arg,
+                parentId: parentId,
                 attempt: 0,
                 parentEl: parentEl,
                 el: el,
@@ -236,9 +298,15 @@ var vueLazyload = (function (Vue) {
                 src: imageSrc
             };
 
+            listener = listenerFilter(listener);
+
             Listeners.push(listener);
 
-            setElRender(el, binding.arg, imageLoading, 'loading', listener);
+            setElRender({
+                el: el,
+                bindType: binding.arg,
+                src: imageLoading
+            }, 'loading', true);
 
             lazyLoadHandler();
 

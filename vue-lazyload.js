@@ -13,7 +13,8 @@ if (!Array.prototype.$remove) {
 export default (Vue, Options = {}) => {
     const isVueNext = Vue.version.split('.')[0] === '2'
     const DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
-    const ListenEvents = Options.listenEvents || ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend']
+    const Listeners = []
+    const imageCache = []
 
     const $Lazyload = {
         listeners: {
@@ -51,12 +52,39 @@ export default (Vue, Options = {}) => {
         error: Options.error || DEFAULT_URL,
         loading: Options.loading || DEFAULT_URL,
         attempt: Options.attempt || 3,
-        scale: Options.scale || inBrowser ? window.devicePixelRatio : 1,
+        scale: getDPR(Options.scale),
+        ListenEvents: Options.listenEvents || ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend'],
         hasbind: false,
+        supportWebp: supportWebp(),
+        filter: Options.filter || {},
+        adapter: Options.adapter || {}
     }
 
-    const Listeners = []
-    const imageCache = []
+    function getDPR (scale = 1) {
+        if (!inBrowser) return scale
+        if (window.devicePixelRatio) {
+            return window.devicePixelRatio
+        }
+        return scale
+    }
+
+    function supportWebp () {
+        let support = true
+        const d = document
+
+        try {
+            let el = d.createElement('object')
+            el.type = 'image/webp'
+            el.innerHTML = '!'
+            d.body.appendChild(el)
+            support = !el.offsetWidth
+            d.body.removeChild(el)
+        } catch (err) {
+            support = false
+        }
+
+        return support
+    }
 
     const throttle = function (action, delay) {
         let timeout = null
@@ -99,19 +127,19 @@ export default (Vue, Options = {}) => {
 
     const onListen = (el, start) => {
         if (start) {
-            ListenEvents.forEach((evt) => {
+            Init.ListenEvents.forEach((evt) => {
                 _.on(el, evt, lazyLoadHandler)
             })
         } else {
             Init.hasbind = false
-            ListenEvents.forEach((evt) => {
+            Init.ListenEvents.forEach((evt) => {
                 _.off(el, evt, lazyLoadHandler)
             })
         }
     }
 
     const checkCanShow = (listener) => {
-        if (imageCache.indexOf(listener.src) !== -1) return setElRender(listener.el, listener.bindType, listener.src, 'loaded')
+        if (imageCache.indexOf(listener.src) !== -1) return setElRender(listener, 'loaded')
         let rect = listener.el.getBoundingClientRect()
 
         if ((rect.top < window.innerHeight * Init.preLoad && rect.bottom > 0) && (rect.left < window.innerWidth * Init.preLoad && rect.right > 0)) {
@@ -119,31 +147,42 @@ export default (Vue, Options = {}) => {
         }
     }
 
-    const setElRender = (el, bindType, src, state, context) => {
+    const setElRender = (listener, state, emit) => {
+        const { el, bindType } = listener
+        let src = state === 'error' ? listener.error : listener.src
+
         if (!bindType) {
-            el.setAttribute('src', src)
+            if (el.getAttribute('src') !== src) {
+                el.setAttribute('src', src)
+            }
         } else {
             el.style[bindType] = 'url(' + src + ')'
         }
+
         el.setAttribute('lazy', state)
-        if (context) {
-            $Lazyload.$emit(state, context)
+
+        if (emit) {
+            $Lazyload.$emit(state, listener)
+            if (Init.adapter[state]) {
+                Init.adapter[state](listener, state)
+            }
         }
     }
 
-    const render = (item) => {
-        if (item.attempt >= Init.attempt) return false
-        item.attempt++
+    const render = (listener) => {
+        if (listener.attempt >= Init.attempt) return false
+        listener.attempt++
 
-        if (imageCache.indexOf(item.src) !== -1) return setElRender(item.el, item.bindType, item.src, 'loaded')
-        imageCache.push(item.src)
+        if (imageCache.indexOf(listener.src) !== -1) return setElRender(listener, 'loaded')
+        imageCache.push(listener.src)
 
-        loadImageAsync(item, (image) => {
-                setElRender(item.el, item.bindType, item.src, 'loaded', item)
-                Listeners.$remove(item)
+        loadImageAsync(listener, (image) => {
+                listener = Object.assign(listener, image)
+                setElRender(listener, 'loaded', true)
+                Listeners.$remove(listener)
             }, (error) => {
-                imageCache.$remove(item.src)
-                setElRender(item.el, item.bindType, item.error, 'error', item)
+                imageCache.$remove(listener.src)
+                setElRender(listener, 'error', true)
             })
     }
 
@@ -193,6 +232,16 @@ export default (Vue, Options = {}) => {
         return hasIt
     }
 
+    function listenerFilter (listener) {
+        if (Init.filter.webp && Init.supportWebp) {
+            listener.src = Init.filter.webp(listener, Init)
+        }
+        if (Init.filter.customer) {
+            listener.src = Init.filter.customer(listener, Init)
+        }
+        return listener
+    }
+
     const addListener = (el, binding, vnode) => {
         if (el.getAttribute('lazy') === 'loaded') return
         if (checkElExist(el)) return
@@ -208,15 +257,24 @@ export default (Vue, Options = {}) => {
             imageError = binding.value.error || Init.error
         }
 
-        if (imageCache.indexOf(imageSrc) > -1) return setElRender(el, binding.arg, imageSrc, 'loaded')
+        if (imageCache.indexOf(imageSrc) > -1) {
+            return setElRender({
+                el: el, 
+                bindType: binding.arg,
+                src: imageSrc
+            }, 'loaded')
+        }
 
         Vue.nextTick(() => {
+            let parentId
             if (binding.modifiers) {
-                parentEl = window.document.getElementById(Object.keys(binding.modifiers)[0])
+                parentId = Object.keys(binding.modifiers)[0]
+                parentEl = window.document.getElementById(parentId)
             }
 
             let listener = {
                 bindType: binding.arg,
+                parentId: parentId,
                 attempt: 0,
                 parentEl: parentEl,
                 el: el,
@@ -224,9 +282,15 @@ export default (Vue, Options = {}) => {
                 src: imageSrc
             }
 
+            listener = listenerFilter(listener)
+
             Listeners.push(listener)
 
-            setElRender(el, binding.arg, imageLoading, 'loading', listener)
+            setElRender({
+                el: el, 
+                bindType: binding.arg, 
+                src: imageLoading
+            }, 'loading', true)
 
             lazyLoadHandler()
 
