@@ -22,7 +22,7 @@ if (!Array.prototype.$remove) {
 }
 
 var vueLazyload = (function (Vue) {
-    var Options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var Options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     var isVueNext = Vue.version.split('.')[0] === '2';
     var DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
@@ -74,7 +74,7 @@ var vueLazyload = (function (Vue) {
     };
 
     function getDPR() {
-        var scale = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+        var scale = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
         if (!inBrowser) return scale;
         if (window.devicePixelRatio) {
@@ -162,8 +162,8 @@ var vueLazyload = (function (Vue) {
     };
 
     var setElRender = function setElRender(listener, state, emit) {
-        var el = listener.el;
-        var bindType = listener.bindType;
+        var el = listener.el,
+            bindType = listener.bindType;
 
         var src = state === 'error' ? listener.error : listener.src;
 
@@ -259,7 +259,7 @@ var vueLazyload = (function (Vue) {
     }
 
     var addListener = function addListener(el, binding, vnode) {
-        if (el.getAttribute('lazy') === 'loaded') return;
+        if (el.getAttribute('lazy') === 'loaded' && binding.value === binding.oldValue) return;
         if (checkElExist(el)) return;
 
         var parentEl = null;
