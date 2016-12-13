@@ -55,6 +55,15 @@ new Vue({
 
 ```html
 <!--your.vue-->
+
+<template>
+  <div class="img-list">
+    <div id="container">
+        <img v-lazy="img" v-for="img in list" :key="img">
+    </div>
+  </div>
+</template>
+
 <script>
 export default {
   data () {
@@ -73,16 +82,6 @@ export default {
   }
 }
 </script>
-
-<template>
-  <div class="img-list">
-    <ul id="container">
-      <li v-for="img in list">
-        <img v-lazy="img">
-      </li>
-    </ul>
-  </div>
-</template>
 ```
 
 ## API
@@ -202,7 +201,7 @@ loading, loaded, error
 #### Example
 
 ```javascript
-vm.$Lazyload.$on('loaded', function ({ bindType, el, naturalHeight, naturalWidth, parentEl, parentId, src, error }) {
+vm.$Lazyload.$on('loaded', function ({ bindType, el, naturalHeight, naturalWidth, $parent, src, loading, error }) {
   console.log(el, src)
 })
 ```
@@ -304,7 +303,7 @@ Vue.use(vueLazy, {
     error: 'dist/404.png',
     loading: 'dist/loading-spin.svg',
     adapter: {
-        loaded ({ bindType, el, naturalHeight, naturalWidth, parentEl, parentId, src, error } , Init) {
+        loaded ({ bindType, el, naturalHeight, naturalWidth, $parent, src, loading, error, Init }) {
             // do something here
             console.log('loaded')
         },
