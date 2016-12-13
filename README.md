@@ -317,6 +317,17 @@ Vue.use(vueLazy, {
 })
 ```
 
+# Authors && Contributors
+
+- [hilongjw](https://github.com/hilongjw)
+- [imcvampire](https://github.com/imcvampire)
+- [darrynten](https://github.com/darrynten)
+- [biluochun](https://github.com/biluochun)
+- [whwnow](https://github.com/whwnow)
+- [Leopoldthecoder](https://github.com/Leopoldthecoder)
+- [michalbcz](https://github.com/michalbcz)
+- [blue0728](https://github.com/blue0728)
+
 # License
 
 [The MIT License](http://opensource.org/licenses/MIT)
