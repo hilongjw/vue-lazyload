@@ -12,11 +12,11 @@ var banner =
   ' */'
 
 rollup.rollup({
-    entry: path.resolve(__dirname, 'vue-lazyload.js'),
+    entry: path.resolve(__dirname, 'src/index.js'),
     plugins: [ babel() ]
 })
 .then(bundle => {
-    return write(path.resolve(__dirname, 'vue-lazyload.es5.js'), bundle.generate({
+    return write(path.resolve(__dirname, 'vue-lazyload.js'), bundle.generate({
         format: 'umd',
         banner: banner,
         moduleName: 'install'
