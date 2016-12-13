@@ -94,8 +94,8 @@ export default (Vue, Options = {}) => {
     const checkElExist = (el) => {
         let hasIt = false
 
-        for (let item of ListenerQueue) {
-            if (item.el === el) {
+        for (let i = 0, len = ListenerQueue.length; i < len; i++) {
+            if (ListenerQueue[i].el === el) {
                 hasIt = true
                 break
             }

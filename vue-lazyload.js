@@ -1,5 +1,5 @@
 /*!
- * Vue-Lazyload.js v1.0.0-rc3
+ * Vue-Lazyload.js v1.0.0-rc4
  * (c) 2016 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
@@ -175,11 +175,12 @@ var ReactiveListener = function () {
         value: function load() {
             var _this = this;
 
+            if (this.attempt > this.Init.attempt - 1 && this.state.error) {
+                return console.log('error end');
+            }
+
             if (this.state.loaded || imageCache[this.src]) {
                 return this.render('loaded');
-            }
-            if (this.attempt > this.Init.attempt - 1) {
-                return;
             }
 
             this.render('loading', true);
@@ -192,10 +193,12 @@ var ReactiveListener = function () {
                 _this.naturalHeight = data.naturalHeight;
                 _this.naturalWidth = data.naturalWidth;
                 _this.state.loaded = true;
+                _this.state.error = false;
                 _this.render('loaded', true);
                 imageCache[_this.src] = 1;
             }, function (err) {
                 _this.state.error = true;
+                _this.state.loaded = false;
                 _this.render('error', true);
             });
         }
@@ -213,6 +216,10 @@ var ReactiveListener = function () {
                 default:
                     src = this.src;
                     break;
+            }
+
+            if (src === 'dist/test1.jpg') {
+                console.log(this);
             }
 
             this.elRenderer({
@@ -331,31 +338,10 @@ var index = (function (Vue) {
     var checkElExist = function checkElExist(el) {
         var hasIt = false;
 
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-            for (var _iterator = ListenerQueue[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                var item = _step.value;
-
-                if (item.el === el) {
-                    hasIt = true;
-                    break;
-                }
-            }
-        } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
-        } finally {
-            try {
-                if (!_iteratorNormalCompletion && _iterator.return) {
-                    _iterator.return();
-                }
-            } finally {
-                if (_didIteratorError) {
-                    throw _iteratorError;
-                }
+        for (var i = 0, len = ListenerQueue.length; i < len; i++) {
+            if (ListenerQueue[i].el === el) {
+                hasIt = true;
+                break;
             }
         }
 

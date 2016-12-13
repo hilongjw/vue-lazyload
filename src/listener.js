@@ -51,11 +51,12 @@ export default class ReactiveListener {
     }
 
     load () {
+        if ((this.attempt > this.Init.attempt - 1) && this.state.error) {
+            return console.log('error end')
+        }
+
         if (this.state.loaded || imageCache[this.src]) {
             return this.render('loaded')
-        }
-        if (this.attempt > this.Init.attempt - 1) {
-            return 
         }
 
         this.render('loading', true)
@@ -68,10 +69,12 @@ export default class ReactiveListener {
             this.naturalHeight = data.naturalHeight
             this.naturalWidth = data.naturalWidth
             this.state.loaded = true
+            this.state.error = false
             this.render('loaded', true)
             imageCache[this.src] = 1
         }, err => {
             this.state.error = true
+            this.state.loaded = false
             this.render('error', true)
         })
     }
@@ -88,6 +91,10 @@ export default class ReactiveListener {
             default:
                 src = this.src
                 break
+        }
+
+        if (src === 'dist/test1.jpg') {
+            console.log(this)
         }
         
         this.elRenderer({
