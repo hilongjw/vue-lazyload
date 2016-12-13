@@ -243,7 +243,7 @@ export default (Vue, Options = {}) => {
     }
 
     const addListener = (el, binding, vnode) => {
-        if (el.getAttribute('lazy') === 'loaded') return
+        if (el.getAttribute('lazy') === 'loaded' && binding.value === binding.oldValue) return
         if (checkElExist(el)) return
 
         let parentEl = null
