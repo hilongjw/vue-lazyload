@@ -150,13 +150,14 @@ export default (Vue, Options = {}) => {
     const setElRender = (listener, state, emit) => {
         const { el, bindType } = listener
         let src = state === 'error' ? listener.error : listener.src
+        let suffix = el.getAttribute('data-suffix') || ''
 
         if (!bindType) {
             if (el.getAttribute('src') !== src) {
-                el.setAttribute('src', src)
+                el.setAttribute('src', src + suffix)
             }
         } else {
-            el.style[bindType] = 'url(' + src + ')'
+            el.style[bindType] = 'url(' + src + suffix + ')'
         }
 
         el.setAttribute('lazy', state)
@@ -188,13 +189,15 @@ export default (Vue, Options = {}) => {
 
     const loadImageAsync = (item, resolve, reject) => {
         let image = new Image()
-        image.src = item.src
+        let suffix = el.getAttribute('data-suffix') || ''
+        image.src = item.src + suffix
 
         image.onload = function () {
             resolve({
                 naturalHeight: image.naturalHeight,
                 naturalWidth: image.naturalWidth,
-                src: item.src
+                src: item.src,
+                suffix
             })
         }
 
@@ -250,6 +253,7 @@ export default (Vue, Options = {}) => {
         let imageSrc = binding.value
         let imageLoading = Init.loading
         let imageError = Init.error
+        let suffix = el.getAttribute('data-suffix') || ''
 
         if (binding.value && typeof(binding.value) !== 'string') {
             imageSrc = binding.value.src
@@ -261,7 +265,8 @@ export default (Vue, Options = {}) => {
             return setElRender({
                 el: el, 
                 bindType: binding.arg,
-                src: imageSrc
+                src: imageSrc,
+                suffix
             }, 'loaded')
         }
 
@@ -279,7 +284,8 @@ export default (Vue, Options = {}) => {
                 parentEl: parentEl,
                 el: el,
                 error: imageError,
-                src: imageSrc
+                src: imageSrc,
+                suffix
             }
 
             listener = listenerFilter(listener)
@@ -289,7 +295,8 @@ export default (Vue, Options = {}) => {
             setElRender({
                 el: el, 
                 bindType: binding.arg, 
-                src: imageLoading
+                src: imageLoading,
+                suffix
             }, 'loading', true)
 
             lazyLoadHandler()
