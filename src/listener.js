@@ -51,10 +51,13 @@ export default class ReactiveListener {
     }
 
     load () {
-        if (this.attempt > this.Init.attempt - 1) return this.render('error')
         if (this.state.loaded || imageCache[this.src]) {
             return this.render('loaded')
         }
+        if (this.attempt > this.Init.attempt - 1) {
+            return 
+        }
+
         this.render('loading', true)
 
         this.attempt++
@@ -86,6 +89,7 @@ export default class ReactiveListener {
                 src = this.src
                 break
         }
+        
         this.elRenderer({
             el: this.el, 
             bindType: this.bindType,

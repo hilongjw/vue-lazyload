@@ -146,7 +146,6 @@ export default (Vue, Options = {}) => {
             loading = value.loading || Init.loading
             error = value.error || Init.error
         }
-
         return {
             src,
             loading,
@@ -211,7 +210,6 @@ export default (Vue, Options = {}) => {
                         loading,
                         error
                     })
-                    console.log('changed')
                 }
                 break
             }

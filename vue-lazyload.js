@@ -175,10 +175,13 @@ var ReactiveListener = function () {
         value: function load() {
             var _this = this;
 
-            if (this.attempt > this.Init.attempt - 1) return this.render('error');
             if (this.state.loaded || imageCache[this.src]) {
                 return this.render('loaded');
             }
+            if (this.attempt > this.Init.attempt - 1) {
+                return;
+            }
+
             this.render('loading', true);
 
             this.attempt++;
@@ -211,6 +214,7 @@ var ReactiveListener = function () {
                     src = this.src;
                     break;
             }
+
             this.elRenderer({
                 el: this.el,
                 bindType: this.bindType,
@@ -403,7 +407,6 @@ var index = (function (Vue) {
             loading = value.loading || Init.loading;
             error = value.error || Init.error;
         }
-
         return {
             src: src,
             loading: loading,
@@ -479,7 +482,6 @@ var index = (function (Vue) {
                         loading: loading,
                         error: error
                     });
-                    console.log('changed');
                 }
                 break;
             }
