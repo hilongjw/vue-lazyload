@@ -22,7 +22,7 @@ if (!Array.prototype.$remove) {
 }
 
 var vueLazyload = (function (Vue) {
-    var Options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var Options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     var isVueNext = Vue.version.split('.')[0] === '2';
     var DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
@@ -74,7 +74,7 @@ var vueLazyload = (function (Vue) {
     };
 
     function getDPR() {
-        var scale = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+        var scale = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
         if (!inBrowser) return scale;
         if (window.devicePixelRatio) {
@@ -88,12 +88,12 @@ var vueLazyload = (function (Vue) {
         var d = document;
 
         try {
-            var el = d.createElement('object');
-            el.type = 'image/webp';
-            el.innerHTML = '!';
-            d.body.appendChild(el);
-            support = !el.offsetWidth;
-            d.body.removeChild(el);
+            var _el = d.createElement('object');
+            _el.type = 'image/webp';
+            _el.innerHTML = '!';
+            d.body.appendChild(_el);
+            support = !_el.offsetWidth;
+            d.body.removeChild(_el);
         } catch (err) {
             support = false;
         }
@@ -162,17 +162,18 @@ var vueLazyload = (function (Vue) {
     };
 
     var setElRender = function setElRender(listener, state, emit) {
-        var el = listener.el;
-        var bindType = listener.bindType;
+        var el = listener.el,
+            bindType = listener.bindType;
 
         var src = state === 'error' ? listener.error : listener.src;
+        var suffix = el.getAttribute('data-suffix') || '';
 
         if (!bindType) {
             if (el.getAttribute('src') !== src) {
-                el.setAttribute('src', src);
+                el.setAttribute('src', src + suffix);
             }
         } else {
-            el.style[bindType] = 'url(' + src + ')';
+            el.style[bindType] = 'url(' + src + suffix + ')';
         }
 
         el.setAttribute('lazy', state);
@@ -204,13 +205,15 @@ var vueLazyload = (function (Vue) {
 
     var loadImageAsync = function loadImageAsync(item, resolve, reject) {
         var image = new Image();
-        image.src = item.src;
+        var suffix = el.getAttribute('data-suffix') || '';
+        image.src = item.src + suffix;
 
         image.onload = function () {
             resolve({
                 naturalHeight: image.naturalHeight,
                 naturalWidth: image.naturalWidth,
-                src: item.src
+                src: item.src,
+                suffix: suffix
             });
         };
 
@@ -266,6 +269,7 @@ var vueLazyload = (function (Vue) {
         var imageSrc = binding.value;
         var imageLoading = Init.loading;
         var imageError = Init.error;
+        var suffix = el.getAttribute('data-suffix') || '';
 
         if (binding.value && typeof binding.value !== 'string') {
             imageSrc = binding.value.src;
@@ -277,7 +281,8 @@ var vueLazyload = (function (Vue) {
             return setElRender({
                 el: el,
                 bindType: binding.arg,
-                src: imageSrc
+                src: imageSrc,
+                suffix: suffix
             }, 'loaded');
         }
 
@@ -295,7 +300,8 @@ var vueLazyload = (function (Vue) {
                 parentEl: parentEl,
                 el: el,
                 error: imageError,
-                src: imageSrc
+                src: imageSrc,
+                suffix: suffix
             };
 
             listener = listenerFilter(listener);
@@ -305,7 +311,8 @@ var vueLazyload = (function (Vue) {
             setElRender({
                 el: el,
                 bindType: binding.arg,
-                src: imageLoading
+                src: imageLoading,
+                suffix: suffix
             }, 'loading', true);
 
             lazyLoadHandler();
