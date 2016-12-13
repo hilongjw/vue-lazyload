@@ -264,7 +264,7 @@ This is useful if you are having trouble with this plugin resetting itself to lo
 when you have certain animations and transitions taking place
 
 
-## image url Filter
+## Image url Filter
 
 ```javascript
 Vue.use(vueLazy, {
