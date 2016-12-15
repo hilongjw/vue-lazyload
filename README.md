@@ -170,7 +170,7 @@ loading, loaded, error
   }
   img[lazy=error] {
     /*your style here*/
-  },
+  }
   img[lazy=loaded] {
     /*your style here*/
   }
@@ -182,7 +182,7 @@ loading, loaded, error
   }
   .yourclass[lazy=error] {
     /*your style here*/
-  },
+  }
   .yourclass[lazy=loaded] {
     /*your style here*/
   }
