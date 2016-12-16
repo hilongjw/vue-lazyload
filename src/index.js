@@ -131,7 +131,7 @@ export default (Vue, Options = {}) => {
 
         Vue.nextTick(() => {
             // binding.modifiers will never be null
-            let $parent = vnode.$refs[Object.keys(binding.modifiers)[0]]
+            let $parent = vnode.context.$refs[Object.keys(binding.modifiers)[0]]
             // try to get $el of ref, if there is on $el, it a normal DOM node
             $parent = $parent && $parent.$el || $parent
 
@@ -188,8 +188,7 @@ export default (Vue, Options = {}) => {
                     arg: this.arg,
                     value: newValue,
                     oldValue: oldValue
-                },
-                this)
+                }, { context: this })
             },
             unbind () {
                 componentWillUnmount(this.el)
