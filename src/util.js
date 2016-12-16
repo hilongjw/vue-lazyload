@@ -1,13 +1,9 @@
 const inBrowser = typeof window !== 'undefined'
 
-if (!Array.prototype.$remove) {
-    Array.prototype.$remove = function (item) {
-        if (!this.length) return
-        const index = this.indexOf(item)
-        if (index > -1) {
-          return this.splice(index, 1)
-        }
-    }
+function remove(arr, item) {
+    if (!arr.length) return
+    const index = this.indexOf(item)
+    if (index > -1) return arr.splice(index, 1)
 }
 
 function getDPR (scale = 1) {
@@ -88,6 +84,7 @@ const loadImageAsync = (item, resolve, reject) => {
 
 export {
     inBrowser,
+    remove,
     _,
     throttle,
     supportWebp,

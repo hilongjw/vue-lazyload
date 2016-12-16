@@ -93,10 +93,6 @@ export default class ReactiveListener {
                 break
         }
 
-        if (src === 'dist/test1.jpg') {
-            console.log(this)
-        }
-        
         this.elRenderer({
             el: this.el, 
             bindType: this.bindType,

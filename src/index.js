@@ -1,4 +1,4 @@
-import { inBrowser,  _, throttle, supportWebp, getDPR, loadImageAsync } from './util'
+import { remove,  _, throttle, supportWebp, getDPR } from './util'
 import ReactiveListener from './listener'
 
 export default (Vue, Options = {}) => {
@@ -41,7 +41,7 @@ export default (Vue, Options = {}) => {
                 this.listeners[event] = []
                 return
             }
-            this.listeners[event].$remove(func)
+            remove(this.listeners[event], func)
         },
         $emit (event, context) {
             this.listeners[event].forEach(func => {
@@ -51,57 +51,27 @@ export default (Vue, Options = {}) => {
     }
 
     const lazyLoadHandler = throttle(() => {
-        for (let i = 0, len = ListenerQueue.length; i < len; ++i) {
-            checkCanShow(ListenerQueue[i])
-        }
+        ListenerQueue.forEach(listener => {
+            if (listener.state.loaded) return
+            listener.checkInView() && listener.load()
+        })
     }, 300)
 
-    const checkCanShow = (listener) => {
-        if (listener.state.loaded) return 
-        if (listener.checkInView()) {
-            listener.load()
-        }
-    }
-
     const onListen = (el, start) => {
-        if (start) {
-            Init.ListenEvents.forEach((evt) => {
-                _.on(el, evt, lazyLoadHandler)
-            })
-        } else {
-            Init.hasbind = false
-            Init.ListenEvents.forEach((evt) => {
-                _.off(el, evt, lazyLoadHandler)
-            })
-        }
+        Init.hasbind = start
+        Init.ListenEvents.forEach((evt) => {
+            _[start ? 'on' : 'off'](el, evt, lazyLoadHandler)
+        })
     }
 
-    const componentWillUnmount = (el, binding, vnode, OldVnode) => {
+    const componentWillUnmount = el => {
         if (!el) return
 
-        for (let i = 0, len = ListenerQueue.length; i < len; i++) {
-            if (ListenerQueue[i] && ListenerQueue[i].el === el) {
-                ListenerQueue[i].destroy()
-                ListenerQueue.splice(i, 1)
-            }
-        }
+        const exist = ListenerQueue.find(item => item.el === el)
 
-        if (Init.hasbind && ListenerQueue.length == 0) {
-            onListen(window, false)
-        }
-    }
+        exist && remove(ListenerQueue, exist).destroy()
 
-    const checkElExist = (el) => {
-        let hasIt = false
-
-        for (let i = 0, len = ListenerQueue.length; i < len; i++) {
-            if (ListenerQueue[i].el === el) {
-                hasIt = true
-                break
-            }
-        }
-
-        return hasIt
+        Init.hasbind && !ListenerQueue.length && onListen(window, false)
     }
 
     const elRenderer = (data, state, notify) => {
@@ -117,12 +87,10 @@ export default (Vue, Options = {}) => {
 
         el.setAttribute('lazy', state)
 
-        if (notify) {
-            $Lazyload.$emit(state, data)
-            if (Init.adapter[state]) {
-                Init.adapter[state](data, Init)
-            }
-        }
+        if (!notify) return
+
+        $Lazyload.$emit(state, data)
+        Init.adapter[state] && Init.adapter[state](data, Init)
     }
 
     function listenerFilter (listener) {
@@ -154,24 +122,20 @@ export default (Vue, Options = {}) => {
     }
 
     const addListener = (el, binding, vnode) => {
-        if (checkElExist(el)) {
+        if (ListenerQueue.some(item => item.el === el)) {
             updateListener(el, binding)
-            return Vue.nextTick(() => {
-                lazyLoadHandler()
-            })
+            return Vue.nextTick(lazyLoadHandler)
         }
 
-        let $parent = null
         let { src, loading, error } = valueFormater(binding.value)
 
         Vue.nextTick(() => {
-            let parentId
-            if (binding.modifiers) {
-                parentId = Object.keys(binding.modifiers)[0]
-                $parent = window.document.getElementById(parentId)
-            }
+            // binding.modifiers will never be null
+            let $parent = vnode.context.$refs[Object.keys(binding.modifiers)[0]]
+            // try to get $el of ref, if there is on $el, it a normal DOM node
+            $parent = $parent && $parent.$el || $parent
 
-            let listener = new ReactiveListener({
+            ListenerQueue.push(listenerFilter(new ReactiveListener({
                 bindType: binding.arg,
                 $parent,
                 el,
@@ -180,40 +144,28 @@ export default (Vue, Options = {}) => {
                 src,
                 Init,
                 elRenderer
-            })
-
-            listener = listenerFilter(listener)
-
-            ListenerQueue.push(listener)
+            })))
 
             lazyLoadHandler()
 
-            if (ListenerQueue.length > 0 && !Init.hasbind) {
-                Init.hasbind = true
-                onListen(window, true)
+            if (!ListenerQueue.length || Init.hasbind) return
 
-                if ($parent) {
-                    onListen($parent, true)
-                }
-            }
+            Init.hasbind = true
+            onListen(window, true)
+            $parent && onListen($parent, true)
         })
     }
 
     const updateListener = (el, binding) => {
         let { src, loading, error } = valueFormater(binding.value)
 
-        for (let i = 0, len = ListenerQueue.length; i < len; i++) {
-            if (ListenerQueue[i] && ListenerQueue[i].el === el) {
-                if (ListenerQueue[i].src !== src ) {
-                    ListenerQueue[i].update({
-                        src,
-                        loading,
-                        error
-                    })
-                }
-                break
-            }
-        }
+        const exist = ListenerQueue.find(item => item.el === el)
+
+        exist && exist.src !== src && exist.update({
+            src,
+            loading,
+            error
+        })
     }
 
     Vue.prototype.$Lazyload = $Lazyload
@@ -230,12 +182,13 @@ export default (Vue, Options = {}) => {
         Vue.directive('lazy', {
             bind: lazyLoadHandler,
             update (newValue, oldValue) {
+                Object.assign(this.$refs, this.$els)
                 addListener(this.el, {
-                    modifiers: this.modifiers,
+                    modifiers: this.modifiers || {},
                     arg: this.arg,
                     value: newValue,
                     oldValue: oldValue
-                })
+                }, { context: this })
             },
             unbind () {
                 componentWillUnmount(this.el)
