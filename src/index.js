@@ -1,4 +1,4 @@
-import { inBrowser, remove,  _, throttle, supportWebp, getDPR, loadImageAsync } from './util'
+import { remove,  _, throttle, supportWebp, getDPR } from './util'
 import ReactiveListener from './listener'
 
 export default (Vue, Options = {}) => {
@@ -53,9 +53,7 @@ export default (Vue, Options = {}) => {
     const lazyLoadHandler = throttle(() => {
         ListenerQueue.forEach(listener => {
             if (listener.state.loaded) return
-            if (listener.checkInView()) {
-                listener.load()
-            }
+            listener.checkInView() && listener.load()
         })
     }, 300)
 
@@ -66,7 +64,7 @@ export default (Vue, Options = {}) => {
         })
     }
 
-    const componentWillUnmount = (el, binding, vnode, OldVnode) => {
+    const componentWillUnmount = el => {
         if (!el) return
 
         const exist = ListenerQueue.find(item => item.el === el)
@@ -89,12 +87,10 @@ export default (Vue, Options = {}) => {
 
         el.setAttribute('lazy', state)
 
-        if (notify) {
-            $Lazyload.$emit(state, data)
-            if (Init.adapter[state]) {
-                Init.adapter[state](data, Init)
-            }
-        }
+        if (!notify) return
+
+        $Lazyload.$emit(state, data)
+        Init.adapter[state] && Init.adapter[state](data, Init)
     }
 
     function listenerFilter (listener) {
@@ -128,9 +124,7 @@ export default (Vue, Options = {}) => {
     const addListener = (el, binding, vnode) => {
         if (ListenerQueue.some(item => item.el === el)) {
             updateListener(el, binding)
-            return Vue.nextTick(() => {
-                lazyLoadHandler()
-            })
+            return Vue.nextTick(lazyLoadHandler)
         }
 
         let { src, loading, error } = valueFormater(binding.value)
@@ -141,7 +135,7 @@ export default (Vue, Options = {}) => {
             // try to get $el of ref, if there is on $el, it a normal DOM node
             $parent = $parent && $parent.$el || $parent
 
-            let listener = new ReactiveListener({
+            ListenerQueue.push(listenerFilter(new ReactiveListener({
                 bindType: binding.arg,
                 $parent,
                 el,
@@ -150,22 +144,15 @@ export default (Vue, Options = {}) => {
                 src,
                 Init,
                 elRenderer
-            })
-
-            listener = listenerFilter(listener)
-
-            ListenerQueue.push(listener)
+            })))
 
             lazyLoadHandler()
 
-            if (ListenerQueue.length > 0 && !Init.hasbind) {
-                Init.hasbind = true
-                onListen(window, true)
+            if (!ListenerQueue.length || Init.hasbind) return
 
-                if ($parent) {
-                    onListen($parent, true)
-                }
-            }
+            Init.hasbind = true
+            onListen(window, true)
+            $parent && onListen($parent, true)
         })
     }
 
