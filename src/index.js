@@ -77,6 +77,8 @@ export default (Vue, Options = {}) => {
     const elRenderer = (data, state, notify) => {
         const { el, bindType, src } = data
 
+        if (!el) return
+
         if (!bindType) {
             if (el.getAttribute('src') !== src) {
                 el.setAttribute('src', src)
