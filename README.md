@@ -117,7 +117,7 @@ data: {
 ```
 
 
-Elemet with background-image 
+Element with background-image 
 
 ```html
 <div v-lazy:background-image="img" ></div>
