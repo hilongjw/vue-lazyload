@@ -79,12 +79,10 @@ export default (Vue, Options = {}) => {
 
         if (!el) return
 
-        if (!bindType) {
-            if (el.getAttribute('src') !== src) {
-                el.setAttribute('src', src)
-            }
-        } else {
+        if (bindType) {
             el.style[bindType] = 'url(' + src + ')'
+        } else if (el.getAttribute('src') !== src) {
+            el.setAttribute('src', src)
         }
 
         el.setAttribute('lazy', state)
