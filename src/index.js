@@ -103,7 +103,7 @@ export default (Vue, Options = {}) => {
         return listener
     }
 
-    function valueFormater (value) {
+    function valueFormatter (value) {
         let src = value
         let loading = Init.loading
         let error = Init.error
@@ -127,7 +127,7 @@ export default (Vue, Options = {}) => {
             return Vue.nextTick(lazyLoadHandler)
         }
 
-        let { src, loading, error } = valueFormater(binding.value)
+        let { src, loading, error } = valueFormatter(binding.value)
 
         Vue.nextTick(() => {
             // binding.modifiers will never be null
@@ -157,7 +157,7 @@ export default (Vue, Options = {}) => {
     }
 
     const updateListener = (el, binding) => {
-        let { src, loading, error } = valueFormater(binding.value)
+        let { src, loading, error } = valueFormatter(binding.value)
 
         const exist = ListenerQueue.find(item => item.el === el)
 
