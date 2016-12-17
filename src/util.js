@@ -3,7 +3,7 @@ const inBrowser = typeof window !== 'undefined'
 function remove(arr, item) {
     if (!arr.length) return
     const index = this.indexOf(item)
-    if (index > -1) return arr.splice(index, 1)
+    if (index > -1) return arr.splice(index, 1)[0]
 }
 
 function getDPR (scale = 1) {
