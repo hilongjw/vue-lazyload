@@ -1,9 +1,31 @@
 const inBrowser = typeof window !== 'undefined'
 
-function remove(arr, item) {
+function remove (arr, item) {
     if (!arr.length) return
-    const index = this.indexOf(item)
+    const index = arr.indexOf(item)
     if (index > -1) return arr.splice(index, 1)
+}
+
+function some (arr, fn) {
+    let has = false
+    for (let i = 0, len = arr.length; i < len; i++) {
+        if (fn(arr[i])) {
+            has = true
+            break
+        }
+    }
+    return has
+}
+
+function find (arr, fn) {
+    let item
+    for (let i = 0, len = arr.length; i < len; i++) {
+        if (fn(arr[i])) {
+            item = arr[i]
+            break
+        }
+    }
+    return item
 }
 
 function getDPR (scale = 1) {
@@ -85,6 +107,8 @@ const loadImageAsync = (item, resolve, reject) => {
 export {
     inBrowser,
     remove,
+    some,
+    find,
     _,
     throttle,
     supportWebp,

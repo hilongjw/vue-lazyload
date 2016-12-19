@@ -1,9 +1,9 @@
 import { loadImageAsync } from './util'
-
+import Vue from 'vue'
 let imageCache = {}
 
 export default class ReactiveListener {
-    constructor ({ el, src, error, loading, bindType, $parent, Init, elRenderer }) {
+    constructor ({ el, src, error, loading, bindType, $parent, options, elRenderer }) {
         this.el = el
         this.src = src
         this.error = error
@@ -14,7 +14,7 @@ export default class ReactiveListener {
         this.naturalHeight = 0
         this.naturalWidth = 0
 
-        this.Init = Init
+        this.options = options
 
         this.initState()
 
@@ -46,13 +46,14 @@ export default class ReactiveListener {
 
     checkInView () {
         this.getRect()
-        return (this.rect.top < window.innerHeight * this.Init.preLoad && this.rect.bottom > 0) &&
-            (this.rect.left < window.innerWidth * this.Init.preLoad && this.rect.right > 0)
+        return (this.rect.top < window.innerHeight * this.options.preLoad && this.rect.bottom > 0) &&
+            (this.rect.left < window.innerWidth * this.options.preLoad && this.rect.right > 0)
     }
 
     load () {
-        if ((this.attempt > this.Init.attempt - 1) && this.state.error) {
-            return console.log('error end')
+        if ((this.attempt > this.options.attempt - 1) && this.state.error) {
+            if (!this.options.slient) console.log('error end')
+            return
         }
 
         if (this.state.loaded || imageCache[this.src]) {
