@@ -35,7 +35,7 @@ export default class Lazy {
 
     add (el, binding, vnode) {
         if (some(this.ListenerQueue, item => item.el === el)) {
-            updateListener(el, binding)
+            this.update(el, binding)
             return Vue.nextTick(this.lazyLoadHandler)
         }
 
@@ -130,6 +130,9 @@ export default class Lazy {
 
     elRenderer (data, state, notify) {
         const { el, bindType, src } = data
+
+        // don't remove it please
+        if (!el) return
 
         if (bindType) {
             el.style[bindType] = 'url(' + src + ')'
