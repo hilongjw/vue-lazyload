@@ -58,7 +58,7 @@ new Vue({
 
 <template>
   <div class="img-list">
-    <div id="container">
+    <div ref="container">
         <img v-lazy="img" v-for="img in list" :key="img">
     </div>
   </div>
@@ -129,7 +129,7 @@ Element with background-image
 Customer scrollable element
 
 ```html
-<ul id="container">
+<ul ref="container"> <!--<ul id="container"> is also OK-->
   <li v-for="img in list">
     <img v-lazy.container="img">
   </li> 
@@ -137,7 +137,7 @@ Customer scrollable element
 ```
 
 ```html
-<ul id="container">
+<ul ref="container">
   <li v-for="img in list">
     <div v-lazy:background-image.container="img"></div>
   </li> 
