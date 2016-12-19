@@ -2,7 +2,6 @@ import Vue from 'vue'
 import { remove, some, find, _, throttle, supportWebp, getDPR } from './util'
 import ReactiveListener from './listener'
 
-const isVueNext = Vue.version.split('.')[0] === '2'
 const DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 const DEFAULT_EVENTS = ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend']
 
@@ -36,15 +35,21 @@ export default class Lazy {
 
     add (el, binding, vnode) {
         if (some(this.ListenerQueue, item => item.el === el)) {
-            updateListener(el, binding)
+            this.update(el, binding)
             return Vue.nextTick(this.lazyLoadHandler)
         }
 
-        let { src, loading, error } = this.valueFormater(binding.value)
+        let { src, loading, error } = this.valueFormatter(binding.value)
 
         Vue.nextTick(() => {
-            let $parent = vnode.context.$refs[Object.keys(binding.modifiers)[0]]
-            $parent = $parent && $parent.$el || $parent
+            const container = Object.keys(binding.modifiers)[0]
+            let $parent
+
+            if (container) {
+                $parent = vnode.context.$refs[container]
+                // if there is container passed in, try ref first, then fallback to getElementById to support the original usage
+                $parent = $parent ? $parent.$el || $parent : document.getElementById(container)
+            }
 
             this.ListenerQueue.push(this.listenerFilter(new ReactiveListener({
                 bindType: binding.arg,
@@ -62,14 +67,12 @@ export default class Lazy {
             this.options.hasbind = true
             this.initListen(window, true)
             $parent && this.initListen($parent, true)
-            Vue.nextTick(() => {
-                this.lazyLoadHandler()
-            })
+            Vue.nextTick(() => this.lazyLoadHandler())
         })
     }
 
     update (el, binding) {
-        let { src, loading, error } = this.valueFormater(binding.value)
+        let { src, loading, error } = this.valueFormatter(binding.value)
 
         const exist = find(this.ListenerQueue, item => item.el === el)
 
@@ -89,9 +92,7 @@ export default class Lazy {
 
     initListen (el, start) {
         this.options.hasbind = start
-        this.options.ListenEvents.forEach((evt) => {
-            _[start ? 'on' : 'off'](el, evt, this.lazyLoadHandler)
-        })
+        this.options.ListenEvents.forEach((evt) => _[start ? 'on' : 'off'](el, evt, this.lazyLoadHandler))
     }
 
     initEvent () {
@@ -120,15 +121,16 @@ export default class Lazy {
                 remove(this.listeners[event], func)
             },
             $emit (event, context) {
-                this.listeners[event].forEach(func => {
-                    func(context)
-                })
+                this.listeners[event].forEach(func => func(context))
             }
         }
     }
 
     elRenderer (data, state, notify) {
         const { el, bindType, src } = data
+
+        // don't remove it please
+        if (!el) return
 
         if (bindType) {
             el.style[bindType] = 'url(' + src + ')'
@@ -153,7 +155,7 @@ export default class Lazy {
         return listener
     }
 
-    valueFormater (value) {
+    valueFormatter (value) {
         let src = value
         let loading = this.options.loading
         let error = this.options.error
@@ -167,8 +169,7 @@ export default class Lazy {
         return {
             src,
             loading,
-            error 
+            error
         }
     }
-
 }

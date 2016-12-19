@@ -1,5 +1,4 @@
 import { loadImageAsync } from './util'
-import Vue from 'vue'
 let imageCache = {}
 
 export default class ReactiveListener {
@@ -95,7 +94,7 @@ export default class ReactiveListener {
         }
 
         this.elRenderer({
-            el: this.el, 
+            el: this.el,
             bindType: this.bindType,
             src: src
         }, state, notify)
@@ -109,5 +108,4 @@ export default class ReactiveListener {
         this.bindType = null
         this.attempt = 0
     }
-
 }
