@@ -19,7 +19,7 @@ rollup.rollup({
     return write(path.resolve(__dirname, 'vue-lazyload.js'), bundle.generate({
         format: 'umd',
         banner: banner,
-        moduleName: 'install'
+        moduleName: 'VueLazyload'
     }).code)
 })
 .then(() => {

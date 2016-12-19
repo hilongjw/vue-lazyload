@@ -92,9 +92,7 @@ export default class Lazy {
 
     initListen (el, start) {
         this.options.hasbind = start
-        this.options.ListenEvents.forEach((evt) => {
-            _[start ? 'on' : 'off'](el, evt, this.lazyLoadHandler)
-        })
+        this.options.ListenEvents.forEach((evt) => _[start ? 'on' : 'off'](el, evt, this.lazyLoadHandler))
     }
 
     initEvent () {

@@ -28,13 +28,7 @@ function find (arr, fn) {
     return item
 }
 
-function getDPR (scale = 1) {
-    if (!inBrowser) return scale
-    if (window.devicePixelRatio) {
-        return window.devicePixelRatio
-    }
-    return scale
-}
+const getDPR = (scale = 1) => inBrowser && window.devicePixelRatio || scale
 
 function supportWebp () {
     let support = true
