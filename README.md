@@ -327,6 +327,7 @@ Vue.use(vueLazy, {
 - [Leopoldthecoder](https://github.com/Leopoldthecoder)
 - [michalbcz](https://github.com/michalbcz)
 - [blue0728](https://github.com/blue0728)
+- [JounQin](https://github.com/JounQin)
 
 # License
 
