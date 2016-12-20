@@ -33,6 +33,14 @@ export default class Lazy {
         }, 300)
     }
 
+    addLazyBox (vm) {
+        console.log('got ',vm)
+        this.ListenerQueue.push(vm)
+
+        this.options.hasbind = true
+        this.initListen(window, true)
+    }
+
     add (el, binding, vnode) {
         if (some(this.ListenerQueue, item => item.el === el)) {
             this.update(el, binding)

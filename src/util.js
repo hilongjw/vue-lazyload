@@ -6,6 +6,16 @@ function remove (arr, item) {
     if (index > -1) return arr.splice(index, 1)
 }
 
+function assign (target, source) {
+    if (!target || !source) return target || {}
+    if (target instanceof Object) {
+        for (let key in source) {
+            target[key] = source[key]
+        }
+    }
+    return target
+}
+
 function some (arr, fn) {
     let has = false
     for (let i = 0, len = arr.length; i < len; i++) {
@@ -103,6 +113,7 @@ export {
     remove,
     some,
     find,
+    assign,
     _,
     throttle,
     supportWebp,

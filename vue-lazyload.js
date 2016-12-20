@@ -1,12 +1,12 @@
 /*!
- * Vue-Lazyload.js v1.0.0-rc5
+ * Vue-Lazyload.js v1.0.0-rc6
  * (c) 2016 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('vue')) :
     typeof define === 'function' && define.amd ? define(['vue'], factory) :
-    (global.install = factory(global.Vue));
+    (global.VueLazyload = factory(global.Vue));
 }(this, (function (Vue) { 'use strict';
 
 Vue = 'default' in Vue ? Vue['default'] : Vue;
@@ -17,6 +17,16 @@ function remove$1(arr, item) {
     if (!arr.length) return;
     var index = arr.indexOf(item);
     if (index > -1) return arr.splice(index, 1);
+}
+
+function assign(target, source) {
+    if (!target || !source) return target || {};
+    if (target instanceof Object) {
+        for (var key in source) {
+            target[key] = source[key];
+        }
+    }
+    return target;
 }
 
 function some(arr, fn) {
@@ -41,15 +51,10 @@ function find(arr, fn) {
     return item;
 }
 
-function getDPR() {
+var getDPR = function getDPR() {
     var scale = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
-
-    if (!inBrowser) return scale;
-    if (window.devicePixelRatio) {
-        return window.devicePixelRatio;
-    }
-    return scale;
-}
+    return inBrowser && window.devicePixelRatio || scale;
+};
 
 function supportWebp() {
     var support = true;
@@ -264,7 +269,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var isVueNext = Vue.version.split('.')[0] === '2';
 var DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 var DEFAULT_EVENTS = ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend'];
 
@@ -312,6 +316,15 @@ var Lazy = function () {
     }
 
     _createClass(Lazy, [{
+        key: 'addLazyBox',
+        value: function addLazyBox(vm) {
+            console.log('got ', vm);
+            this.ListenerQueue.push(vm);
+
+            this.options.hasbind = true;
+            this.initListen(window, true);
+        }
+    }, {
         key: 'add',
         value: function add(el, binding, vnode) {
             var _this2 = this;
@@ -319,20 +332,26 @@ var Lazy = function () {
             if (some(this.ListenerQueue, function (item) {
                 return item.el === el;
             })) {
-                updateListener(el, binding);
+                this.update(el, binding);
                 return Vue.nextTick(this.lazyLoadHandler);
             }
 
-            var _valueFormater = this.valueFormater(binding.value);
+            var _valueFormatter = this.valueFormatter(binding.value);
 
-            var src = _valueFormater.src;
-            var loading = _valueFormater.loading;
-            var error = _valueFormater.error;
+            var src = _valueFormatter.src;
+            var loading = _valueFormatter.loading;
+            var error = _valueFormatter.error;
 
 
             Vue.nextTick(function () {
-                var $parent = vnode.context.$refs[Object.keys(binding.modifiers)[0]];
-                $parent = $parent && $parent.$el || $parent;
+                var container = Object.keys(binding.modifiers)[0];
+                var $parent = void 0;
+
+                if (container) {
+                    $parent = vnode.context.$refs[container];
+                    // if there is container passed in, try ref first, then fallback to getElementById to support the original usage
+                    $parent = $parent ? $parent.$el || $parent : document.getElementById(container);
+                }
 
                 _this2.ListenerQueue.push(_this2.listenerFilter(new ReactiveListener({
                     bindType: binding.arg,
@@ -351,18 +370,18 @@ var Lazy = function () {
                 _this2.initListen(window, true);
                 $parent && _this2.initListen($parent, true);
                 Vue.nextTick(function () {
-                    _this2.lazyLoadHandler();
+                    return _this2.lazyLoadHandler();
                 });
             });
         }
     }, {
         key: 'update',
         value: function update(el, binding) {
-            var _valueFormater2 = this.valueFormater(binding.value);
+            var _valueFormatter2 = this.valueFormatter(binding.value);
 
-            var src = _valueFormater2.src;
-            var loading = _valueFormater2.loading;
-            var error = _valueFormater2.error;
+            var src = _valueFormatter2.src;
+            var loading = _valueFormatter2.loading;
+            var error = _valueFormatter2.error;
 
 
             var exist = find(this.ListenerQueue, function (item) {
@@ -392,7 +411,7 @@ var Lazy = function () {
 
             this.options.hasbind = start;
             this.options.ListenEvents.forEach(function (evt) {
-                _[start ? 'on' : 'off'](el, evt, _this3.lazyLoadHandler);
+                return _[start ? 'on' : 'off'](el, evt, _this3.lazyLoadHandler);
             });
         }
     }, {
@@ -424,7 +443,7 @@ var Lazy = function () {
                 },
                 $emit: function $emit(event, context) {
                     this.listeners[event].forEach(function (func) {
-                        func(context);
+                        return func(context);
                     });
                 }
             };
@@ -436,6 +455,9 @@ var Lazy = function () {
             var bindType = data.bindType;
             var src = data.src;
 
+            // don't remove it please
+
+            if (!el) return;
 
             if (bindType) {
                 el.style[bindType] = 'url(' + src + ')';
@@ -461,8 +483,8 @@ var Lazy = function () {
             return listener;
         }
     }, {
-        key: 'valueFormater',
-        value: function valueFormater(value) {
+        key: 'valueFormatter',
+        value: function valueFormatter(value) {
             var src = value;
             var loading = this.options.loading;
             var error = this.options.error;
@@ -484,6 +506,56 @@ var Lazy = function () {
     return Lazy;
 }();
 
+var LazyComponent = (function (lazy) {
+    return {
+        props: {
+            tag: {
+                type: String,
+                default: 'div'
+            }
+        },
+        render: function render(h) {
+            if (this.show === false) {
+                return h(this.tag, {
+                    attrs: {
+                        class: 'cov'
+                    }
+                });
+            }
+            return h(this.tag, {
+                attrs: {
+                    class: 'cov'
+                }
+            }, this.$slots.default);
+        },
+        data: function data() {
+            return {
+                state: {
+                    loaded: false
+                },
+                rect: {},
+                show: false
+            };
+        },
+        mounted: function mounted() {
+            lazy.addLazyBox(this);
+        },
+
+        methods: {
+            getRect: function getRect() {
+                this.rect = this.$el.getBoundingClientRect();
+            },
+            checkInView: function checkInView() {
+                this.getRect();
+                return this.rect.top < window.innerHeight * lazy.options.preLoad && this.rect.bottom > 0 && this.rect.left < window.innerWidth * lazy.options.preLoad && this.rect.right > 0;
+            },
+            load: function load() {
+                this.show = true;
+            }
+        }
+    };
+});
+
 var index = (function (Vue$$1) {
     var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -491,6 +563,7 @@ var index = (function (Vue$$1) {
     var isVueNext = Vue$$1.version.split('.')[0] === '2';
 
     Vue$$1.prototype.$Lazyload = lazy;
+    Vue$$1.component('lazy-component', LazyComponent(lazy));
 
     if (isVueNext) {
         Vue$$1.directive('lazy', {
@@ -503,14 +576,14 @@ var index = (function (Vue$$1) {
         Vue$$1.directive('lazy', {
             bind: lazy.lazyLoadHandler.bind(lazy),
             update: function update(newValue, oldValue) {
-                Object.assign(this.$refs, this.$els);
+                assign(this.vm.$refs, this.vm.$els);
                 lazy.add(this.el, {
                     modifiers: this.modifiers || {},
                     arg: this.arg,
                     value: newValue,
                     oldValue: oldValue
                 }, {
-                    context: this
+                    context: this.vm
                 });
             },
             unbind: function unbind() {
