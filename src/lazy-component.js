@@ -1,3 +1,5 @@
+import { inBrowser } from './util'
+
 export default (lazy) => {
     return {
         props: {
@@ -38,7 +40,8 @@ export default (lazy) => {
             },
             checkInView () {
                 this.getRect()
-                return (this.rect.top < window.innerHeight * lazy.options.preLoad && this.rect.bottom > 0) &&
+                return inBrowser &&
+                    (this.rect.top < window.innerHeight * lazy.options.preLoad && this.rect.bottom > 0) &&
                     (this.rect.left < window.innerWidth * lazy.options.preLoad && this.rect.right > 0)
             },
             load () {
