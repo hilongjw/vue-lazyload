@@ -98,7 +98,12 @@ data: {
 }
 ```
 ```html
+<img v-lazy="'img.jpg'" />
+<img v-lazy="'img.jpg'" srcset="img.400px.jpg 400w, img.800px.jpg 800w, img.1200px.jpg 1200w"/>
+
+
 <img v-lazy="imgUrl" />
+<img v-lazy="imgUrl" :srcset="imgUrl' + '?size=400 400w, ' + imgUrl + ' ?size=800 800w, ' + imgUrl +'/1200.jpg 1200w'" />
 ```
 
 or Object

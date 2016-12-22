@@ -1,5 +1,5 @@
 /*!
- * Vue-Lazyload.js v1.0.0-rc6
+ * Vue-Lazyload.js v1.0.0-rc7
  * (c) 2016 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
@@ -38,6 +38,64 @@ function some(arr, fn) {
         }
     }
     return has;
+}
+
+function getBestSelectionFromSrcset(el, scale) {
+    if (el.tagName !== 'IMG' || !el.getAttribute('srcset')) return;
+    var options = el.getAttribute('srcset');
+    var result = [];
+    var container = el.parentNode;
+    var containerWidth = container.offsetWidth * scale;
+
+    var spaceIndex = void 0;
+    var tmpSrc = void 0;
+    var tmpWidth = void 0;
+
+    options = options.trim().split(',');
+
+    options.map(function (item) {
+        item = item.trim();
+        spaceIndex = item.lastIndexOf(' ');
+        if (spaceIndex === -1) {
+            var tmpSrc = item;
+            var tmpWidth = 999998;
+        } else {
+            var tmpSrc = item.substr(0, spaceIndex);
+            var tmpWidth = parseInt(item.substr(spaceIndex + 1, item.length - spaceIndex - 2), 10);
+        }
+        result.push([tmpWidth, tmpSrc]);
+    });
+
+    result.sort(function (a, b) {
+        if (a[0] < b[0]) {
+            return -1;
+        }
+        if (a[0] > b[0]) {
+            return 1;
+        }
+        if (a[0] === b[0]) {
+            if (b[1].indexOf('.webp', b[1].length - 5) !== -1) {
+                return 1;
+            }
+            if (a[1].indexOf('.webp', a[1].length - 5) !== -1) {
+                return -1;
+            }
+        }
+        return 0;
+    });
+    var bestSelectedSrc = '';
+    var tmpOption = void 0;
+    var resultCount = result.length;
+
+    for (var i = 0; i < resultCount; i++) {
+        tmpOption = result[i];
+        if (tmpOption[0] >= containerWidth) {
+            bestSelectedSrc = tmpOption[1];
+            break;
+        }
+    }
+
+    return bestSelectedSrc;
 }
 
 function find(arr, fn) {
@@ -312,15 +370,13 @@ var Lazy = function () {
                 catIn = listener.checkInView();
                 catIn && listener.load();
             });
-        }, 300);
+        }, 200);
     }
 
     _createClass(Lazy, [{
         key: 'addLazyBox',
         value: function addLazyBox(vm) {
-            console.log('got ', vm);
             this.ListenerQueue.push(vm);
-
             this.options.hasbind = true;
             this.initListen(window, true);
         }
@@ -344,6 +400,12 @@ var Lazy = function () {
 
 
             Vue.nextTick(function () {
+                var tmp = getBestSelectionFromSrcset(el, _this2.options.scale);
+
+                if (tmp) {
+                    src = tmp;
+                }
+
                 var container = Object.keys(binding.modifiers)[0];
                 var $parent = void 0;
 
@@ -369,6 +431,7 @@ var Lazy = function () {
                 _this2.options.hasbind = true;
                 _this2.initListen(window, true);
                 $parent && _this2.initListen($parent, true);
+                _this2.lazyLoadHandler();
                 Vue.nextTick(function () {
                     return _this2.lazyLoadHandler();
                 });
@@ -377,6 +440,8 @@ var Lazy = function () {
     }, {
         key: 'update',
         value: function update(el, binding) {
+            var _this3 = this;
+
             var _valueFormatter2 = this.valueFormatter(binding.value);
 
             var src = _valueFormatter2.src;
@@ -393,6 +458,10 @@ var Lazy = function () {
                 loading: loading,
                 error: error
             });
+            this.lazyLoadHandler();
+            Vue.nextTick(function () {
+                return _this3.lazyLoadHandler();
+            });
         }
     }, {
         key: 'remove',
@@ -407,45 +476,45 @@ var Lazy = function () {
     }, {
         key: 'initListen',
         value: function initListen(el, start) {
-            var _this3 = this;
+            var _this4 = this;
 
             this.options.hasbind = start;
             this.options.ListenEvents.forEach(function (evt) {
-                return _[start ? 'on' : 'off'](el, evt, _this3.lazyLoadHandler);
+                return _[start ? 'on' : 'off'](el, evt, _this4.lazyLoadHandler);
             });
         }
     }, {
         key: 'initEvent',
         value: function initEvent() {
+            var _this5 = this;
+
             this.Event = {
                 listeners: {
                     loading: [],
                     loaded: [],
                     error: []
-                },
-                $on: function $on(event, func) {
-                    this.listeners[event].push(func);
-                },
-                $once: function $once(event, func) {
-                    var vm = this;
-                    function on() {
-                        vm.$off(event, on);
-                        func.apply(vm, arguments);
-                    }
-                    this.$on(event, on);
-                },
-                $off: function $off(event, func) {
-                    if (!func) {
-                        this.listeners[event] = [];
-                        return;
-                    }
-                    remove$1(this.listeners[event], func);
-                },
-                $emit: function $emit(event, context) {
-                    this.listeners[event].forEach(function (func) {
-                        return func(context);
-                    });
                 }
+            };
+
+            this.$on = function (event, func) {
+                _this5.Event.listeners[event].push(func);
+            }, this.$once = function (event, func) {
+                var vm = _this5;
+                function on() {
+                    vm.$off(event, on);
+                    func.apply(vm, arguments);
+                }
+                _this5.$on(event, on);
+            }, this.$off = function (event, func) {
+                if (!func) {
+                    _this5.Event.listeners[event] = [];
+                    return;
+                }
+                remove$1(_this5.Event.listeners[event], func);
+            }, this.$emit = function (event, context) {
+                _this5.Event.listeners[event].forEach(function (func) {
+                    return func(context);
+                });
             };
         }
     }, {
@@ -468,7 +537,7 @@ var Lazy = function () {
             el.setAttribute('lazy', state);
 
             if (!notify) return;
-            this.Event.$emit(state, data);
+            this.$emit(state, data);
             this.options.adapter[state] && this.options.adapter[state](data, this.options);
         }
     }, {
@@ -547,7 +616,7 @@ var LazyComponent = (function (lazy) {
             },
             checkInView: function checkInView() {
                 this.getRect();
-                return this.rect.top < window.innerHeight * lazy.options.preLoad && this.rect.bottom > 0 && this.rect.left < window.innerWidth * lazy.options.preLoad && this.rect.right > 0;
+                return inBrowser && this.rect.top < window.innerHeight * lazy.options.preLoad && this.rect.bottom > 0 && this.rect.left < window.innerWidth * lazy.options.preLoad && this.rect.right > 0;
             },
             load: function load() {
                 this.show = true;

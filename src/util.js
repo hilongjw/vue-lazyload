@@ -27,6 +27,64 @@ function some (arr, fn) {
     return has
 }
 
+function getBestSelectionFromSrcset (el, scale) {
+    if (el.tagName !== 'IMG' || !el.getAttribute('srcset')) return
+        let options = el.getAttribute('srcset')
+        const result = []
+        const container = el.parentNode
+        const containerWidth = container.offsetWidth * scale
+
+        let spaceIndex
+        let tmpSrc
+        let tmpWidth
+
+        options = options.trim().split(',')
+        
+        options.map(item => {
+            item = item.trim()
+            spaceIndex = item.lastIndexOf(' ')
+            if (spaceIndex === -1) {
+                var tmpSrc = item
+                var tmpWidth = 999998
+            } else {
+                var tmpSrc = item.substr(0, spaceIndex)
+                var tmpWidth = parseInt(item.substr(spaceIndex + 1, item.length - spaceIndex - 2), 10)
+            }
+            result.push([tmpWidth, tmpSrc])
+        })
+
+        result.sort(function (a, b) {
+            if (a[0] < b[0]) {
+                return -1
+            }
+            if (a[0] > b[0]) {
+                return 1
+            }
+            if (a[0] === b[0]) {
+                if (b[1].indexOf('.webp', b[1].length - 5) !== -1) {
+                    return 1
+                }
+                if (a[1].indexOf('.webp', a[1].length - 5) !== -1) {
+                    return -1
+                }
+            }
+            return 0
+        })
+        let bestSelectedSrc = ''
+        let tmpOption
+        const resultCount = result.length
+
+        for (let i = 0; i < resultCount; i++) {
+            tmpOption = result[i]
+            if (tmpOption[0] >= containerWidth) {
+                bestSelectedSrc = tmpOption[1]
+                break
+            }
+        }
+
+        return bestSelectedSrc
+}
+
 function find (arr, fn) {
     let item
     for (let i = 0, len = arr.length; i < len; i++) {
@@ -118,5 +176,6 @@ export {
     throttle,
     supportWebp,
     getDPR,
-    loadImageAsync
+    loadImageAsync,
+    getBestSelectionFromSrcset
 }

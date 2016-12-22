@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { remove, some, find, _, throttle, supportWebp, getDPR } from './util'
+import { remove, some, find, _, throttle, supportWebp, getDPR, getBestSelectionFromSrcset } from './util'
 import ReactiveListener from './listener'
 
 const DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
@@ -30,13 +30,11 @@ export default class Lazy {
                 catIn = listener.checkInView()
                 catIn && listener.load()
             })
-        }, 300)
+        }, 200)
     }
 
     addLazyBox (vm) {
-        console.log('got ',vm)
         this.ListenerQueue.push(vm)
-
         this.options.hasbind = true
         this.initListen(window, true)
     }
@@ -50,6 +48,12 @@ export default class Lazy {
         let { src, loading, error } = this.valueFormatter(binding.value)
 
         Vue.nextTick(() => {
+            let tmp = getBestSelectionFromSrcset(el, this.options.scale)
+
+            if (tmp) {
+                src = tmp
+            }
+
             const container = Object.keys(binding.modifiers)[0]
             let $parent
 
@@ -75,6 +79,7 @@ export default class Lazy {
             this.options.hasbind = true
             this.initListen(window, true)
             $parent && this.initListen($parent, true)
+            this.lazyLoadHandler()
             Vue.nextTick(() => this.lazyLoadHandler())
         })
     }
@@ -89,6 +94,8 @@ export default class Lazy {
             loading,
             error
         })
+        this.lazyLoadHandler()
+        Vue.nextTick(() => this.lazyLoadHandler())
     }
 
     remove (el) {
@@ -109,28 +116,29 @@ export default class Lazy {
                 loading: [],
                 loaded: [],
                 error: []
-            },
-            $on (event, func) {
-                this.listeners[event].push(func)
-            },
-            $once (event, func) {
-                const vm = this
-                function on () {
-                    vm.$off(event, on)
-                    func.apply(vm, arguments)
-                }
-                this.$on(event, on)
-            },
-            $off (event, func) {
-                if (!func) {
-                    this.listeners[event] = []
-                    return
-                }
-                remove(this.listeners[event], func)
-            },
-            $emit (event, context) {
-                this.listeners[event].forEach(func => func(context))
             }
+        }
+
+        this.$on = (event, func) => {
+            this.Event.listeners[event].push(func)
+        },
+        this.$once = (event, func) => {
+            const vm = this
+            function on () {
+                vm.$off(event, on)
+                func.apply(vm, arguments)
+            }
+            this.$on(event, on)
+        },
+        this.$off = (event, func) => {
+            if (!func) {
+                this.Event.listeners[event] = []
+                return
+            }
+            remove(this.Event.listeners[event], func)
+        },
+        this.$emit = (event, context) => {
+            this.Event.listeners[event].forEach(func => func(context))
         }
     }
 
@@ -149,7 +157,7 @@ export default class Lazy {
         el.setAttribute('lazy', state)
 
         if (!notify) return
-        this.Event.$emit(state, data)
+        this.$emit(state, data)
         this.options.adapter[state] && this.options.adapter[state](data, this.options)
     }
 
