@@ -51,7 +51,7 @@ export default class ReactiveListener {
 
     load () {
         if ((this.attempt > this.options.attempt - 1) && this.state.error) {
-            if (!this.options.slient) console.log('error end')
+            if (!this.options.silent) console.log('error end')
             return
         }
 
