@@ -177,7 +177,7 @@ export default class Lazy {
         let error = this.options.error
 
         if (Vue.util.isObject(value)) {
-            if (!value.src && !this.options.slient) Vue.util.warn('Vue Lazyload warning: miss src with ' + value)
+            if (!value.src && !this.options.silent) Vue.util.warn('Vue Lazyload warning: miss src with ' + value)
             src = value.src
             loading = value.loading || this.options.loading
             error = value.error || this.options.error
