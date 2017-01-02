@@ -1,6 +1,6 @@
 /*!
  * Vue-Lazyload.js v1.0.0-rc7
- * (c) 2016 Awe <hilongjw@gmail.com>
+ * (c) 2017 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
 (function (global, factory) {
@@ -110,7 +110,7 @@ function find(arr, fn) {
 }
 
 var getDPR = function getDPR() {
-    var scale = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+    var scale = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
     return inBrowser && window.devicePixelRatio || scale;
 };
 
@@ -189,14 +189,14 @@ var imageCache = {};
 
 var ReactiveListener = function () {
     function ReactiveListener(_ref) {
-        var el = _ref.el;
-        var src = _ref.src;
-        var error = _ref.error;
-        var loading = _ref.loading;
-        var bindType = _ref.bindType;
-        var $parent = _ref.$parent;
-        var options = _ref.options;
-        var elRenderer = _ref.elRenderer;
+        var el = _ref.el,
+            src = _ref.src,
+            error = _ref.error,
+            loading = _ref.loading,
+            bindType = _ref.bindType,
+            $parent = _ref.$parent,
+            options = _ref.options,
+            elRenderer = _ref.elRenderer;
 
         _classCallCheck$1(this, ReactiveListener);
 
@@ -232,9 +232,9 @@ var ReactiveListener = function () {
     }, {
         key: 'update',
         value: function update(_ref2) {
-            var src = _ref2.src;
-            var loading = _ref2.loading;
-            var error = _ref2.error;
+            var src = _ref2.src,
+                loading = _ref2.loading,
+                error = _ref2.error;
 
             this.src = src;
             this.loading = loading;
@@ -259,7 +259,7 @@ var ReactiveListener = function () {
             var _this = this;
 
             if (this.attempt > this.options.attempt - 1 && this.state.error) {
-                if (!this.options.slient) console.log('error end');
+                if (!this.options.silent) console.log('error end');
                 return;
             }
 
@@ -334,16 +334,16 @@ var Lazy = function () {
     function Lazy(_ref) {
         var _this = this;
 
-        var preLoad = _ref.preLoad;
-        var error = _ref.error;
-        var loading = _ref.loading;
-        var attempt = _ref.attempt;
-        var silent = _ref.silent;
-        var scale = _ref.scale;
-        var listenEvents = _ref.listenEvents;
-        var hasbind = _ref.hasbind;
-        var filter = _ref.filter;
-        var adapter = _ref.adapter;
+        var preLoad = _ref.preLoad,
+            error = _ref.error,
+            loading = _ref.loading,
+            attempt = _ref.attempt,
+            silent = _ref.silent,
+            scale = _ref.scale,
+            listenEvents = _ref.listenEvents,
+            hasbind = _ref.hasbind,
+            filter = _ref.filter,
+            adapter = _ref.adapter;
 
         _classCallCheck(this, Lazy);
 
@@ -392,12 +392,10 @@ var Lazy = function () {
                 return Vue.nextTick(this.lazyLoadHandler);
             }
 
-            var _valueFormatter = this.valueFormatter(binding.value);
-
-            var src = _valueFormatter.src;
-            var loading = _valueFormatter.loading;
-            var error = _valueFormatter.error;
-
+            var _valueFormatter = this.valueFormatter(binding.value),
+                src = _valueFormatter.src,
+                loading = _valueFormatter.loading,
+                error = _valueFormatter.error;
 
             Vue.nextTick(function () {
                 var tmp = getBestSelectionFromSrcset(el, _this2.options.scale);
@@ -442,12 +440,10 @@ var Lazy = function () {
         value: function update(el, binding) {
             var _this3 = this;
 
-            var _valueFormatter2 = this.valueFormatter(binding.value);
-
-            var src = _valueFormatter2.src;
-            var loading = _valueFormatter2.loading;
-            var error = _valueFormatter2.error;
-
+            var _valueFormatter2 = this.valueFormatter(binding.value),
+                src = _valueFormatter2.src,
+                loading = _valueFormatter2.loading,
+                error = _valueFormatter2.error;
 
             var exist = find(this.ListenerQueue, function (item) {
                 return item.el === el;
@@ -520,9 +516,9 @@ var Lazy = function () {
     }, {
         key: 'elRenderer',
         value: function elRenderer(data, state, notify) {
-            var el = data.el;
-            var bindType = data.bindType;
-            var src = data.src;
+            var el = data.el,
+                bindType = data.bindType,
+                src = data.src;
 
             // don't remove it please
 
@@ -559,7 +555,7 @@ var Lazy = function () {
             var error = this.options.error;
 
             if (Vue.util.isObject(value)) {
-                if (!value.src && !this.options.slient) Vue.util.warn('Vue Lazyload warning: miss src with ' + value);
+                if (!value.src && !this.options.silent) Vue.util.warn('Vue Lazyload warning: miss src with ' + value);
                 src = value.src;
                 loading = value.loading || this.options.loading;
                 error = value.error || this.options.error;
@@ -608,6 +604,7 @@ var LazyComponent = (function (lazy) {
         },
         mounted: function mounted() {
             lazy.addLazyBox(this);
+            lazy.lazyLoadHandler();
         },
 
         methods: {
@@ -619,6 +616,16 @@ var LazyComponent = (function (lazy) {
                 return inBrowser && this.rect.top < window.innerHeight * lazy.options.preLoad && this.rect.bottom > 0 && this.rect.left < window.innerWidth * lazy.options.preLoad && this.rect.right > 0;
             },
             load: function load() {
+                if (typeof this.$el.attributes.lazy !== 'undefined' && typeof this.$el.attributes.lazy.value !== 'undefined') {
+                    var state = this.$el.attributes.lazy.value;
+                    this.state.loaded = state === 'loaded';
+                    this.state.error = state === 'error';
+                    this.$emit(state, this.$el);
+                } else {
+                    this.$emit('loading', this.$el);
+                    this.$nextTick(lazy.lazyLoadHandler);
+                }
+
                 this.show = true;
             }
         }
@@ -626,7 +633,7 @@ var LazyComponent = (function (lazy) {
 });
 
 var index = (function (Vue$$1) {
-    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     var lazy = new Lazy(options);
     var isVueNext = Vue$$1.version.split('.')[0] === '2';
