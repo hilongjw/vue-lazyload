@@ -44,11 +44,11 @@ function getBestSelectionFromSrcset (el, scale) {
             item = item.trim()
             spaceIndex = item.lastIndexOf(' ')
             if (spaceIndex === -1) {
-                var tmpSrc = item
-                var tmpWidth = 999998
+                tmpSrc = item
+                tmpWidth = 999998
             } else {
-                var tmpSrc = item.substr(0, spaceIndex)
-                var tmpWidth = parseInt(item.substr(spaceIndex + 1, item.length - spaceIndex - 2), 10)
+                tmpSrc = item.substr(0, spaceIndex)
+                tmpWidth = parseInt(item.substr(spaceIndex + 1, item.length - spaceIndex - 2), 10)
             }
             result.push([tmpWidth, tmpSrc])
         })
