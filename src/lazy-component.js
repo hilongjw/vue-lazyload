@@ -33,6 +33,7 @@ export default (lazy) => {
         },
         mounted () {
             lazy.addLazyBox(this)
+            lazy.lazyLoadHandler()
         },
         methods: {
             getRect () {
@@ -45,6 +46,20 @@ export default (lazy) => {
                     (this.rect.left < window.innerWidth * lazy.options.preLoad && this.rect.right > 0)
             },
             load () {
+                if (
+                    typeof this.$el.attributes.lazy !== 'undefined'
+                        &&
+                    typeof this.$el.attributes.lazy.value !== 'undefined'
+                ) {
+                    var state = this.$el.attributes.lazy.value;
+                    this.state.loaded = state === 'loaded'
+                    this.state.error = state === 'error'
+                    this.$emit(state, this.$el)
+                } else {
+                    this.$emit('loading', this.$el)
+                    this.$nextTick(lazy.lazyLoadHandler)
+                }
+
                 this.show = true
             }
         }
