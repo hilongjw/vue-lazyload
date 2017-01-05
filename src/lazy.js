@@ -3,7 +3,7 @@ import { remove, some, find, _, throttle, supportWebp, getDPR, getBestSelectionF
 import ReactiveListener from './listener'
 
 const DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
-const DEFAULT_EVENTS = ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend']
+const DEFAULT_EVENTS = ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend', 'touchmove']
 
 export default class Lazy {
     constructor ({ preLoad, error, loading, attempt, silent, scale, listenEvents, hasbind, filter, adapter }) {
