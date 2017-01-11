@@ -99,6 +99,8 @@ function find (arr, fn) {
 const getDPR = (scale = 1) => inBrowser && window.devicePixelRatio || scale
 
 function supportWebp () {
+    if (!inBrowser) return false;
+
     let support = true
     const d = document
 

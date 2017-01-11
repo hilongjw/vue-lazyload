@@ -115,6 +115,8 @@ var getDPR = function getDPR() {
 };
 
 function supportWebp() {
+    if (!inBrowser) return false;
+
     var support = true;
     var d = document;
 
