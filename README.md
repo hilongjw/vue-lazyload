@@ -80,9 +80,9 @@ new Vue({
 |`error`|src of the image upon load fail|`'data-src'`|`String`
 |`loading`|src of the image while loading|`'data-src'`|`String`|
 |`attempt`|attempts count|`3`|`Number`|
-|`listenEvents`|events that you want vue listen for|`['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend', 'touchmove']`|`EVENT`|
-|`adapter`| |`{ }`|`{ loaded () { ... }, loading () { ... }, error () { ... } }`|
-|`filter`|the image's src filter |`{ }`|`{ webp ({ src }) { ... } }`|
+|`listenEvents`|events that you want vue listen for|`['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend', 'touchmove']`| [Desired Listen Events](#desired-listen-events) |
+|`adapter`| dynamically modify the attribute of element |`{ }`| [Element Adapter](#element-adapter) |
+|`filter`| the image's src filter |`{ }`| [Image url filter](#image-url-filter) |
 
 ### Desired Listen Events
 
@@ -106,30 +106,24 @@ when you have certain animations and transitions taking place
 
 ### Image url filter
 
+dynamically modify the src of image
+
 ```javascript
 Vue.use(vueLazy, {
-    preLoad: 1.3,
-    error: 'dist/404.png',
-    loading: 'dist/loading-spin.svg',
-    adapter: {
-        loaded (listender, Init) {
-            console.log('loaded')
-        },
-        loading (listender, Init) {
-            console.log('loading')
-        },
-        error (listender, Init) {
-            console.log('error')
-        }
-    },
     filter: {
-        webp ({ src }) {
-            const isCDN = /qiniudn.com/
-            if (isCDN.test(src)) {
-                src += '?imageView2/2/format/webp'
-            }
-            return src
+      webp ({ src }) {
+          const isCDN = /qiniudn.com/
+          if (isCDN.test(src)) {
+              src += '?imageView2/2/format/webp'
+          }
+          return src
+      },
+      someProcess ({ el, src }) {
+        if (el.getAttribute('large')) {
+          src += '?large'
         }
+        return src
+      }
     }
 })
 ```
@@ -139,13 +133,11 @@ Vue.use(vueLazy, {
 
 ```javascript
 Vue.use(vueLazy, {
-    preLoad: 1.3,
-    error: 'dist/404.png',
-    loading: 'dist/loading-spin.svg',
     adapter: {
         loaded ({ bindType, el, naturalHeight, naturalWidth, $parent, src, loading, error, Init }) {
             // do something here
-            console.log('loaded')
+            // example for call LoadedHandler
+            LoadedHandler(el)
         },
         loading (listender, Init) {
             console.log('loading')
