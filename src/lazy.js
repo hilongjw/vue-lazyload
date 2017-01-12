@@ -142,11 +142,37 @@ export default class Lazy {
         }
     }
 
-    elRenderer (data, state, notify) {
-        const { el, bindType, src } = data
+    performance () {
+        let list = []
 
-        // don't remove it please
-        if (!el) return
+        this.ListenerQueue.map(item => {
+            if (item.performance.loadEnd) {
+              list.push({
+                src: item.src,
+                timing: (item.performance.loadEnd - item.performance.loadStart) / 1000
+              })
+            }
+        })
+
+        return list
+    }
+
+    elRenderer (listener, state, notify) {
+        if (!listener.el) return
+        const { el, bindType } = listener
+
+        let src
+        switch (state) {
+            case 'loading':
+                src = listener.loading
+                break
+            case 'error':
+                src = listener.error
+                break
+            default:
+                src = listener.src
+                break
+        }
 
         if (bindType) {
             el.style[bindType] = 'url(' + src + ')'
@@ -157,8 +183,8 @@ export default class Lazy {
         el.setAttribute('lazy', state)
 
         if (!notify) return
-        this.$emit(state, data)
-        this.options.adapter[state] && this.options.adapter[state](data, this.options)
+        this.$emit(state, listener)
+        this.options.adapter[state] && this.options.adapter[state](listener, this.options)
     }
 
     listenerFilter (listener) {

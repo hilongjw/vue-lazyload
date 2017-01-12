@@ -17,6 +17,12 @@ export default class ReactiveListener {
 
         this.initState()
 
+        this.performance = {
+            init: Date.now(),
+            loadStart: null,
+            loadEnd: null
+        }
+
         this.rect = el.getBoundingClientRect()
 
         this.$parent = $parent
@@ -29,6 +35,10 @@ export default class ReactiveListener {
             loaded: false,
             rendered: false
         }
+    }
+
+    record (event) {
+        this.performance[event] = Date.now()
     }
 
     update ({ src, loading, error }) {
@@ -63,13 +73,17 @@ export default class ReactiveListener {
 
         this.attempt++
 
+        this.record('loadStart')
+
         loadImageAsync({
             src: this.src
         }, data => {
+            console.log(window.aa = data)
             this.naturalHeight = data.naturalHeight
             this.naturalWidth = data.naturalWidth
             this.state.loaded = true
             this.state.error = false
+            this.record('loadEnd')
             this.render('loaded', true)
             imageCache[this.src] = 1
         }, err => {
@@ -80,24 +94,7 @@ export default class ReactiveListener {
     }
 
     render (state, notify) {
-        let src
-        switch (state) {
-            case 'loading':
-                src = this.loading
-                break
-            case 'error':
-                src = this.error
-                break
-            default:
-                src = this.src
-                break
-        }
-
-        this.elRenderer({
-            el: this.el,
-            bindType: this.bindType,
-            src: src
-        }, state, notify)
+        this.elRenderer(this, state, notify)
     }
 
     destroy () {
