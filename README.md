@@ -18,7 +18,7 @@ Vue module for lazyloading images in your applications. Some of goals of this pr
  * [___Constructor Options___](#constructor-options)
  * [___Implementation___](#implementation)
     * [___Basic___](#basic)
-      * [___Css state___](#css-state)
+    * [___Css state___](#css-state)
 * [___Methods___](#methods)
   * [__Event hook__](#event-hook)
   * [__Performance__](#performance)
