@@ -307,7 +307,7 @@ this.$Lazyload.$on('loaded', (listener) {
   console.table(this.$Lazyload.performance())
 })
 ```
-![performance](https://dn-mhke0kuv.qbox.me/d7878f67bf3b18accc44.png)
+![performance](http://ww1.sinaimg.cn/large/69402bf8gw1fbo62ocvlaj213k09w78w.jpg)
 
 # Authors && Contributors
 
