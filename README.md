@@ -1,7 +1,4 @@
-Vue-Lazyload 
-========
-
-see demo: [http://hilongjw.github.io/vue-lazyload/](http://hilongjw.github.io/vue-lazyload/)
+# Vue-Lazyload
 
 Vue module for lazyloading images in your applications. Some of goals of this project worth noting include:
 
@@ -10,34 +7,53 @@ Vue module for lazyloading images in your applications. Some of goals of this pr
 * Add loading class while image is loading
 * Supports both of Vue 1.0 and Vue 2.0
 
-## Requirements
 
-- Vue: ^1.0.0 or ^2.0.0 
 
-## Install
+# Table of Contents
+* [___Demo___](#demo)
+* [___Requirements___](#requirements)
+* [___Installation___](#installation)
+* [___Usage___](#usage)  
+ * [___Constructor Options___](#constructor-options)
+ * [___Implementation___](#implementation) 
+   * [___Basic___](#basic) 
+   * [___Css state___](#css-state)  
+* [___Methods___](#methods)
+* [___Authors && Contributors___](#authors-&&-Contributors)
+* [___License___](#license)
 
-From npm:
 
-``` sh
+# Demo
 
-$ npm install vue-lazyload --save
+[___Demo___](http://hilongjw.github.io/vue-lazyload/)
+
+# Requirements
+
+- [Vue.js](https://github.com/vuejs/vue) `1.x` or `2.x`  
+
+
+# Installation
+
+```bash
+
+# npm
+$ npm install vue-lazyload
 
 ```
 
-## Usage
+# Usage
+
+main.js
 
 ```javascript
-//main.js
 
 import Vue from 'vue'
 import App from './App.vue'
-
-// supports both of Vue 1.0 and Vue 2.0
 import VueLazyload from 'vue-lazyload'
 
 Vue.use(VueLazyload)
 
-// with options
+// or with options
 Vue.use(VueLazyload, {
   preLoad: 1.3,
   error: 'dist/error.png',
@@ -53,120 +69,72 @@ new Vue({
 })
 ```
 
+## Constructor Options
+
+|key|description|defualt|options|
+|:---|---|---|---|
+| `preLoad`|proportion of pre-loading height|`1.3`|`Number`|
+|`error`|src of the image upon load fail|`'data-src'`|`String`
+|`loading`|src of the image while loading|`'data-src'`|`String`|
+|`attempt`|attempts count|`3`|`Number`|
+|`listenEvents`|events that you want vue listen for|`['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend', 'touchmove']`|`EVENT`|
+|`adapter`| |`{ }`|`{ loaded () { ... }, loading () { ... }, error () { ... } }`|
+|`filter`|the image's src filter |`{ }`|`{ webp ({ src }) { ... } }`|
+
+
+## Implementation
+
+### Basic
+
+vue-lazyload will set this img element's `src` with `imgUrl` string
+
 ```html
-<!--your.vue-->
-
-<template>
-  <div class="img-list">
-    <div ref="container">
-        <img v-lazy="img" v-for="img in list" :key="img">
-    </div>
-  </div>
-</template>
-
 <script>
 export default {
   data () {
     return {
-      list: [
-        'your_images_url', 
-        'your_images_url', 
-        // you can customer any image's placeholder while loading or load failed
-        {
-          src: 'your_images_url.png',
-          error: 'another-error.png',
-          loading: 'another-loading-spin.svg'
-        }
-      ]
+      imgObj: {
+        src: 'http://xx.com/logo.png',
+        error: 'http://xx.com/error.png',
+        loading: 'http://xx.com/loading-spin.svg'
+     }
+     imgUrl: 'http://xx.com/logo.png' // String
     }
   }
 }
 </script>
+
+<template>
+  <div ref="container">
+     <img v-lazy="imgUrl"/>
+     <div v-lazy:background-image="imgUrl"></div>
+     
+     <!-- with customer error and loading -->
+     <img v-lazy="imgObj"/>
+     <div v-lazy:background-image="imgObj"></div>
+     
+     <!-- Customer scrollable element -->
+     <img v-lazy.container ="imgUrl"/>
+     <div v-lazy:background-image.container="img"></div>
+  
+    <!-- srcset -->
+    <img v-lazy="'img.400px.jpg'" srcset="img.400px.jpg 400w, img.800px.jpg 800w, img.1200px.jpg 1200w">
+    <img v-lazy="imgUrl" :srcset="imgUrl' + '?size=400 400w, ' + imgUrl + ' ?size=800 800w, ' + imgUrl +'/1200.jpg 1200w'" />
+  </div>
+</template>
 ```
 
-## API
+### CSS state
 
-### Directive
+There are three states while img loading
 
-**Basic**
-
-vue-lazyload will set this img element's `src` with `imgUrl` string
-
-```javascript
-data: {
-  imgUrl: 'http://xx.com/logo.png' // String
-}
-```
-```html
-<img v-lazy="'img.jpg'" />
-<img v-lazy="'img.jpg'" srcset="img.400px.jpg 400w, img.800px.jpg 800w, img.1200px.jpg 1200w"/>
-
-
-<img v-lazy="imgUrl" />
-<img v-lazy="imgUrl" :srcset="imgUrl' + '?size=400 400w, ' + imgUrl + ' ?size=800 800w, ' + imgUrl +'/1200.jpg 1200w'" />
-```
-
-or Object
-
-```javascript
-data: {
-  imgObj: {
-    src: 'http://xx.com/logo.png',
-    error: 'http://xx.com/error.png',
-    loading: 'http://xx.com/loading-spin.svg'
-  }
-}
-```
-```html
-<img v-lazy="imgObj" />
-```
-
-
-Element with background-image 
+`loading`  `loaded`  `error`
 
 ```html
-<div v-lazy:background-image="img" ></div>
-
-<!-- rendered-->
-<div style="background-image: url(dist/test3.jpg)"></div>
+<img src="imgUrl" lazy="loading">
+<img src="imgUrl" lazy="loaded">
+<img src="imgUrl" lazy="error">
 ```
-
-Customer scrollable element
-
-```html
-<ul ref="container"> <!--<ul id="container"> is also OK-->
-  <li v-for="img in list">
-    <img v-lazy.container="img">
-  </li> 
-</ul>
-```
-
-```html
-<ul ref="container">
-  <li v-for="img in list">
-    <div v-lazy:background-image.container="img"></div>
-  </li> 
-</ul>
-```
-
-**Options**
-
-| params         | type         | detail      |
-| :------------- |:-------------|:------------|
-| preLoad        | Number       | proportion of pre-loading height|
-| error          | String       | error img src |
-| loading        | String       | loading img src |
-| attempt        | Number       | attempts count|
-| listenEvents   | Array        | events that you want vue listen for. [Desired Listen Events](https://github.com/hilongjw/vue-lazyload#desired-listen-events)|
-
-
-**CSS state**
-
-```
-<img src="http://xxx.io/logo.png" lazy="loaded">
-```
-
-loading, loaded, error
 
 ```html
 <style>
@@ -194,7 +162,7 @@ loading, loaded, error
 </style>
 ```
 
-## Instance Methods
+## Methods
 
 ### `vm.$Lazyload.$on(event, callback)`
 
@@ -249,7 +217,7 @@ vm.$Lazyload.$on('loaded', handler)
 vm.$Lazyload.$off('loaded', handler)
 ```
 
-## Desired Listen Events
+### Desired Listen Events
 
 You can configure which events you want vue-lazyload by passing in an array
 of listener names.
@@ -269,7 +237,7 @@ This is useful if you are having trouble with this plugin resetting itself to lo
 when you have certain animations and transitions taking place
 
 
-## Image url Filter
+## Image url filter
 
 ```javascript
 Vue.use(vueLazy, {
@@ -333,6 +301,10 @@ Vue.use(vueLazy, {
 - [michalbcz](https://github.com/michalbcz)
 - [blue0728](https://github.com/blue0728)
 - [JounQin](https://github.com/JounQin)
+- [llissery](https://github.com/llissery)
+- [mega667](https://github.com/mega667)
+- [RobinCK](https://github.com/RobinCK)
+- [GallenHu](https://github.com/GallenHu)
 
 # License
 

@@ -1,5 +1,5 @@
 /*!
- * Vue-Lazyload.js v1.0.0-rc8
+ * Vue-Lazyload.js v1.0.0-rc9
  * (c) 2017 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
@@ -110,7 +110,7 @@ function find(arr, fn) {
 }
 
 var getDPR = function getDPR() {
-    var scale = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+    var scale = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
     return inBrowser && window.devicePixelRatio || scale;
 };
 
@@ -191,14 +191,14 @@ var imageCache = {};
 
 var ReactiveListener = function () {
     function ReactiveListener(_ref) {
-        var el = _ref.el,
-            src = _ref.src,
-            error = _ref.error,
-            loading = _ref.loading,
-            bindType = _ref.bindType,
-            $parent = _ref.$parent,
-            options = _ref.options,
-            elRenderer = _ref.elRenderer;
+        var el = _ref.el;
+        var src = _ref.src;
+        var error = _ref.error;
+        var loading = _ref.loading;
+        var bindType = _ref.bindType;
+        var $parent = _ref.$parent;
+        var options = _ref.options;
+        var elRenderer = _ref.elRenderer;
 
         _classCallCheck$1(this, ReactiveListener);
 
@@ -216,6 +216,12 @@ var ReactiveListener = function () {
 
         this.initState();
 
+        this.performance = {
+            init: Date.now(),
+            loadStart: null,
+            loadEnd: null
+        };
+
         this.rect = el.getBoundingClientRect();
 
         this.$parent = $parent;
@@ -232,11 +238,16 @@ var ReactiveListener = function () {
             };
         }
     }, {
+        key: 'record',
+        value: function record(event) {
+            this.performance[event] = Date.now();
+        }
+    }, {
         key: 'update',
         value: function update(_ref2) {
-            var src = _ref2.src,
-                loading = _ref2.loading,
-                error = _ref2.error;
+            var src = _ref2.src;
+            var loading = _ref2.loading;
+            var error = _ref2.error;
 
             this.src = src;
             this.loading = loading;
@@ -273,13 +284,17 @@ var ReactiveListener = function () {
 
             this.attempt++;
 
+            this.record('loadStart');
+
             loadImageAsync({
                 src: this.src
             }, function (data) {
+                console.log(window.aa = data);
                 _this.naturalHeight = data.naturalHeight;
                 _this.naturalWidth = data.naturalWidth;
                 _this.state.loaded = true;
                 _this.state.error = false;
+                _this.record('loadEnd');
                 _this.render('loaded', true);
                 imageCache[_this.src] = 1;
             }, function (err) {
@@ -291,24 +306,7 @@ var ReactiveListener = function () {
     }, {
         key: 'render',
         value: function render(state, notify) {
-            var src = void 0;
-            switch (state) {
-                case 'loading':
-                    src = this.loading;
-                    break;
-                case 'error':
-                    src = this.error;
-                    break;
-                default:
-                    src = this.src;
-                    break;
-            }
-
-            this.elRenderer({
-                el: this.el,
-                bindType: this.bindType,
-                src: src
-            }, state, notify);
+            this.elRenderer(this, state, notify);
         }
     }, {
         key: 'destroy',
@@ -336,16 +334,16 @@ var Lazy = function () {
     function Lazy(_ref) {
         var _this = this;
 
-        var preLoad = _ref.preLoad,
-            error = _ref.error,
-            loading = _ref.loading,
-            attempt = _ref.attempt,
-            silent = _ref.silent,
-            scale = _ref.scale,
-            listenEvents = _ref.listenEvents,
-            hasbind = _ref.hasbind,
-            filter = _ref.filter,
-            adapter = _ref.adapter;
+        var preLoad = _ref.preLoad;
+        var error = _ref.error;
+        var loading = _ref.loading;
+        var attempt = _ref.attempt;
+        var silent = _ref.silent;
+        var scale = _ref.scale;
+        var listenEvents = _ref.listenEvents;
+        var hasbind = _ref.hasbind;
+        var filter = _ref.filter;
+        var adapter = _ref.adapter;
 
         _classCallCheck(this, Lazy);
 
@@ -394,10 +392,12 @@ var Lazy = function () {
                 return Vue.nextTick(this.lazyLoadHandler);
             }
 
-            var _valueFormatter = this.valueFormatter(binding.value),
-                src = _valueFormatter.src,
-                loading = _valueFormatter.loading,
-                error = _valueFormatter.error;
+            var _valueFormatter = this.valueFormatter(binding.value);
+
+            var src = _valueFormatter.src;
+            var loading = _valueFormatter.loading;
+            var error = _valueFormatter.error;
+
 
             Vue.nextTick(function () {
                 var tmp = getBestSelectionFromSrcset(el, _this2.options.scale);
@@ -442,10 +442,12 @@ var Lazy = function () {
         value: function update(el, binding) {
             var _this3 = this;
 
-            var _valueFormatter2 = this.valueFormatter(binding.value),
-                src = _valueFormatter2.src,
-                loading = _valueFormatter2.loading,
-                error = _valueFormatter2.error;
+            var _valueFormatter2 = this.valueFormatter(binding.value);
+
+            var src = _valueFormatter2.src;
+            var loading = _valueFormatter2.loading;
+            var error = _valueFormatter2.error;
+
 
             var exist = find(this.ListenerQueue, function (item) {
                 return item.el === el;
@@ -516,15 +518,41 @@ var Lazy = function () {
             };
         }
     }, {
+        key: 'performance',
+        value: function performance() {
+            var list = [];
+
+            this.ListenerQueue.map(function (item) {
+                if (item.performance.loadEnd) {
+                    list.push({
+                        src: item.src,
+                        timing: (item.performance.loadEnd - item.performance.loadStart) / 1000
+                    });
+                }
+            });
+
+            return list;
+        }
+    }, {
         key: 'elRenderer',
-        value: function elRenderer(data, state, notify) {
-            var el = data.el,
-                bindType = data.bindType,
-                src = data.src;
+        value: function elRenderer(listener, state, notify) {
+            if (!listener.el) return;
+            var el = listener.el;
+            var bindType = listener.bindType;
 
-            // don't remove it please
 
-            if (!el) return;
+            var src = void 0;
+            switch (state) {
+                case 'loading':
+                    src = listener.loading;
+                    break;
+                case 'error':
+                    src = listener.error;
+                    break;
+                default:
+                    src = listener.src;
+                    break;
+            }
 
             if (bindType) {
                 el.style[bindType] = 'url(' + src + ')';
@@ -535,8 +563,8 @@ var Lazy = function () {
             el.setAttribute('lazy', state);
 
             if (!notify) return;
-            this.$emit(state, data);
-            this.options.adapter[state] && this.options.adapter[state](data, this.options);
+            this.$emit(state, listener);
+            this.options.adapter[state] && this.options.adapter[state](listener, this.options);
         }
     }, {
         key: 'listenerFilter',
@@ -635,7 +663,7 @@ var LazyComponent = (function (lazy) {
 });
 
 var index = (function (Vue$$1) {
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     var lazy = new Lazy(options);
     var isVueNext = Vue$$1.version.split('.')[0] === '2';
