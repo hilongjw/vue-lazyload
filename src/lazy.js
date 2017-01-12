@@ -149,7 +149,7 @@ export default class Lazy {
             if (item.performance.loadEnd) {
               list.push({
                 src: item.src,
-                timing: (item.performance.loadEnd - item.performance.loadStart) / 1000
+                time: (item.performance.loadEnd - item.performance.loadStart) / 1000
               })
             }
         })

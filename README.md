@@ -10,15 +10,18 @@ Vue module for lazyloading images in your applications. Some of goals of this pr
 
 
 # Table of Contents
+
 * [___Demo___](#demo)
 * [___Requirements___](#requirements)
 * [___Installation___](#installation)
 * [___Usage___](#usage)  
  * [___Constructor Options___](#constructor-options)
- * [___Implementation___](#implementation) 
-   * [___Basic___](#basic) 
-   * [___Css state___](#css-state)  
+ * [___Implementation___](#implementation)
+    * [___Basic___](#basic)
+      * [___Css state___](#css-state)
 * [___Methods___](#methods)
+  * [__Event hook__](#event-hook)
+  * [__Performance__](#performance)
 * [___Authors && Contributors___](#authors-&&-Contributors)
 * [___License___](#license)
 
@@ -80,6 +83,79 @@ new Vue({
 |`listenEvents`|events that you want vue listen for|`['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend', 'touchmove']`|`EVENT`|
 |`adapter`| |`{ }`|`{ loaded () { ... }, loading () { ... }, error () { ... } }`|
 |`filter`|the image's src filter |`{ }`|`{ webp ({ src }) { ... } }`|
+
+### Desired Listen Events
+
+You can configure which events you want vue-lazyload by passing in an array
+of listener names.
+
+```javascript
+Vue.use(VueLazyload, {
+  preLoad: 1.3,
+  error: 'dist/error.png',
+  loading: 'dist/loading.gif',
+  attempt: 1,
+  // the default is ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend']
+  listenEvents: [ 'scroll' ]
+})
+```
+
+This is useful if you are having trouble with this plugin resetting itself to loading
+when you have certain animations and transitions taking place
+
+
+### Image url filter
+
+```javascript
+Vue.use(vueLazy, {
+    preLoad: 1.3,
+    error: 'dist/404.png',
+    loading: 'dist/loading-spin.svg',
+    adapter: {
+        loaded (listender, Init) {
+            console.log('loaded')
+        },
+        loading (listender, Init) {
+            console.log('loading')
+        },
+        error (listender, Init) {
+            console.log('error')
+        }
+    },
+    filter: {
+        webp ({ src }) {
+            const isCDN = /qiniudn.com/
+            if (isCDN.test(src)) {
+                src += '?imageView2/2/format/webp'
+            }
+            return src
+        }
+    }
+})
+```
+
+
+### Element Adapter
+
+```javascript
+Vue.use(vueLazy, {
+    preLoad: 1.3,
+    error: 'dist/404.png',
+    loading: 'dist/loading-spin.svg',
+    adapter: {
+        loaded ({ bindType, el, naturalHeight, naturalWidth, $parent, src, loading, error, Init }) {
+            // do something here
+            console.log('loaded')
+        },
+        loading (listender, Init) {
+            console.log('loading')
+        },
+        error (listender, Init) {
+            console.log('error')
+        }
+    }
+})
+```
 
 
 ## Implementation
@@ -164,7 +240,17 @@ There are three states while img loading
 
 ## Methods
 
-### `vm.$Lazyload.$on(event, callback)`
+### Event Hook
+
+`vm.$Lazyload.$on(event, callback)`
+`vm.$Lazyload.$off(event, callback)`
+`vm.$Lazyload.$once(event, callback)`
+
+- `$on` Listen for a custom events `loading`, `loaded`, `error` 
+- `$once` Listen for a custom event, but only once. The listener will be removed once it triggers for the first time.
+- `$off` Remove event listener(s).
+
+#### `vm.$Lazyload.$on`
 
 #### Arguments:
 
@@ -179,9 +265,7 @@ vm.$Lazyload.$on('loaded', function ({ bindType, el, naturalHeight, naturalWidth
 })
 ```
 
-### `vm.$Lazyload.$once(event, callback)`
-
-Listen for a custom event, but only once. The listener will be removed once it triggers for the first time.
+#### `vm.$Lazyload.$once`
 
 #### Arguments:
 
@@ -196,9 +280,7 @@ vm.$Lazyload.$once('loaded', function ({ el, src }) {
 })
 ```
 
-### `vm.$Lazyload.$off(event, callback)`
-
-Remove event listener(s).
+#### `vm.$Lazyload.$off`
 
 If only the event is provided, remove all listeners for that event
 
@@ -215,80 +297,17 @@ function handler ({ el, src }) {
 } 
 vm.$Lazyload.$on('loaded', handler)
 vm.$Lazyload.$off('loaded', handler)
+vm.$Lazyload.$off('loaded')
 ```
 
-### Desired Listen Events
+### Performance
 
-You can configure which events you want vue-lazyload by passing in an array
-of listener names.
-
-```javascript
-Vue.use(VueLazyload, {
-  preLoad: 1.3,
-  error: 'dist/error.png',
-  loading: 'dist/loading.gif',
-  attempt: 1,
-  // the default is ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend']
-  listenEvents: [ 'scroll' ]
+```
+this.$Lazyload.$on('loaded', (listener) {
+  console.table(this.$Lazyload.performance())
 })
 ```
-
-This is useful if you are having trouble with this plugin resetting itself to loading
-when you have certain animations and transitions taking place
-
-
-## Image url filter
-
-```javascript
-Vue.use(vueLazy, {
-    preLoad: 1.3,
-    error: 'dist/404.png',
-    loading: 'dist/loading-spin.svg',
-    adapter: {
-        loaded (listender, Init) {
-            console.log('loaded')
-        },
-        loading (listender, Init) {
-            console.log('loading')
-        },
-        error (listender, Init) {
-            console.log('error')
-        }
-    },
-    filter: {
-        webp ({ src }) {
-            const isCDN = /qiniudn.com/
-            if (isCDN.test(src)) {
-                src += '?imageView2/2/format/webp'
-            }
-            return src
-        }
-    }
-})
-```
-
-
-## Element Adapter
-
-```javascript
-Vue.use(vueLazy, {
-    preLoad: 1.3,
-    error: 'dist/404.png',
-    loading: 'dist/loading-spin.svg',
-    adapter: {
-        loaded ({ bindType, el, naturalHeight, naturalWidth, $parent, src, loading, error, Init }) {
-            // do something here
-            console.log('loaded')
-        },
-        loading (listender, Init) {
-            console.log('loading')
-        },
-        error (listender, Init) {
-            console.log('error')
-        }
-    }
-})
-```
+![performance](https://dn-mhke0kuv.qbox.me/d7878f67bf3b18accc44.png)
 
 # Authors && Contributors
 

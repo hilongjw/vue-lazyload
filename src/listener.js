@@ -78,7 +78,6 @@ export default class ReactiveListener {
         loadImageAsync({
             src: this.src
         }, data => {
-            console.log(window.aa = data)
             this.naturalHeight = data.naturalHeight
             this.naturalWidth = data.naturalWidth
             this.state.loaded = true

@@ -289,7 +289,6 @@ var ReactiveListener = function () {
             loadImageAsync({
                 src: this.src
             }, function (data) {
-                console.log(window.aa = data);
                 _this.naturalHeight = data.naturalHeight;
                 _this.naturalWidth = data.naturalWidth;
                 _this.state.loaded = true;
@@ -526,7 +525,7 @@ var Lazy = function () {
                 if (item.performance.loadEnd) {
                     list.push({
                         src: item.src,
-                        timing: (item.performance.loadEnd - item.performance.loadStart) / 1000
+                        time: (item.performance.loadEnd - item.performance.loadStart) / 1000
                     });
                 }
             });
