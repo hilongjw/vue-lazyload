@@ -146,12 +146,7 @@ export default class Lazy {
         let list = []
 
         this.ListenerQueue.map(item => {
-            if (item.performance.loadEnd) {
-              list.push({
-                src: item.src,
-                time: (item.performance.loadEnd - item.performance.loadStart) / 1000
-              })
-            }
+            list.push(item.performance())
         })
 
         return list

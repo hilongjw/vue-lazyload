@@ -159,7 +159,7 @@ const loadImageAsync = (item, resolve, reject) => {
         resolve({
             naturalHeight: image.naturalHeight,
             naturalWidth: image.naturalWidth,
-            src: item.src
+            src: image.src
         })
     }
 

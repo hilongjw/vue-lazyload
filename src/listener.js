@@ -1,4 +1,6 @@
 import { loadImageAsync } from './util'
+import Vue from 'vue'
+
 let imageCache = {}
 
 export default class ReactiveListener {
@@ -17,7 +19,7 @@ export default class ReactiveListener {
 
         this.initState()
 
-        this.performance = {
+        this.performanceData = {
             init: Date.now(),
             loadStart: null,
             loadEnd: null
@@ -38,7 +40,7 @@ export default class ReactiveListener {
     }
 
     record (event) {
-        this.performance[event] = Date.now()
+        this.performanceData[event] = Date.now()
     }
 
     update ({ src, loading, error }) {
@@ -78,6 +80,7 @@ export default class ReactiveListener {
         loadImageAsync({
             src: this.src
         }, data => {
+            this.src = data.src
             this.naturalHeight = data.naturalHeight
             this.naturalWidth = data.naturalWidth
             this.state.loaded = true
@@ -94,6 +97,24 @@ export default class ReactiveListener {
 
     render (state, notify) {
         this.elRenderer(this, state, notify)
+    }
+
+    performance () {
+        let state = 'loading'
+        let time = 0
+
+        if (this.state.loaded) {
+            state = 'loaded'
+            time = (this.performanceData.loadEnd - this.performanceData.loadStart) / 1000
+        }
+
+        if (this.state.error) state = 'error'
+
+        return {
+            src: this.src,
+            state,
+            time
+        }
     }
 
     destroy () {
