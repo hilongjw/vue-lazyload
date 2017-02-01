@@ -2,8 +2,11 @@ import Lazy from './lazy'
 import LazyComponent from './lazy-component'
 import { assign } from './util'
 
-export default (Vue, options = {}) => {
-    const lazy = new Lazy(options)
+const lazyLoad = {}
+let lazy = null
+
+lazyLoad.install = (Vue, options = {}) => {
+    lazy = new Lazy(options)
     const isVueNext = Vue.version.split('.')[0] === '2'
 
     Vue.prototype.$Lazyload = lazy
@@ -36,3 +39,9 @@ export default (Vue, options = {}) => {
         })
     }
 }
+
+lazyLoad.config = (options = {}) => {
+    lazy && Object.assign(lazy.options, options)
+}
+
+export default lazyLoad
