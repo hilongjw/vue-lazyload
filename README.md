@@ -74,7 +74,7 @@ new Vue({
 
 ## Constructor Options
 
-|key|description|defualt|options|
+|key|description|default|options|
 |:---|---|---|---|
 | `preLoad`|proportion of pre-loading height|`1.3`|`Number`|
 |`error`|src of the image upon load fail|`'data-src'`|`String`
