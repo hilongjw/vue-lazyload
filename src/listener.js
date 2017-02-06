@@ -1,5 +1,4 @@
 import { loadImageAsync } from './util'
-import Vue from 'vue'
 
 let imageCache = {}
 

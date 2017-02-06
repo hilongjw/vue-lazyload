@@ -2,6 +2,7 @@ var fs = require('fs')
 var path = require('path')
 var rollup = require('rollup')
 var babel = require('rollup-plugin-babel')
+var uglify = require('rollup-plugin-uglify')
 var version = process.env.VERSION || require('./package.json').version
 
 var banner =
@@ -9,16 +10,18 @@ var banner =
   ' * Vue-Lazyload.js v' + version + '\n' +
   ' * (c) ' + new Date().getFullYear() + ' Awe <hilongjw@gmail.com>\n' +
   ' * Released under the MIT License.\n' +
-  ' */'
+  ' */\n'
 
 rollup.rollup({
     entry: path.resolve(__dirname, 'src/index.js'),
-    plugins: [ babel() ]
+    plugins: [
+      babel(),
+      uglify()
+    ]
 })
 .then(bundle => {
     return write(path.resolve(__dirname, 'vue-lazyload.js'), bundle.generate({
         format: 'umd',
-        banner: banner,
         moduleName: 'VueLazyload'
     }).code)
 })
@@ -37,6 +40,7 @@ function blue (str) {
 
 function write (dest, code) {
   return new Promise(function (resolve, reject) {
+    code = banner + code
     fs.writeFile(dest, code, function (err) {
       if (err) return reject(err)
       console.log(blue(dest) + ' ' + getSize(code))
