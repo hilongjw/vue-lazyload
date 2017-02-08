@@ -9,10 +9,6 @@ export default {
         const lazy = new LazyClass(options)
         const isVueNext = Vue.version.split('.')[0] === '2'
 
-        lazy.config = (options = {}) => {
-            lazy && Object.assign(lazy.options, options)
-        }
-
         Vue.prototype.$Lazyload = lazy
         Vue.component('lazy-component', LazyComponent(lazy))
 

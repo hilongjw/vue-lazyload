@@ -292,6 +292,20 @@ vm.$Lazyload.$off('loaded', handler)
 vm.$Lazyload.$off('loaded')
 ```
 
+### LazyLoadHandler
+
+`vm.$Lazyload.lazyLoadHandler`
+
+Manually trigger lazy loading position calculation
+
+#### Example
+
+```javascript
+
+this.$Lazyload.lazyLoadHandler()
+
+```
+
 ### Performance
 
 ```

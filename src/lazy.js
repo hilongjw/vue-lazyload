@@ -1,4 +1,15 @@
-import { remove, some, find, _, throttle, supportWebp, getDPR, getBestSelectionFromSrcset } from './util'
+import { 
+    remove, 
+    some, 
+    find, 
+    _,
+    throttle,
+    supportWebp,
+    getDPR,
+    getBestSelectionFromSrcset,
+    assign
+} from './util'
+
 import ReactiveListener from './listener'
 
 const DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
@@ -31,6 +42,10 @@ export default function (Vue) {
                     catIn && listener.load()
                 })
             }, 200)
+        }
+
+        config (options = {}) {
+            assign(this.options, options)
         }
 
         addLazyBox (vm) {
