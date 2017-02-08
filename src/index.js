@@ -4,6 +4,11 @@ import { assign } from './util'
 
 
 export default {
+    /**
+     * install function
+     * @param  {Vue} Vue
+     * @param  {object} options  lazyload options
+     */
     install (Vue, options = {}) {
         const LazyClass = Lazy(Vue)
         const lazy = new LazyClass(options)

@@ -6,6 +6,7 @@ import {
     throttle,
     supportWebp,
     getDPR,
+    scrollParent,
     getBestSelectionFromSrcset,
     assign
 } from './util'
@@ -76,6 +77,10 @@ export default function (Vue) {
                     $parent = vnode.context.$refs[container]
                     // if there is container passed in, try ref first, then fallback to getElementById to support the original usage
                     $parent = $parent ? $parent.$el || $parent : document.getElementById(container)
+                }
+
+                if (!$parent) {
+                    $parent = scrollParent(el)
                 }
 
                 this.ListenerQueue.push(this.listenerFilter(new ReactiveListener({
@@ -167,6 +172,13 @@ export default function (Vue) {
             return list
         }
 
+        /**
+         * set element attribute with image'url and state
+         * @param  {object} lazyload listener object
+         * @param  {string} state will be rendered
+         * @param  {bool} notify  will send notification
+         * @return
+         */
         elRenderer (listener, state, notify) {
             if (!listener.el) return
             const { el, bindType } = listener
@@ -207,11 +219,18 @@ export default function (Vue) {
             return listener
         }
 
+
+        /**
+         * generate loading loaded error image url 
+         * @param {string} image's src
+         * @return {object} image's loading, loaded, error url
+         */
         valueFormatter (value) {
             let src = value
             let loading = this.options.loading
             let error = this.options.error
 
+            // value is object
             if (Vue.util.isObject(value)) {
                 if (!value.src && !this.options.silent) Vue.util.warn('Vue Lazyload warning: miss src with ' + value)
                 src = value.src

@@ -142,9 +142,31 @@ function throttle (action, delay) {
     }
 }
 
+function testSupportsPassive () {
+    if (!inBrowser) return
+    let support = false
+    try {
+        let opts = Object.defineProperty({}, 'passive', {
+            get: function() {
+              support = true
+            }
+        })
+        window.addEventListener("test", null, opts)
+    } catch (e) {}
+    return support
+}
+
+const supportsPassive = testSupportsPassive()
+
 const _ = {
     on (el, type, func) {
-        el.addEventListener(type, func)
+        if (supportsPassive) {
+            el.addEventListener(type, func, {
+                passive:true
+            })
+        } else {
+            el.addEventListener(type, func, false)
+        }
     },
     off (el, type, func) {
         el.removeEventListener(type, func)
@@ -168,6 +190,43 @@ const loadImageAsync = (item, resolve, reject) => {
     }
 }
 
+const style = (el, prop) => {
+    return typeof getComputedStyle !== 'undefined'
+    ? getComputedStyle(el, null).getPropertyValue(prop)
+    : el.style[prop]
+}
+
+const overflow = (el) => {
+    return style(el, 'overflow') + style(el, 'overflow-y') + style(el, 'overflow-x')
+}
+
+const scrollParent = (el) => {
+    if (!inBrowser) return
+    if (!(el instanceof HTMLElement)) {
+        return window
+    }
+
+    let parent = el
+
+    while (parent) {
+        if (parent === document.body || parent === document.documentElement) {
+            break
+        }
+
+        if (!parent.parentNode) {
+            break
+        }
+
+        if (/(scroll|auto)/.test(overflow(parent))) {
+            return parent
+        }
+
+        parent = parent.parentNode
+    }
+
+    return window
+}
+
 export {
     inBrowser,
     remove,
@@ -178,6 +237,7 @@ export {
     throttle,
     supportWebp,
     getDPR,
+    scrollParent,
     loadImageAsync,
     getBestSelectionFromSrcset
 }
