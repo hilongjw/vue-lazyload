@@ -29,60 +29,61 @@ function some (arr, fn) {
 
 function getBestSelectionFromSrcset (el, scale) {
     if (el.tagName !== 'IMG' || !el.getAttribute('srcset')) return
-        let options = el.getAttribute('srcset')
-        const result = []
-        const container = el.parentNode
-        const containerWidth = container.offsetWidth * scale
 
-        let spaceIndex
-        let tmpSrc
-        let tmpWidth
+    let options = el.getAttribute('srcset')
+    const result = []
+    const container = el.parentNode
+    const containerWidth = container.offsetWidth * scale
 
-        options = options.trim().split(',')
-        
-        options.map(item => {
-            item = item.trim()
-            spaceIndex = item.lastIndexOf(' ')
-            if (spaceIndex === -1) {
-                tmpSrc = item
-                tmpWidth = 999998
-            } else {
-                tmpSrc = item.substr(0, spaceIndex)
-                tmpWidth = parseInt(item.substr(spaceIndex + 1, item.length - spaceIndex - 2), 10)
-            }
-            result.push([tmpWidth, tmpSrc])
-        })
+    let spaceIndex
+    let tmpSrc
+    let tmpWidth
 
-        result.sort(function (a, b) {
-            if (a[0] < b[0]) {
-                return -1
-            }
-            if (a[0] > b[0]) {
+    options = options.trim().split(',')
+    
+    options.map(item => {
+        item = item.trim()
+        spaceIndex = item.lastIndexOf(' ')
+        if (spaceIndex === -1) {
+            tmpSrc = item
+            tmpWidth = 999998
+        } else {
+            tmpSrc = item.substr(0, spaceIndex)
+            tmpWidth = parseInt(item.substr(spaceIndex + 1, item.length - spaceIndex - 2), 10)
+        }
+        result.push([tmpWidth, tmpSrc])
+    })
+
+    result.sort(function (a, b) {
+        if (a[0] < b[0]) {
+            return -1
+        }
+        if (a[0] > b[0]) {
+            return 1
+        }
+        if (a[0] === b[0]) {
+            if (b[1].indexOf('.webp', b[1].length - 5) !== -1) {
                 return 1
             }
-            if (a[0] === b[0]) {
-                if (b[1].indexOf('.webp', b[1].length - 5) !== -1) {
-                    return 1
-                }
-                if (a[1].indexOf('.webp', a[1].length - 5) !== -1) {
-                    return -1
-                }
-            }
-            return 0
-        })
-        let bestSelectedSrc = ''
-        let tmpOption
-        const resultCount = result.length
-
-        for (let i = 0; i < resultCount; i++) {
-            tmpOption = result[i]
-            if (tmpOption[0] >= containerWidth) {
-                bestSelectedSrc = tmpOption[1]
-                break
+            if (a[1].indexOf('.webp', a[1].length - 5) !== -1) {
+                return -1
             }
         }
+        return 0
+    })
+    let bestSelectedSrc = ''
+    let tmpOption
+    const resultCount = result.length
 
-        return bestSelectedSrc
+    for (let i = 0; i < resultCount; i++) {
+        tmpOption = result[i]
+        if (tmpOption[0] >= containerWidth) {
+            bestSelectedSrc = tmpOption[1]
+            break
+        }
+    }
+
+    return bestSelectedSrc
 }
 
 function find (arr, fn) {
