@@ -208,8 +208,8 @@ export default {
      <div v-lazy:background-image.container="img"></div>
   
     <!-- srcset -->
-    <img v-lazy="'img.400px.jpg'" srcset="img.400px.jpg 400w, img.800px.jpg 800w, img.1200px.jpg 1200w">
-    <img v-lazy="imgUrl" :srcset="imgUrl' + '?size=400 400w, ' + imgUrl + ' ?size=800 800w, ' + imgUrl +'/1200.jpg 1200w'" />
+    <img v-lazy="'img.400px.jpg'" data-srcset="img.400px.jpg 400w, img.800px.jpg 800w, img.1200px.jpg 1200w">
+    <img v-lazy="imgUrl" :data-srcset="imgUrl' + '?size=400 400w, ' + imgUrl + ' ?size=800 800w, ' + imgUrl +'/1200.jpg 1200w'" />
   </div>
 </template>
 ```
