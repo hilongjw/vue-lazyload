@@ -84,6 +84,7 @@ new Vue({
 |`listenEvents`|events that you want vue listen for|`['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend', 'touchmove']`| [Desired Listen Events](#desired-listen-events) |
 |`adapter`| dynamically modify the attribute of element |`{ }`| [Element Adapter](#element-adapter) |
 |`filter`| the image's src filter |`{ }`| [Image url filter](#image-url-filter) |
+|`lazyComponent`| lazyload component | `false` | [Lazy Component](#lazy-component)
 
 ### Desired Listen Events
 
@@ -148,6 +149,26 @@ Vue.use(vueLazy, {
         }
     }
 })
+```
+
+### Lazy Component
+
+```html
+<lazy-component @show="handler">
+  <img class="mini-cover" :src="img.src" width="100%" height="400">
+</lazy-component>
+
+<script>
+  {
+    ...
+    methods: {
+      handler (component) {
+        console.log('this component is showing')
+      }
+    }
+
+  }
+</script>
 ```
 
 
@@ -253,7 +274,7 @@ There are three states while img loading
 #### Example
 
 ```javascript
-vm.$Lazyload.$on('loaded', function ({ bindType, el, naturalHeight, naturalWidth, $parent, src, loading, error }) {
+vm.$Lazyload.$on('loaded', function ({ bindType, el, naturalHeight, naturalWidth, $parent, src, loading, error }, formCache) {
   console.log(el, src)
 })
 ```
@@ -285,7 +306,7 @@ If only the event is provided, remove all listeners for that event
 #### Example
 
 ```javascript
-function handler ({ el, src }) {
+function handler ({ el, src }, formCache) {
   console.log(el, src)
 } 
 vm.$Lazyload.$on('loaded', handler)

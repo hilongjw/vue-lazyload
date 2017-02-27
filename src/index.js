@@ -15,7 +15,10 @@ export default {
         const isVueNext = Vue.version.split('.')[0] === '2'
 
         Vue.prototype.$Lazyload = lazy
-        Vue.component('lazy-component', LazyComponent(lazy))
+
+        if (options.lazyComponent) {
+            Vue.component('lazy-component', LazyComponent(lazy))
+        }
 
         if (isVueNext) {
             Vue.directive('lazy', {

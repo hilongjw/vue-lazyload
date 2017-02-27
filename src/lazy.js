@@ -8,7 +8,8 @@ import {
     getDPR,
     scrollParent,
     getBestSelectionFromSrcset,
-    assign
+    assign,
+    isObject
 } from './util'
 
 import ReactiveListener from './listener'
@@ -125,6 +126,11 @@ export default function (Vue) {
             this.options.hasbind && !this.ListenerQueue.length && this.initListen(window, false)
         }
 
+        removeComponent (vm) {
+            vm && remove(this.ListenerQueue, vm)
+            this.options.hasbind && !this.ListenerQueue.length && this.initListen(window, false)
+        }
+
         initListen (el, start) {
             this.options.hasbind = start
             this.options.ListenEvents.forEach((evt) => _[start ? 'on' : 'off'](el, evt, this.lazyLoadHandler))
@@ -141,7 +147,8 @@ export default function (Vue) {
 
             this.$on = (event, func) => {
                 this.Event.listeners[event].push(func)
-            },
+            }
+
             this.$once = (event, func) => {
                 const vm = this
                 function on () {
@@ -149,16 +156,18 @@ export default function (Vue) {
                     func.apply(vm, arguments)
                 }
                 this.$on(event, on)
-            },
+            }
+
             this.$off = (event, func) => {
                 if (!func) {
                     this.Event.listeners[event] = []
                     return
                 }
                 remove(this.Event.listeners[event], func)
-            },
-            this.$emit = (event, context) => {
-                this.Event.listeners[event].forEach(func => func(context))
+            }
+
+            this.$emit = (event, context, inCache) => {
+                this.Event.listeners[event].forEach(func => func(context, inCache))
             }
         }
 
@@ -176,10 +185,10 @@ export default function (Vue) {
          * set element attribute with image'url and state
          * @param  {object} lazyload listener object
          * @param  {string} state will be rendered
-         * @param  {bool} notify  will send notification
+         * @param  {bool} inCache  is rendered from cache 
          * @return
          */
-        elRenderer (listener, state, notify) {
+        elRenderer (listener, state, cache) {
             if (!listener.el) return
             const { el, bindType } = listener
 
@@ -204,8 +213,7 @@ export default function (Vue) {
 
             el.setAttribute('lazy', state)
 
-            if (!notify) return
-            this.$emit(state, listener)
+            this.$emit(state, listener, cache)
             this.options.adapter[state] && this.options.adapter[state](listener, this.options)
         }
 
@@ -231,8 +239,8 @@ export default function (Vue) {
             let error = this.options.error
 
             // value is object
-            if (Vue.util.isObject(value)) {
-                if (!value.src && !this.options.silent) Vue.util.warn('Vue Lazyload warning: miss src with ' + value)
+            if (isObject(value)) {
+                if (!value.src && !this.options.silent) console.error('Vue Lazyload warning: miss src with ' + value)
                 src = value.src
                 loading = value.loading || this.options.loading
                 error = value.error || this.options.error

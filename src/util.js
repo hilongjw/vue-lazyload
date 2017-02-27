@@ -28,9 +28,9 @@ function some (arr, fn) {
 }
 
 function getBestSelectionFromSrcset (el, scale) {
-    if (el.tagName !== 'IMG' || !el.getAttribute('srcset')) return
+    if (el.tagName !== 'IMG' || !el.getAttribute('data-srcset')) return
 
-    let options = el.getAttribute('srcset')
+    let options = el.getAttribute('data-srcset')
     const result = []
     const container = el.parentNode
     const containerWidth = container.offsetWidth * scale
@@ -228,6 +228,10 @@ const scrollParent = (el) => {
     return window
 }
 
+function isObject (obj) {
+  return obj !== null && typeof obj === 'object'
+}
+
 export {
     inBrowser,
     remove,
@@ -235,6 +239,7 @@ export {
     find,
     assign,
     _,
+    isObject,
     throttle,
     supportWebp,
     getDPR,

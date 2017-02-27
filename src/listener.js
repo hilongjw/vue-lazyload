@@ -67,10 +67,10 @@ export default class ReactiveListener {
         }
 
         if (this.state.loaded || imageCache[this.src]) {
-            return this.render('loaded')
+            return this.render('loaded', true)
         }
 
-        this.render('loading', true)
+        this.render('loading', false)
 
         this.attempt++
 
@@ -85,17 +85,17 @@ export default class ReactiveListener {
             this.state.loaded = true
             this.state.error = false
             this.record('loadEnd')
-            this.render('loaded', true)
+            this.render('loaded', false)
             imageCache[this.src] = 1
         }, err => {
             this.state.error = true
             this.state.loaded = false
-            this.render('error', true)
+            this.render('error', false)
         })
     }
 
-    render (state, notify) {
-        this.elRenderer(this, state, notify)
+    render (state, cache) {
+        this.elRenderer(this, state, cache)
     }
 
     performance () {
