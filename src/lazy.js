@@ -50,12 +50,24 @@ export default function (Vue) {
             assign(this.options, options)
         }
 
+        /**
+         * add lazy component to queue
+         * @param  {Vue} vm lazy component instance
+         * @return
+         */
         addLazyBox (vm) {
             this.ListenerQueue.push(vm)
             this.options.hasbind = true
             this.initListen(window, true)
         }
 
+        /**
+         * add image listener to queue
+         * @param  {DOM} el 
+         * @param  {object} binding vue directive binding
+         * @param  {vnode} vnode vue directive vnode
+         * @return
+         */
         add (el, binding, vnode) {
             if (some(this.ListenerQueue, item => item.el === el)) {
                 this.update(el, binding)
@@ -84,7 +96,7 @@ export default function (Vue) {
                     $parent = scrollParent(el)
                 }
 
-                this.ListenerQueue.push(this.listenerFilter(new ReactiveListener({
+                const newListener = new ReactiveListener({
                     bindType: binding.arg,
                     $parent,
                     el,
@@ -93,7 +105,9 @@ export default function (Vue) {
                     src,
                     elRenderer: this.elRenderer.bind(this),
                     options: this.options
-                })))
+                })
+
+                this.ListenerQueue.push(this.listenerFilter(newListener))
 
                 if (!this.ListenerQueue.length || this.options.hasbind) return
 
@@ -105,6 +119,12 @@ export default function (Vue) {
             })
         }
 
+        /**
+         * update image src
+         * @param  {DOM} el 
+         * @param  {object} vue directive binding
+         * @return
+         */
         update (el, binding) {
             let { src, loading, error } = this.valueFormatter(binding.value)
 
@@ -119,6 +139,11 @@ export default function (Vue) {
             Vue.nextTick(() => this.lazyLoadHandler())
         }
 
+        /**
+         * remove listener form list
+         * @param  {DOM} el 
+         * @return
+         */
         remove (el) {
             if (!el) return
             const existItem = find(this.ListenerQueue, item => item.el === el)
@@ -126,11 +151,22 @@ export default function (Vue) {
             this.options.hasbind && !this.ListenerQueue.length && this.initListen(window, false)
         }
 
+        /**
+         * remove lazy components form list
+         * @param  {Vue} vm Vue instance 
+         * @return
+         */
         removeComponent (vm) {
             vm && remove(this.ListenerQueue, vm)
             this.options.hasbind && !this.ListenerQueue.length && this.initListen(window, false)
         }
 
+        /**
+         * add or remove eventlistener
+         * @param  {DOM} el DOM or Window
+         * @param  {boolean} start flag
+         * @return
+         */
         initListen (el, start) {
             this.options.hasbind = start
             this.options.ListenEvents.forEach((evt) => _[start ? 'on' : 'off'](el, evt, this.lazyLoadHandler))
@@ -171,6 +207,10 @@ export default function (Vue) {
             }
         }
 
+        /**
+         * output listener's load performance
+         * @return {Array} 
+         */
         performance () {
             let list = []
 
@@ -217,6 +257,11 @@ export default function (Vue) {
             this.options.adapter[state] && this.options.adapter[state](listener, this.options)
         }
 
+        /**
+         * listener filter
+         * @param {ReactiveListener} listener instance
+         * @return {ReactiveListener} listener  instance
+         */
         listenerFilter (listener) {
             if (this.options.filter.webp && this.options.supportWebp) {
                 listener.src = this.options.filter.webp(listener, this.options)

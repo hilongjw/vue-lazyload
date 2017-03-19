@@ -28,6 +28,7 @@ export default class ReactiveListener {
 
         this.$parent = $parent
         this.elRenderer = elRenderer
+        this.render('loading', false)
     }
 
     initState () {
