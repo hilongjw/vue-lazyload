@@ -38,10 +38,24 @@ Vue module for lazyloading images in your applications. Some of goals of this pr
 
 # Installation
 
+## npm
+
 ```bash
 
-# npm
 $ npm install vue-lazyload
+
+```
+
+## CDN
+
+CDN: [https://unpkg.com/vue-lazyload/vue-lazyload.js](https://unpkg.com/vue-lazyload/vue-lazyload.js)
+
+```html
+<script src="https://unpkg.com/vue-lazyload/vue-lazyload.js"></script>
+<script>
+  Vue.use(VueLazyload)
+  ...
+</script>
 
 ```
 
