@@ -42,6 +42,7 @@ export default (lazy) => {
             },
             load () {
                 this.show = true
+                this.state.loaded = true
                 this.$emit('show', this)
             }
         }
