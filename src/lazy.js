@@ -46,6 +46,11 @@ export default function (Vue) {
             }, 200)
         }
 
+        /**
+         * update config
+         * @param  {Object} config params
+         * @return
+         */
         config (options = {}) {
             assign(this.options, options)
         }
