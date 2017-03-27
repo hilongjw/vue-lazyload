@@ -28,7 +28,7 @@ export default function (Vue) {
                 error: error || DEFAULT_URL,
                 loading: loading || DEFAULT_URL,
                 attempt: attempt || 3,
-                scale: getDPR(scale),
+                scale: scale || getDPR(scale),
                 ListenEvents: listenEvents || DEFAULT_EVENTS,
                 hasbind: false,
                 supportWebp: supportWebp(),
@@ -137,7 +137,7 @@ export default function (Vue) {
             const exist = find(this.ListenerQueue, item => item.el === el)
 
             exist && exist.src !== src && exist.update({
-                src,
+                src: exist.src,
                 loading,
                 error
             })
