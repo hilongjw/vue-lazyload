@@ -38,7 +38,7 @@ export default function (Vue) {
                 filter: filter || {},
                 adapter: adapter || {}
             }
-            this.initEvent()
+            this._initEvent()
 
             this.lazyLoadHandler = throttle(() => {
                 let catIn = false
@@ -60,6 +60,20 @@ export default function (Vue) {
         }
 
         /**
+         * output listener's load performance
+         * @return {Array} 
+         */
+        performance () {
+            let list = []
+
+            this.ListenerQueue.map(item => {
+                list.push(item.performance())
+            })
+
+            return list
+        }
+
+        /**
          * add lazy component to queue
          * @param  {Vue} vm lazy component instance
          * @return
@@ -75,47 +89,6 @@ export default function (Vue) {
         }
 
         /**
-         * add listener target
-         * @param  {DOM} el listener target 
-         * @return
-         */
-        _addListenerTarget (el) {
-            if (!el) return
-            let target = find(this.TargetQueue, target => target.el === el)
-            if (!target) {
-                target = {
-                    el: el,
-                    id: ++this.TargetIndex,
-                    childrenCount: 1,
-                    listened: true
-                }
-                this.initListen(target.el, true)
-                this.TargetQueue.push(target)
-            } else {
-                target.childrenCount++
-            }
-            return this.TargetIndex
-        }
-
-        /**
-         * remove listener target or reduce target childrenCount
-         * @param  {DOM} el or window
-         * @return
-         */
-        _removeListenerTarget (el) {
-            this.TargetQueue.forEach((target, index) => {
-                if (target.el === el) {
-                    target.childrenCount--
-                    if (!target.childrenCount) {
-                        this.initListen(target.el, false)
-                        this.TargetQueue.splice(index, 1)
-                        target = null
-                    }
-                }
-            })
-        }
-
-        /**
          * add image listener to queue
          * @param  {DOM} el 
          * @param  {object} binding vue directive binding
@@ -128,7 +101,7 @@ export default function (Vue) {
                 return Vue.nextTick(this.lazyLoadHandler)
             }
 
-            let { src, loading, error } = this.valueFormatter(binding.value)
+            let { src, loading, error } = this._valueFormatter(binding.value)
 
             Vue.nextTick(() => {
                 src = getBestSelectionFromSrcset(el, this.options.scale) || src
@@ -153,7 +126,7 @@ export default function (Vue) {
                     loading,
                     error,
                     src,
-                    elRenderer: this.elRenderer.bind(this),
+                    elRenderer: this._elRenderer.bind(this),
                     options: this.options
                 })
 
@@ -168,14 +141,14 @@ export default function (Vue) {
             })
         }
 
-        /**
+         /**
          * update image src
          * @param  {DOM} el 
          * @param  {object} vue directive binding
          * @return
          */
         update (el, binding) {
-            let { src, loading, error } = this.valueFormatter(binding.value)
+            let { src, loading, error } = this._valueFormatter(binding.value)
 
             const exist = find(this.ListenerQueue, item => item.el === el)
 
@@ -216,6 +189,49 @@ export default function (Vue) {
             }
             this._removeListenerTarget(window)
         }
+        
+        /**** Private functions ****/
+
+        /**
+         * add listener target
+         * @param  {DOM} el listener target 
+         * @return
+         */
+        _addListenerTarget (el) {
+            if (!el) return
+            let target = find(this.TargetQueue, target => target.el === el)
+            if (!target) {
+                target = {
+                    el: el,
+                    id: ++this.TargetIndex,
+                    childrenCount: 1,
+                    listened: true
+                }
+                this._initListen(target.el, true)
+                this.TargetQueue.push(target)
+            } else {
+                target.childrenCount++
+            }
+            return this.TargetIndex
+        }
+
+        /**
+         * remove listener target or reduce target childrenCount
+         * @param  {DOM} el or window
+         * @return
+         */
+        _removeListenerTarget (el) {
+            this.TargetQueue.forEach((target, index) => {
+                if (target.el === el) {
+                    target.childrenCount--
+                    if (!target.childrenCount) {
+                        this._initListen(target.el, false)
+                        this.TargetQueue.splice(index, 1)
+                        target = null
+                    }
+                }
+            })
+        }
 
         /**
          * add or remove eventlistener
@@ -223,11 +239,11 @@ export default function (Vue) {
          * @param  {boolean} start flag
          * @return
          */
-        initListen (el, start) {
+        _initListen (el, start) {
             this.options.ListenEvents.forEach((evt) => _[start ? 'on' : 'off'](el, evt, this.lazyLoadHandler))
         }
 
-        initEvent () {
+        _initEvent () {
             this.Event = {
                 listeners: {
                     loading: [],
@@ -262,19 +278,6 @@ export default function (Vue) {
             }
         }
 
-        /**
-         * output listener's load performance
-         * @return {Array} 
-         */
-        performance () {
-            let list = []
-
-            this.ListenerQueue.map(item => {
-                list.push(item.performance())
-            })
-
-            return list
-        }
 
         /**
          * set element attribute with image'url and state
@@ -283,7 +286,7 @@ export default function (Vue) {
          * @param  {bool} inCache  is rendered from cache 
          * @return
          */
-        elRenderer (listener, state, cache) {
+        _elRenderer (listener, state, cache) {
             if (!listener.el) return
             const { el, bindType } = listener
 
@@ -317,7 +320,7 @@ export default function (Vue) {
          * @param {string} image's src
          * @return {object} image's loading, loaded, error url
          */
-        valueFormatter (value) {
+        _valueFormatter (value) {
             let src = value
             let loading = this.options.loading
             let error = this.options.error
