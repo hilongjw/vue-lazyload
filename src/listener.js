@@ -16,6 +16,8 @@ export default class ReactiveListener {
 
         this.options = options
 
+        this.filter()
+
         this.initState()
 
         this.performanceData = {
@@ -59,11 +61,15 @@ export default class ReactiveListener {
      * @return
      */
     update ({ src, loading, error }) {
+        const oldSrc = this.src
         this.src = src
         this.loading = loading
         this.error = error
-        this.attempt = 0
-        this.initState()
+        this.filter()
+        if (oldSrc !== this.src) {
+            this.attempt = 0
+            this.initState()
+        }
     }
 
     /**
@@ -82,6 +88,18 @@ export default class ReactiveListener {
         this.getRect()
         return (this.rect.top < window.innerHeight * this.options.preLoad && this.rect.bottom > this.options.preLoadTop) &&
             (this.rect.left < window.innerWidth * this.options.preLoad && this.rect.right > 0)
+    }
+
+    /**
+     * listener filter
+     */
+    filter () {
+        if (this.options.filter.webp && this.options.supportWebp) {
+            this.src = this.options.filter.webp(this, this.options)
+        }
+        if (this.options.filter.customer) {
+            this.src = this.options.filter.customer(this, this.options)
+        }
     }
 
     /**
@@ -107,7 +125,6 @@ export default class ReactiveListener {
         loadImageAsync({
             src: this.src
         }, data => {
-            this.src = data.src
             this.naturalHeight = data.naturalHeight
             this.naturalWidth = data.naturalWidth
             this.state.loaded = true
