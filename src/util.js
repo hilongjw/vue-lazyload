@@ -108,6 +108,7 @@ function supportWebp () {
     try {
         let el = d.createElement('object')
         el.type = 'image/webp'
+        el.style.visibility = 'hidden'
         el.innerHTML = '!'
         d.body.appendChild(el)
         support = !el.offsetWidth
@@ -232,6 +233,21 @@ function isObject (obj) {
   return obj !== null && typeof obj === 'object'
 }
 
+function ObjectKeys (obj) {
+    if (!(obj instanceof Object)) return []
+    if (Object.keys) {
+        return Object.keys(obj)
+    } else {
+        let keys = []
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                keys.push(key)
+            }
+        }
+        return keys
+    }
+}
+
 export {
     inBrowser,
     remove,
@@ -245,5 +261,6 @@ export {
     getDPR,
     scrollParent,
     loadImageAsync,
-    getBestSelectionFromSrcset
+    getBestSelectionFromSrcset,
+    ObjectKeys
 }

@@ -2,7 +2,6 @@ import Lazy from './lazy'
 import LazyComponent from './lazy-component'
 import { assign } from './util'
 
-
 export default {
     /**
      * install function
@@ -12,6 +11,7 @@ export default {
     install (Vue, options = {}) {
         const LazyClass = Lazy(Vue)
         const lazy = new LazyClass(options)
+
         const isVueNext = Vue.version.split('.')[0] === '2'
 
         Vue.prototype.$Lazyload = lazy
