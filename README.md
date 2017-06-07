@@ -201,8 +201,8 @@ export default {
         src: 'http://xx.com/logo.png',
         error: 'http://xx.com/error.png',
         loading: 'http://xx.com/loading-spin.svg'
-     }
-     imgUrl: 'http://xx.com/logo.png' // String
+      },
+      imgUrl: 'http://xx.com/logo.png' // String
     }
   }
 }
