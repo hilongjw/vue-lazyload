@@ -97,8 +97,9 @@ new Vue({
 |`attempt`|attempts count|`3`|`Number`|
 |`listenEvents`|events that you want vue listen for|`['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend', 'touchmove']`| [Desired Listen Events](#desired-listen-events) |
 |`adapter`| dynamically modify the attribute of element |`{ }`| [Element Adapter](#element-adapter) |
-|`filter`| the image's src filter |`{ }`| [Image url filter](#image-url-filter) |
+|`filter`| the image's listener filter |`{ }`| [Image listener filter](#image-listener-filter) |
 |`lazyComponent`| lazyload component | `false` | [Lazy Component](#lazy-component)
+| `dispatchEvent`|trigger the dom event|`false`|`Boolean`|
 
 ### Desired Listen Events
 
@@ -120,25 +121,26 @@ This is useful if you are having trouble with this plugin resetting itself to lo
 when you have certain animations and transitions taking place
 
 
-### Image url filter
+### Image listener filter
 
 dynamically modify the src of image
 
 ```javascript
 Vue.use(vueLazy, {
     filter: {
-      webp ({ src }) {
+      progressive (listener, options) {
           const isCDN = /qiniudn.com/
-          if (isCDN.test(src)) {
-              src += '?imageView2/2/format/webp'
+          if (isCDN.test(listener.src)) {
+              listener.el.setAttribute('lazy-progressive', 'true')
+              listener.loading = listener.src + '?imageView2/1/w/10/h/10'
           }
-          return src
       },
-      someProcess ({ el, src }) {
-        if (el.getAttribute('large')) {
-          src += '?large'
-        }
-        return src
+      webp (listener, options) {
+          if (!options.supportWebp) return
+          const isCDN = /qiniudn.com/
+          if (isCDN.test(listener.src)) {
+              listener.src += '?imageView2/2/format/webp'
+          }
       }
     }
 })
