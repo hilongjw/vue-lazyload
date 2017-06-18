@@ -20,15 +20,19 @@ rollup.rollup({
     ]
 })
 .then(bundle => {
-    return write(path.resolve(__dirname, 'vue-lazyload.js'), bundle.generate({
-        format: 'umd',
-        moduleName: 'VueLazyload'
-    }).code)
+  return write(path.resolve(__dirname, 'vue-lazyload.js'), rewriteVersion(bundle.generate({
+      format: 'umd',
+      moduleName: 'VueLazyload'
+  }).code))
 })
 .then(() => {
     console.log('Vue-Lazyload.js v' + version + ' builded')
 })
 .catch(console.log)
+
+function rewriteVersion (code) {
+  return code.replace('__VUE_LAZYLOAD_VERSION__', version)
+}
 
 function getSize (code) {
   return (code.length / 1024).toFixed(2) + 'kb'

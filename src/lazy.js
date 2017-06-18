@@ -20,12 +20,14 @@ const DEFAULT_EVENTS = ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend
 
 export default function (Vue) {
     return class Lazy {
-        constructor ({ preLoad, error, preLoadTop, loading, attempt, silent, scale, listenEvents, hasbind, filter, adapter }) {
+        constructor ({ preLoad, error, preLoadTop, dispatchEvent, loading, attempt, silent, scale, listenEvents, hasbind, filter, adapter }) {
+            this.version = '__VUE_LAZYLOAD_VERSION__'
             this.ListenerQueue = []
             this.TargetIndex = 0
             this.TargetQueue = []
             this.options = {
                 silent: silent || true,
+                dispatchEvent: !!dispatchEvent,
                 preLoad: preLoad || 1.3,
                 preLoadTop: preLoadTop || 0,
                 error: error || DEFAULT_URL,
@@ -313,6 +315,13 @@ export default function (Vue) {
 
             this.$emit(state, listener, cache)
             this.options.adapter[state] && this.options.adapter[state](listener, this.options)
+
+            if (this.options.dispatchEvent) {
+                const event = new CustomEvent(state, {
+                    detail: listener
+                })
+                el.dispatchEvent(event)
+            }
         }
 
         /**
