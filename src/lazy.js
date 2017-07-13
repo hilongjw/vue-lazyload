@@ -151,6 +151,7 @@ export default function (Vue) {
          */
         update (el, binding) {
             let { src, loading, error } = this._valueFormatter(binding.value)
+            src = getBestSelectionFromSrcset(el, this.options.scale) || src
 
             const exist = find(this.ListenerQueue, item => item.el === el)
 
