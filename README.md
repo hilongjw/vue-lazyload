@@ -1,6 +1,6 @@
 # Vue-Lazyload
 
-[![Build Status](https://img.shields.io/circleci/project/hilongjw/vue-lazyload/master.svg?style=flat-square)](http://badge.fury.io/js/vue-lazyload)
+[![Build Status](https://img.shields.io/circleci/project/hilongjw/vue-lazyload/master.svg?style=flat-square)](https://circleci.com/gh/hilongjw/vue-lazyload)
 [![npm version](https://img.shields.io/npm/v/vue-lazyload.svg?style=flat-square)](http://badge.fury.io/js/vue-lazyload)
 [![npm downloads](https://img.shields.io/npm/dm/vue-lazyload.svg?style=flat-square)](http://badge.fury.io/js/vue-lazyload)
 [![npm license](https://img.shields.io/npm/l/vue-lazyload.svg?style=flat-square)](http://badge.fury.io/js/vue-lazyload)
