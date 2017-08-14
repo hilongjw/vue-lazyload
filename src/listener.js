@@ -110,6 +110,11 @@ export default class ReactiveListener {
         }, data => {
             this.render('loading', false)
             cb()
+        }, err => {
+            // all image will be down if loading image error.
+            // ignore loading image error.
+            this.render('loading', false)
+            cb()
         })
     }
 
