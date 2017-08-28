@@ -20,7 +20,7 @@ Vue module for lazyloading images in your applications. Some of goals of this pr
 * [___Demo___](#demo)
 * [___Requirements___](#requirements)
 * [___Installation___](#installation)
-* [___Usage___](#usage)  
+* [___Usage___](#usage)
  * [___Constructor Options___](#constructor-options)
  * [___Implementation___](#implementation)
     * [___Basic___](#basic)
@@ -39,7 +39,7 @@ Vue module for lazyloading images in your applications. Some of goals of this pr
 
 # Requirements
 
-- [Vue.js](https://github.com/vuejs/vue) `1.x` or `2.x`  
+- [Vue.js](https://github.com/vuejs/vue) `1.x` or `2.x`
 
 
 # Installation
@@ -220,15 +220,15 @@ export default {
   <div ref="container">
      <img v-lazy="imgUrl"/>
      <div v-lazy:background-image="imgUrl"></div>
-     
+
      <!-- with customer error and loading -->
      <img v-lazy="imgObj"/>
      <div v-lazy:background-image="imgObj"></div>
-     
+
      <!-- Customer scrollable element -->
      <img v-lazy.container ="imgUrl"/>
      <div v-lazy:background-image.container="img"></div>
-  
+
     <!-- srcset -->
     <img v-lazy="'img.400px.jpg'" data-srcset="img.400px.jpg 400w, img.800px.jpg 800w, img.1200px.jpg 1200w">
     <img v-lazy="imgUrl" :data-srcset="imgUrl' + '?size=400 400w, ' + imgUrl + ' ?size=800 800w, ' + imgUrl +'/1200.jpg 1200w'" />
@@ -282,7 +282,7 @@ There are three states while img loading
 `vm.$Lazyload.$off(event, callback)`
 `vm.$Lazyload.$once(event, callback)`
 
-- `$on` Listen for a custom events `loading`, `loaded`, `error` 
+- `$on` Listen for a custom events `loading`, `loaded`, `error`
 - `$once` Listen for a custom event, but only once. The listener will be removed once it triggers for the first time.
 - `$off` Remove event listener(s).
 
@@ -330,7 +330,7 @@ If only the event is provided, remove all listeners for that event
 ```javascript
 function handler ({ el, src }, formCache) {
   console.log(el, src)
-} 
+}
 vm.$Lazyload.$on('loaded', handler)
 vm.$Lazyload.$off('loaded', handler)
 vm.$Lazyload.$off('loaded')
@@ -352,8 +352,8 @@ this.$Lazyload.lazyLoadHandler()
 
 ### Performance
 
-```
-this.$Lazyload.$on('loaded', (listener) {
+```javascript
+this.$Lazyload.$on('loaded', function (listener) {
   console.table(this.$Lazyload.performance())
 })
 ```
