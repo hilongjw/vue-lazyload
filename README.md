@@ -106,6 +106,7 @@ new Vue({
 |`filter`| the image's listener filter |`{ }`| [Image listener filter](#image-listener-filter) |
 |`lazyComponent`| lazyload component | `false` | [Lazy Component](#lazy-component)
 | `dispatchEvent`|trigger the dom event|`false`|`Boolean`|
+| `throttleWait`|throttle wait|`200`|`Number`|
 | `observer`|use IntersectionObserver|`false`|`Boolean`|
 | `observerOptions`|IntersectionObserver options|{ rootMargin: '0px', threshold: 0.1 }|[IntersectionObserver](#intersectionobserver)|
 
