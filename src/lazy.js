@@ -17,11 +17,16 @@ import ReactiveListener from './listener'
 
 const DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 const DEFAULT_EVENTS = ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend', 'touchmove']
+const DEFAULT_OBSERVER_OPTIONS = {
+    rootMargin: '0px', 
+    threshold: 0.1
+}
 
 export default function (Vue) {
     return class Lazy {
-        constructor ({ preLoad, error, preLoadTop, dispatchEvent, loading, attempt, silent, scale, listenEvents, hasbind, filter, adapter }) {
+        constructor ({ preLoad, error, preLoadTop, dispatchEvent, loading, attempt, silent, scale, listenEvents, hasbind, filter, adapter, observer, observerOptions }) {
             this.version = '__VUE_LAZYLOAD_VERSION__'
+            this.mode = 'event'
             this.ListenerQueue = []
             this.TargetIndex = 0
             this.TargetQueue = []
@@ -38,18 +43,13 @@ export default function (Vue) {
                 hasbind: false,
                 supportWebp: supportWebp(),
                 filter: filter || {},
-                adapter: adapter || {}
+                adapter: adapter || {},
+                observer: !!observer,
+                observerOptions: observerOptions || DEFAULT_OBSERVER_OPTIONS
             }
             this._initEvent()
 
-            this.lazyLoadHandler = throttle(() => {
-                let catIn = false
-                this.ListenerQueue.forEach(listener => {
-                    if (listener.state.loaded) return
-                    catIn = listener.checkInView()
-                    catIn && listener.load()
-                })
-            }, 200)
+            this.setMode(this.options.observer ? 'observer' : 'event')
         }
 
         /**
@@ -75,6 +75,7 @@ export default function (Vue) {
             return list
         }
 
+
         /**
          * add lazy component to queue
          * @param  {Vue} vm lazy component instance
@@ -84,6 +85,7 @@ export default function (Vue) {
             this.ListenerQueue.push(vm)
             if (inBrowser) {
                 this._addListenerTarget(window)
+                this._observer && this._observer.observe(vm.el)
                 if (vm.$el && vm.$el.parentNode) {
                     this._addListenerTarget(vm.$el.parentNode)
                 }
@@ -102,6 +104,8 @@ export default function (Vue) {
                 this.update(el, binding)
                 return Vue.nextTick(this.lazyLoadHandler)
             }
+
+            this._observer && this._observer.observe(el)
 
             let { src, loading, error } = this._valueFormatter(binding.value)
 
@@ -192,6 +196,23 @@ export default function (Vue) {
             }
             this._removeListenerTarget(window)
         }
+
+        setMode (mode) {
+            this.mode = mode // event or observer
+            if (mode === 'event') {
+                this.lazyLoadHandler = throttle(() => {
+                    let catIn = false
+                    this.ListenerQueue.forEach(listener => {
+                        if (listener.state.loaded) return
+                        catIn = listener.checkInView()
+                        catIn && listener.load()
+                    })
+                }, 200)
+            } else {
+                this._initIntersectionObserver()
+                this.lazyLoadHandler = () => {}
+            }
+        }
         
         /**** Private functions ****/
 
@@ -281,6 +302,39 @@ export default function (Vue) {
             }
         }
 
+        /**
+         * init IntersectionObserver
+         * set mode to observer
+         * @return
+         */
+        _initIntersectionObserver () {
+            if (inBrowser && 'IntersectionObserver' in window) {
+                this._observer = new IntersectionObserver(this._observerHandler.bind(this), this.options.observerOptions)
+                if (this.ListenerQueue.length) {
+                    this.ListenerQueue.forEach(listener => {
+                        this._observer.observer(listener.el)
+                    })
+                }
+            }
+        }
+
+        /**
+         * init IntersectionObserver
+         * @return
+         */
+        _observerHandler (entries, observer) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    this.ListenerQueue.forEach(listener => {
+                        if (listener.el === entry.target) {
+                            if (listener.state.loaded) return
+                            listener.load()
+                        }
+                        
+                    })
+                }
+            })
+        }
 
         /**
          * set element attribute with image'url and state

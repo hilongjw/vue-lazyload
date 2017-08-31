@@ -106,6 +106,8 @@ new Vue({
 |`filter`| the image's listener filter |`{ }`| [Image listener filter](#image-listener-filter) |
 |`lazyComponent`| lazyload component | `false` | [Lazy Component](#lazy-component)
 | `dispatchEvent`|trigger the dom event|`false`|`Boolean`|
+| `observer`|use IntersectionObserver|`false`|`Boolean`|
+| `observerOptions`|IntersectionObserver options|{ rootMargin: '0px', threshold: 0.1 }|[IntersectionObserver](#intersectionobserver)|
 
 ### Desired Listen Events
 
@@ -172,6 +174,24 @@ Vue.use(vueLazy, {
     }
 })
 ```
+
+### IntersectionObserver
+
+use [Intersection Observer](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API) to to improve performance of a large number of nodes.
+
+```javascript
+Vue.use(vueLazy, {
+  // set observer to true
+  observer: true,
+
+  // optional
+  observerOptions: {
+    rootMargin: '0px', 
+    threshold: 0.1
+  }
+})
+```
+
 
 ### Lazy Component
 

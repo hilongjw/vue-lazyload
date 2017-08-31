@@ -16,6 +16,7 @@ export default (lazy) => {
         },
         data () {
             return {
+                el: null,
                 state: {
                     loaded: false
                 },
@@ -24,6 +25,7 @@ export default (lazy) => {
             }
         },
         mounted () {
+            this.el = this.$el
             lazy.addLazyBox(this)
             lazy.lazyLoadHandler()
         },
