@@ -24,7 +24,7 @@ const DEFAULT_OBSERVER_OPTIONS = {
 
 export default function (Vue) {
     return class Lazy {
-        constructor ({ preLoad, error, preLoadTop, dispatchEvent, loading, attempt, silent, scale, listenEvents, hasbind, filter, adapter, observer, observerOptions }) {
+        constructor ({ preLoad, error, throttleWait, preLoadTop, dispatchEvent, loading, attempt, silent, scale, listenEvents, hasbind, filter, adapter, observer, observerOptions }) {
             this.version = '__VUE_LAZYLOAD_VERSION__'
             this.mode = 'event'
             this.ListenerQueue = []
@@ -33,6 +33,7 @@ export default function (Vue) {
             this.options = {
                 silent: silent || true,
                 dispatchEvent: !!dispatchEvent,
+                throttleWait: throttleWait || 200,
                 preLoad: preLoad || 1.3,
                 preLoadTop: preLoadTop || 0,
                 error: error || DEFAULT_URL,
@@ -48,7 +49,6 @@ export default function (Vue) {
                 observerOptions: observerOptions || DEFAULT_OBSERVER_OPTIONS
             }
             this._initEvent()
-
             this.setMode(this.options.observer ? 'observer' : 'event')
         }
 
@@ -207,7 +207,7 @@ export default function (Vue) {
                         catIn = listener.checkInView()
                         catIn && listener.load()
                     })
-                }, 200)
+                }, this.options.throttleWait)
             } else {
                 this._initIntersectionObserver()
                 this.lazyLoadHandler = () => {}
