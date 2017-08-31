@@ -169,6 +169,7 @@ export default function (Vue) {
                 loading,
                 error
             })
+            this._observer && this._observer.observe(el)
             this.lazyLoadHandler()
             Vue.nextTick(() => this.lazyLoadHandler())
         }
@@ -337,13 +338,12 @@ export default function (Vue) {
          * @return
          */
         _initIntersectionObserver () {
-            if (hasIntersectionObserver) {
-                this._observer = new IntersectionObserver(this._observerHandler.bind(this), this.options.observerOptions)
-                if (this.ListenerQueue.length) {
-                    this.ListenerQueue.forEach(listener => {
-                        this._observer.observe(listener.el)
-                    })
-                }
+            if (!hasIntersectionObserver) return
+            this._observer = new IntersectionObserver(this._observerHandler.bind(this), this.options.observerOptions)
+            if (this.ListenerQueue.length) {
+                this.ListenerQueue.forEach(listener => {
+                    this._observer.observe(listener.el)
+                })
             }
         }
 
@@ -356,7 +356,7 @@ export default function (Vue) {
                 if (entry.isIntersecting) {
                     this.ListenerQueue.forEach(listener => {
                         if (listener.el === entry.target) {
-                            if (listener.state.loaded) return
+                            if (listener.state.loaded) return this._observer.unobserve(listener.el)
                             listener.load()
                         }
                         
