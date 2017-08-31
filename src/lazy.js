@@ -10,7 +10,9 @@ import {
     scrollParent,
     getBestSelectionFromSrcset,
     assign,
-    isObject
+    isObject,
+    hasIntersectionObserver,
+    modeType
 } from './util'
 
 import ReactiveListener from './listener'
@@ -19,14 +21,14 @@ const DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAAL
 const DEFAULT_EVENTS = ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend', 'touchmove']
 const DEFAULT_OBSERVER_OPTIONS = {
     rootMargin: '0px', 
-    threshold: 0.1
+    threshold: 0
 }
 
 export default function (Vue) {
     return class Lazy {
         constructor ({ preLoad, error, throttleWait, preLoadTop, dispatchEvent, loading, attempt, silent, scale, listenEvents, hasbind, filter, adapter, observer, observerOptions }) {
             this.version = '__VUE_LAZYLOAD_VERSION__'
-            this.mode = 'event'
+            this.mode = modeType.event
             this.ListenerQueue = []
             this.TargetIndex = 0
             this.TargetQueue = []
@@ -49,7 +51,10 @@ export default function (Vue) {
                 observerOptions: observerOptions || DEFAULT_OBSERVER_OPTIONS
             }
             this._initEvent()
-            this.setMode(this.options.observer ? 'observer' : 'event')
+
+            this.lazyLoadHandler = throttle(this._lazyLoadHandler.bind(this), this.options.throttleWait)
+
+            this.setMode(this.options.observer ? modeType.observer : modeType.event)
         }
 
         /**
@@ -105,12 +110,11 @@ export default function (Vue) {
                 return Vue.nextTick(this.lazyLoadHandler)
             }
 
-            this._observer && this._observer.observe(el)
-
             let { src, loading, error } = this._valueFormatter(binding.value)
 
             Vue.nextTick(() => {
                 src = getBestSelectionFromSrcset(el, this.options.scale) || src
+                this._observer && this._observer.observe(el)
 
                 const container = Object.keys(binding.modifiers)[0]
                 let $parent
@@ -137,6 +141,7 @@ export default function (Vue) {
                 })
 
                 this.ListenerQueue.push(newListener)
+
                 if (inBrowser) {
                     this._addListenerTarget(window)
                     this._addListenerTarget($parent)
@@ -175,6 +180,7 @@ export default function (Vue) {
          */
         remove (el) {
             if (!el) return
+            this._observer && this._observer.unobserve(el)
             const existItem = find(this.ListenerQueue, item => item.el === el)
             if (existItem) {
                 this._removeListenerTarget(existItem.$parent)
@@ -191,6 +197,7 @@ export default function (Vue) {
         removeComponent (vm) {
             if (!vm) return
             remove(this.ListenerQueue, vm)
+            this._observer && this._observer.unobserve(vm.el)
             if (vm.$parent && vm.$el.parentNode) {
                 this._removeListenerTarget(vm.$el.parentNode)
             }
@@ -198,19 +205,28 @@ export default function (Vue) {
         }
 
         setMode (mode) {
+            if (!hasIntersectionObserver && mode === modeType.observer) {
+                mode = modeType.event
+            }
+
             this.mode = mode // event or observer
-            if (mode === 'event') {
-                this.lazyLoadHandler = throttle(() => {
-                    let catIn = false
+            
+            if (mode === modeType.event) {
+                if (this._observer) {
                     this.ListenerQueue.forEach(listener => {
-                        if (listener.state.loaded) return
-                        catIn = listener.checkInView()
-                        catIn && listener.load()
+                        this._observer.unobserve(listener.el)
                     })
-                }, this.options.throttleWait)
+                    this._observer = null
+                }
+
+                this.TargetQueue.forEach(target => {
+                    this._initListen(target.el, true)
+                })
             } else {
+                this.TargetQueue.forEach(target => {
+                    this._initListen(target.el, false)
+                })
                 this._initIntersectionObserver()
-                this.lazyLoadHandler = () => {}
             }
         }
         
@@ -231,7 +247,7 @@ export default function (Vue) {
                     childrenCount: 1,
                     listened: true
                 }
-                this._initListen(target.el, true)
+                this.mode === modeType.event && this._initListen(target.el, true)
                 this.TargetQueue.push(target)
             } else {
                 target.childrenCount++
@@ -303,16 +319,29 @@ export default function (Vue) {
         }
 
         /**
+         * find nodes which in viewport and trigger load
+         * @return
+         */
+        _lazyLoadHandler () {
+            let catIn = false
+            this.ListenerQueue.forEach(listener => {
+                if (listener.state.loaded) return
+                catIn = listener.checkInView()
+                catIn && listener.load()
+            })
+        }
+
+        /**
          * init IntersectionObserver
          * set mode to observer
          * @return
          */
         _initIntersectionObserver () {
-            if (inBrowser && 'IntersectionObserver' in window) {
+            if (hasIntersectionObserver) {
                 this._observer = new IntersectionObserver(this._observerHandler.bind(this), this.options.observerOptions)
                 if (this.ListenerQueue.length) {
                     this.ListenerQueue.forEach(listener => {
-                        this._observer.observer(listener.el)
+                        this._observer.observe(listener.el)
                     })
                 }
             }

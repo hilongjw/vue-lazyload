@@ -1,4 +1,10 @@
 const inBrowser = typeof window !== 'undefined'
+export const hasIntersectionObserver = inBrowser && 'IntersectionObserver' in window
+
+export const modeType = {
+    event: 'event',
+    observer: 'observer'
+}
 
 function remove (arr, item) {
     if (!arr.length) return
@@ -161,17 +167,18 @@ function testSupportsPassive () {
 const supportsPassive = testSupportsPassive()
 
 const _ = {
-    on (el, type, func) {
+    on (el, type, func, capture = false) {
         if (supportsPassive) {
             el.addEventListener(type, func, {
-                passive:true
+                capture: capture,
+                passive: true
             })
         } else {
-            el.addEventListener(type, func, false)
+            el.addEventListener(type, func, capture)
         }
     },
-    off (el, type, func) {
-        el.removeEventListener(type, func)
+    off (el, type, func, capture = false) {
+        el.removeEventListener(type, func, capture)
     }
 }
 
