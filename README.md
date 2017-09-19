@@ -5,6 +5,7 @@
 [![npm downloads](https://img.shields.io/npm/dm/vue-lazyload.svg?style=flat-square)](http://badge.fury.io/js/vue-lazyload)
 [![npm license](https://img.shields.io/npm/l/vue-lazyload.svg?style=flat-square)](http://badge.fury.io/js/vue-lazyload)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![CDNJS version](https://img.shields.io/cdnjs/v/vue-lazyload.svg)](https://cdnjs.com/libraries/vue-lazyload)
 
 Vue module for lazyloading images in your applications. Some of goals of this project worth noting include:
 
