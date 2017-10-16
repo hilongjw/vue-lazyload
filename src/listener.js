@@ -110,6 +110,10 @@ export default class ReactiveListener {
         }, data => {
             this.render('loading', false)
             cb()
+        }, err => {
+            // handler `loading image` load failed
+            cb()
+            if (!this.options.silent) console.warn(`VueLazyload log: load failed with loading image(${this.loading})`)
         })
     }
 
