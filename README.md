@@ -196,6 +196,11 @@ Vue.use(vueLazy, {
 
 
 ### Lazy Component
+```javascript
+Vue.use(VueLazyload, {
+  lazyComponent: true
+});
+```
 
 ```html
 <lazy-component @show="handler">
