@@ -110,6 +110,7 @@ new Vue({
 | `throttleWait`|throttle wait|`200`|`Number`|
 | `observer`|use IntersectionObserver|`false`|`Boolean`|
 | `observerOptions`|IntersectionObserver options|{ rootMargin: '0px', threshold: 0.1 }|[IntersectionObserver](#intersectionobserver)|
+| `silent`|do not print debug info|`true`|`Boolean`|
 
 ### Desired Listen Events
 
@@ -188,7 +189,7 @@ Vue.use(vueLazy, {
 
   // optional
   observerOptions: {
-    rootMargin: '0px', 
+    rootMargin: '0px',
     threshold: 0.1
   }
 })
