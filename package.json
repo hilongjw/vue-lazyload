@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node build",
     "compile": "babel --presets env -d lib/ src/",
-    "test": "npm run compile && mocha --compilers js:babel-core/register"
+    "test": "npm run compile && mocha --require babel-core/register"
   },
   "dependencies": {},
   "repository": {
