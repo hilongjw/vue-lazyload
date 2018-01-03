@@ -1,54 +1,65 @@
-var fs = require('fs')
-var path = require('path')
-var rollup = require('rollup')
-var babel = require('rollup-plugin-babel')
-var uglify = require('rollup-plugin-uglify')
-var version = process.env.VERSION || require('./package.json').version
+const fs = require('fs')
+const path = require('path')
+const rollup = require('rollup')
+const babel = require('rollup-plugin-babel')
+const uglify = require('rollup-plugin-uglify')
+const version = process.env.VERSION || require('./package.json').version
 
-var banner =
-  '/*!\n' +
-  ' * Vue-Lazyload.js v' + version + '\n' +
-  ' * (c) ' + new Date().getFullYear() + ' Awe <hilongjw@gmail.com>\n' +
-  ' * Released under the MIT License.\n' +
-  ' */\n'
+const banner =
+    '/*!\n' +
+    ' * Vue-Lazyload.js v' + version + '\n' +
+    ' * (c) ' + new Date().getFullYear() + ' Awe <hilongjw@gmail.com>\n' +
+    ' * Released under the MIT License.\n' +
+    ' */\n'
+async function build() {
+    try {
+        const bundle = await rollup.rollup({
+            input: path.resolve(__dirname, 'src/index.js'),
+            plugins: [
+                babel({
+                    exclude: 'node_modules/**',
+                    plugins: ['external-helpers']
+                }),
+                uglify()
+            ]
+        })
 
-rollup.rollup({
-    entry: path.resolve(__dirname, 'src/index.js'),
-    plugins: [
-      babel(),
-      uglify()
-    ]
-})
-.then(bundle => {
-  return write(path.resolve(__dirname, 'vue-lazyload.js'), rewriteVersion(bundle.generate({
-      format: 'umd',
-      moduleName: 'VueLazyload'
-  }).code))
-})
-.then(() => {
-    console.log('Vue-Lazyload.js v' + version + ' builded')
-})
-.catch(console.log)
+        let { code } = await bundle.generate({
+            format: 'umd',
+            name: 'VueLazyload'
+        })
 
-function rewriteVersion (code) {
-  return code.replace('__VUE_LAZYLOAD_VERSION__', version)
+        code = rewriteVersion(code)
+
+        await write(path.resolve(__dirname, 'vue-lazyload.js'), code)
+
+        console.log('Vue-Lazyload.js v' + version + ' builded')
+    } catch (e) {
+        console.log(e)
+    }
 }
 
-function getSize (code) {
-  return (code.length / 1024).toFixed(2) + 'kb'
+function rewriteVersion(code) {
+    return code.replace('__VUE_LAZYLOAD_VERSION__', version)
 }
 
-function blue (str) {
-  return '\x1b[1m\x1b[34m' + str + '\x1b[39m\x1b[22m'
+function getSize(code) {
+    return (code.length / 1024).toFixed(2) + 'kb'
 }
 
-function write (dest, code) {
-  return new Promise(function (resolve, reject) {
-    code = banner + code
-    fs.writeFile(dest, code, function (err) {
-      if (err) return reject(err)
-      console.log(blue(dest) + ' ' + getSize(code))
-      resolve()
+function blue(str) {
+    return '\x1b[1m\x1b[34m' + str + '\x1b[39m\x1b[22m'
+}
+
+function write(dest, code) {
+    return new Promise(function (resolve, reject) {
+        code = banner + code
+        fs.writeFile(dest, code, function (err) {
+            if (err) return reject(err)
+            console.log(blue(dest) + ' ' + getSize(code))
+            resolve()
+        })
     })
-  })
 }
+
+build()
