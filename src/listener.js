@@ -121,14 +121,16 @@ export default class ReactiveListener {
      * try load image and  render it
      * @return
      */
-    load () {
+    load (onFinish) {
         if ((this.attempt > this.options.attempt - 1) && this.state.error) {
             if (!this.options.silent) console.log(`VueLazyload log: ${this.src} tried too more than ${this.options.attempt} times`)
+            onFinish()
             return
         }
 
         if (this.state.loaded || imageCache[this.src]) {
             this.state.loaded = true
+            onFinish()
             return this.render('loaded', true)
         }
 
@@ -147,6 +149,7 @@ export default class ReactiveListener {
                 this.record('loadEnd')
                 this.render('loaded', false)
                 imageCache[this.src] = 1
+                onFinish()
             }, err => {
                 this.state.error = true
                 this.state.loaded = false
