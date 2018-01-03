@@ -49,7 +49,7 @@ Vue module for lazyloading images in your applications. Some of goals of this pr
 
 ```bash
 
-$ npm install vue-lazyload
+$ npm install vue-lazyload -D
 
 ```
 
