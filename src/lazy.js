@@ -328,10 +328,9 @@ export default function (Vue) {
       this.ListenerQueue.forEach(listener => {
           if (listener.state.loaded) return
           catIn = listener.checkInView()
-          catIn && listener.load()
+          catIn && (listener.load(() => this.ListenerQueue.splice(index, 1)))
         })
     }
-
         /**
          * init IntersectionObserver
          * set mode to observer
