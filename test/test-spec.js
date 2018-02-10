@@ -1,19 +1,15 @@
-'use strict'
-const it = require('mocha').it
-const chai = require('chai')
-const expect = require('chai').expect
-const lazyload = require('../lib')
-const Vue = require('vue')
+import Vue from 'vue'
+import VueLazyload from '../src'
+import genLazyCore from '../src/lazy'
 
 describe('VueLazyload.js Test Suite', function () {
   it('install', function () {
-    Vue.use(lazyload)
+    Vue.use(VueLazyload)
     const vm = new Vue()
-    expect(vm.$Lazyload, 'has $Lazyload')
+    assert(vm.$Lazyload, 'has $Lazyload')
   })
 
   it('_valueFormatter', function () {
-    const genLazyCore = require('../lib/lazy').default
     const LazyCore = genLazyCore(Vue)
 
     const lazyload = new LazyCore({
@@ -43,19 +39,4 @@ describe('VueLazyload.js Test Suite', function () {
         loading: 'loading',
     }).loading).to.equal('loading')
   })
-
-  // it('add and remove TargetListener', function () {
-  //   Vue.use(lazyload)
-  //   const vm = new Vue()
-
-  //   const list = Array.from({ length: 10 }).map((v, i) => {
-  //       return { i, addEventListener () {}, removeEventListener () {} }
-  //   })
-
-  //   list.map(el => vm.$Lazyload._addListenerTarget(el))
-
-  //   list.map(el => vm.$Lazyload._removeListenerTarget(el))
-
-  //   expect(vm.$Lazyload.TargetQueue.length).to.equal(0)
-  // })
 })

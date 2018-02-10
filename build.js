@@ -16,10 +16,7 @@ async function build() {
         const bundle = await rollup.rollup({
             input: path.resolve(__dirname, 'src/index.js'),
             plugins: [
-                babel({
-                    exclude: 'node_modules/**',
-                    plugins: ['external-helpers']
-                }),
+                babel({ runtimeHelpers: true }),
                 uglify()
             ]
         })

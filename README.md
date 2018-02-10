@@ -68,7 +68,7 @@ CDN: [https://unpkg.com/vue-lazyload/vue-lazyload.js](https://unpkg.com/vue-lazy
 
 # Usage
 
-main.js
+main.js:
 
 ```javascript
 
@@ -92,6 +92,26 @@ new Vue({
     App
   }
 })
+```
+
+template:
+
+```html
+<ul>
+  <li v-for="img in list">
+    <img v-lazy="img.src" >
+  </li>
+</ul>
+```
+
+use `v-lazy-container` work with raw HTML
+
+```html
+<div v-lazy-container="{ selector: 'img' }">
+  <img data-src="//domain.com/img1.jpg">
+  <img data-src="//domain.com/img2.jpg">
+  <img data-src="//domain.com/im3.jpg">
+</div>
 ```
 
 ## Constructor Options
