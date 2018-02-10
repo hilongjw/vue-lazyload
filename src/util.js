@@ -117,7 +117,7 @@ function find (arr, fn) {
   return item
 }
 
-const getDPR = (scale = 1) => inBrowser && window.devicePixelRatio || scale
+const getDPR = (scale = 1) => inBrowser ? (window.devicePixelRatio || scale) : scale
 
 function supportWebp () {
   if (!inBrowser) return false

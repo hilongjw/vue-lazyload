@@ -231,7 +231,9 @@ export default function (Vue) {
       }
     }
 
-    /**** Private functions ****/
+    /*
+    *** Private functions ***
+    */
 
     /*
      * add listener target
