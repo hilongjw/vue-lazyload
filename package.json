@@ -6,6 +6,7 @@
   "unpkg": "vue-lazyload.js",
   "scripts": {
     "build": "node build",
+    "lint": "eslint ./src",
     "test": "karma start",
     "test:debug": "cross-env DEBUG=true karma start"
   },
@@ -39,6 +40,12 @@
     "babel-preset-stage-0": "^6.24.1",
     "babel-register": "^6.26.0",
     "chai": "^4.1.2",
+    "eslint": "^4.13.1",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
     "karma": "^1.7.1",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.2.0",
