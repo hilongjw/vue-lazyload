@@ -277,6 +277,8 @@ function ArrayFrom (arrLike) {
   return list
 }
 
+function noop () {}
+
 export {
   inBrowser,
   CustomEvent,
@@ -284,6 +286,7 @@ export {
   some,
   find,
   assign,
+  noop,
   ArrayFrom,
   _,
   isObject,

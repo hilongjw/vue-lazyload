@@ -1,4 +1,8 @@
-import { loadImageAsync, ObjectKeys } from './util'
+import {
+  loadImageAsync,
+  ObjectKeys,
+  noop
+} from './util'
 
 let imageCache = {}
 
@@ -128,7 +132,7 @@ export default class ReactiveListener {
    * try load image and  render it
    * @return
    */
-  load (onFinish) {
+  load (onFinish = noop) {
     if ((this.attempt > this.options.attempt - 1) && this.state.error) {
       if (!this.options.silent) console.log(`VueLazyload log: ${this.src} tried too more than ${this.options.attempt} times`)
       onFinish()
