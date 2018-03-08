@@ -1,5 +1,4 @@
 import {
-  assign,
   find,
   remove,
   ArrayFrom
@@ -49,7 +48,7 @@ class LazyContainer {
 
   update ({ el, binding }) {
     this.el = el
-    this.options = assign({}, defaultOptions, binding.value)
+    this.options = Object.assign({}, defaultOptions, binding.value)
     const imgs = this.getImgs()
     imgs.forEach(el => {
       this.lazy.add(el, Object.assign({}, this.binding, {
