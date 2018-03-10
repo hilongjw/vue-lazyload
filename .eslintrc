@@ -3,7 +3,6 @@
   "env": {
     "browser": true,
     "es6": true,
-    "mocha": true,
-    "chai": true
+    "mocha": true
   }
 }
