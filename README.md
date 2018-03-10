@@ -110,7 +110,25 @@ use `v-lazy-container` work with raw HTML
 <div v-lazy-container="{ selector: 'img' }">
   <img data-src="//domain.com/img1.jpg">
   <img data-src="//domain.com/img2.jpg">
-  <img data-src="//domain.com/img3.jpg">
+  <img data-src="//domain.com/img3.jpg">  
+</div>
+```
+
+custom `error` and `loading` placeholder image
+
+```html
+<div v-lazy-container="{ selector: 'img', error: 'xxx.jpg', loading: 'xxx.jpg' }">
+  <img data-src="//domain.com/img1.jpg">
+  <img data-src="//domain.com/img2.jpg">
+  <img data-src="//domain.com/img3.jpg">  
+</div>
+```
+
+```html
+<div v-lazy-container="{ selector: 'img' }">
+  <img data-src="//domain.com/img1.jpg" data-error="xxx.jpg">
+  <img data-src="//domain.com/img2.jpg" data-loading="xxx.jpg">
+  <img data-src="//domain.com/img3.jpg">  
 </div>
 ```
 
