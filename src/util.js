@@ -1,3 +1,5 @@
+import assign from 'assign-deep'
+
 const inBrowser = typeof window !== 'undefined'
 export const hasIntersectionObserver = inBrowser && 'IntersectionObserver' in window
 
@@ -24,16 +26,6 @@ function remove (arr, item) {
   if (!arr.length) return
   const index = arr.indexOf(item)
   if (index > -1) return arr.splice(index, 1)
-}
-
-function assign (target, source) {
-  if (!target || !source) return target || {}
-  if (target instanceof Object) {
-    for (let key in source) {
-      target[key] = source[key]
-    }
-  }
-  return target
 }
 
 function some (arr, fn) {

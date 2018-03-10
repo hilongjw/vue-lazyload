@@ -162,7 +162,7 @@ export default class ReactiveListener {
         imageCache[this.src] = 1
         onFinish()
       }, err => {
-        console.error(err)
+        !this.options.silent && console.error(err)
         this.state.error = true
         this.state.loaded = false
         this.render('error', false)

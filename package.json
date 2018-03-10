@@ -1,6 +1,6 @@
 {
   "name": "vue-lazyload",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Vue module for lazy-loading images in your vue.js applications.",
   "main": "vue-lazyload.js",
   "unpkg": "vue-lazyload.js",
@@ -32,6 +32,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "assign-deep": "^0.4.7",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-plugin-external-helpers": "^6.22.0",
@@ -57,8 +58,8 @@
     "puppeteer": "^0.13.0",
     "rollup": "^0.51.1",
     "rollup-plugin-babel": "^2.6.1",
-    "rollup-plugin-commonjs": "^8.2.6",
-    "rollup-plugin-node-resolve": "^3.0.2",
+    "rollup-plugin-commonjs": "^8.4.1",
+    "rollup-plugin-node-resolve": "^3.2.0",
     "rollup-plugin-replace": "^2.0.0",
     "rollup-plugin-uglify": "^1.0.1",
     "vue": "^2.5.13"

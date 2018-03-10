@@ -1,7 +1,7 @@
 import {
-  assign,
   find,
   remove,
+  assign,
   ArrayFrom
 } from './util'
 
@@ -50,11 +50,14 @@ class LazyContainer {
   update ({ el, binding }) {
     this.el = el
     this.options = assign({}, defaultOptions, binding.value)
+
     const imgs = this.getImgs()
     imgs.forEach(el => {
-      this.lazy.add(el, Object.assign({}, this.binding, {
+      this.lazy.add(el, assign({}, this.binding, {
         value: {
-          src: el.getAttribute('data-src')
+          src: el.dataset.src,
+          error: el.dataset.error,
+          loading: el.dataset.loading
         }
       }), this.vnode)
     })
