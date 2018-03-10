@@ -9,7 +9,7 @@ module.exports = function (config) {
       require('karma-mocha'),
       require('karma-chai'),
       require('karma-chrome-launcher'),
-      require('karma-rollup-preprocessor'),
+      require('karma-rollup-preprocessor')
       // require('karma-coverage')
     ],
     files: [
@@ -25,13 +25,14 @@ module.exports = function (config) {
     // },
     rollupPreprocessor: {
       plugins: [
-        require('rollup-plugin-babel')(),
         require('rollup-plugin-node-resolve')({
           jsnext: true,
           browser: true
         }),
+        require('rollup-plugin-commonjs')(),
+        require('rollup-plugin-babel')(),
         require('rollup-plugin-replace')({
-          'process.env.NODE_ENV': JSON.stringify( 'production' )
+          'process.env.NODE_ENV': JSON.stringify('production')
         })
       ],
       format: 'iife', // Helps prevent naming collisions.

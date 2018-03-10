@@ -13,8 +13,8 @@ describe('VueLazyload.js Test Suite', function () {
     const LazyCore = genLazyCore(Vue)
 
     const lazyload = new LazyCore({
-        error: 'error',
-        loading: 'loading',
+      error: 'error',
+      loading: 'loading'
     })
 
     expect(lazyload._valueFormatter('src').src).to.equal('src')
@@ -22,21 +22,21 @@ describe('VueLazyload.js Test Suite', function () {
     expect(lazyload._valueFormatter('src').loading).to.equal('loading')
 
     expect(lazyload._valueFormatter({
-        src: 'src',
-        error: 'error',
-        loading: 'loading',
+      src: 'src',
+      error: 'error',
+      loading: 'loading'
     }).src).to.equal('src')
 
     expect(lazyload._valueFormatter({
-        src: 'src',
-        error: 'error',
-        loading: 'loading',
+      src: 'src',
+      error: 'error',
+      loading: 'loading'
     }).error).to.equal('error')
 
     expect(lazyload._valueFormatter({
-        src: 'src',
-        error: 'error',
-        loading: 'loading',
+      src: 'src',
+      error: 'error',
+      loading: 'loading'
     }).loading).to.equal('loading')
   })
 })
