@@ -1,6 +1,6 @@
 import assign from 'assign-deep'
 
-const inBrowser = typeof window !== 'undefined'
+const inBrowser = typeof window !== 'undefined' && window.navigator
 export const hasIntersectionObserver = inBrowser && 'IntersectionObserver' in window
 
 export const modeType = {
