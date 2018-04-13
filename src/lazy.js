@@ -169,7 +169,7 @@ export default function (Vue) {
         loading,
         error
       })
-      if(this._observer){
+      if (this._observer) {
         this._observer.unobserve(el)
         this._observer.observe(el)
       }
