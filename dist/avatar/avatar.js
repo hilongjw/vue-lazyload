@@ -1,0 +1,45 @@
+export default [{
+	avatar: 'avatar/test1.jpg'
+}, {
+	avatar: 'avatar/test2.jpg'
+}, {
+	avatar: 'avatar/test3.jpg'
+}, {
+	avatar: 'avatar/test4.jpg'
+}, {
+	avatar: 'avatar/test5.jpg'
+}, {
+	avatar: 'avatar/test6.jpg'
+}, {
+	avatar: 'avatar/test7.jpg'
+}, {
+	avatar: 'avatar/test8.jpg'
+}, {
+	avatar: 'avatar/test9.jpg'
+}, {
+	avatar: 'avatar/test10.jpg'
+}, {
+	avatar: 'avatar/test11.jpg'
+}, {
+	avatar: 'http://covteam.u.qiniudn.com/test10.jpg?imageView2/1/w/10/h/10'
+}, {
+	avatar: 'http://covteam.u.qiniudn.com/test11.jpg?imageView2/1/w/10/h/10'
+}, {
+	avatar: 'http://covteam.u.qiniudn.com/test12.jpg?imageView2/1/w/10/h/10'
+}, {
+	avatar: 'http://covteam.u.qiniudn.com/test13.jpg?imageView2/1/w/10/h/10'
+}, {
+	avatar: 'http://covteam.u.qiniudn.com/test14.jpg?imageView2/1/w/10/h/10'
+}, {
+	avatar: 'http://covteam.u.qiniudn.com/test15.jpg?imageView2/1/w/10/h/10'
+}, {
+	avatar: 'http://covteam.u.qiniudn.com/test16.jpg?imageView2/1/w/10/h/10'
+}, {
+	avatar: 'http://covteam.u.qiniudn.com/test17.jpg?imageView2/1/w/10/h/10'
+}, {
+	avatar: 'http://covteam.u.qiniudn.com/test18.jpg?imageView2/1/w/10/h/10'
+}, {
+	avatar: 'http://covteam.u.qiniudn.com/test19.jpg?imageView2/1/w/10/h/10'
+}, {
+	avatar: 'http://covteam.u.qiniudn.com/test20.jpg?imageView2/1/w/10/h/10'
+}]
