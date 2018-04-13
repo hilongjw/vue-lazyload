@@ -398,7 +398,7 @@ export default function (Vue) {
       }
 
       if (bindType) {
-        el.style[bindType] = 'url(' + src + ')'
+        el.style[bindType] = 'url("' + src + '")'
       } else if (el.getAttribute('src') !== src) {
         el.setAttribute('src', src)
       }
