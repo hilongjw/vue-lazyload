@@ -169,7 +169,7 @@ export default function (Vue) {
         loading,
         error
       })
-      if(this._observer){
+      if (this._observer) {
         this._observer.unobserve(el)
         this._observer.observe(el)
       }
@@ -398,7 +398,7 @@ export default function (Vue) {
       }
 
       if (bindType) {
-        el.style[bindType] = 'url(' + src + ')'
+        el.style[bindType] = 'url("' + src + '")'
       } else if (el.getAttribute('src') !== src) {
         el.setAttribute('src', src)
       }
