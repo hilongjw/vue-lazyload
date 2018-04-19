@@ -385,16 +385,12 @@ export default function (Vue) {
       const { el, bindType } = listener
 
       let src
-      switch (state) {
-        case 'loading':
-          src = listener.loading
-          break
-        case 'error':
-          src = listener.error
-          break
-        default:
-          src = listener.src
-          break
+      if (state === 'loading' && listener.loading) {
+        src = listener.loading
+      } else if (state === 'error' && listener.error) {
+        src = listener.error
+      } else if (listener.src) {
+        src = listener.src
       }
 
       if (bindType) {
