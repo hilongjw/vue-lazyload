@@ -39,8 +39,8 @@ export default function (Vue) {
         throttleWait: throttleWait || 200,
         preLoad: preLoad || 1.3,
         preLoadTop: preLoadTop || 0,
-        error: error || DEFAULT_URL,
-        loading: loading || DEFAULT_URL,
+        error: (error === false || error) || DEFAULT_URL,
+        loading: (loading === false || loading) || DEFAULT_URL,
         attempt: attempt || 3,
         scale: scale || getDPR(scale),
         ListenEvents: listenEvents || DEFAULT_EVENTS,
@@ -385,16 +385,12 @@ export default function (Vue) {
       const { el, bindType } = listener
 
       let src
-      switch (state) {
-        case 'loading':
-          src = listener.loading
-          break
-        case 'error':
-          src = listener.error
-          break
-        default:
-          src = listener.src
-          break
+      if (state === 'loading' && listener.loading) {
+        src = listener.loading
+      } else if (state === 'error' && listener.error) {
+        src = listener.error
+      } else if (listener.src) {
+        src = listener.src
       }
 
       if (bindType) {
