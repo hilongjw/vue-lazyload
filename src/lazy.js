@@ -335,7 +335,7 @@ export default function (Vue) {
         catIn = listener.checkInView()
         if (!catIn) return
         listener.load(() => {
-          if (!listener.error && listener.loaded) {
+          if (!listener.state.error && listener.state.loaded) {
             this.ListenerQueue.splice(index, 1)
           }
         })
