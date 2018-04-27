@@ -1,10 +1,12 @@
 import "./vue";
-import { VueLazyLoad } from "./lazyload";
+import { VueLazyLoadPluginObject } from "./lazyload";
 
+declare var VueLazyLoad: VueLazyLoadPluginObject;
 export default VueLazyLoad;
 
 export {
   LazyloadImage,
-  LazyOptions,
+  LazyloadOptions,
   LazyloadHandler,
+  ReactiveListener
 } from "./lazyload";

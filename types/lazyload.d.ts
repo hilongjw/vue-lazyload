@@ -12,7 +12,7 @@ export interface LazyloadImage {
   loading: string;
 }
 
-export interface LazyOptions {
+export interface LazyloadOptions {
   lazyComponent?: boolean;
   preLoad?: number;
   error?: string;
@@ -40,7 +40,7 @@ export interface ReactiveListener {
   attempt: number;
   naturalHeight: number;
   naturalWidth: number;
-  options: LazyOptions;
+  options: LazyloadOptions;
   rect: DOMRect;
   $parent: Element
   elRenderer: Function;
@@ -58,4 +58,4 @@ export interface LazyloadHandler {
   lazyLoadHandler (): void;
 }
 
-export var VueLazyLoad: PluginObject<LazyOptions>;
+export interface VueLazyLoadPluginObject extends PluginObject<LazyloadOptions> {}
