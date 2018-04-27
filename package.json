@@ -16,10 +16,6 @@
     "url": "https://github.com/hilongjw/vue-lazyload.git"
   },
   "typings": "types/index.d.ts",
-  "files": [
-    "vue-lazyload.ts",
-    "types/*.d.ts"
-  ],
   "keywords": [
     "vue-lazyload",
     "vue",
