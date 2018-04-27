@@ -6,13 +6,13 @@ interface IntersectionObserverInit {
   threshold?: number | number[];
 }
 
-export interface LazyloadImage {
+export interface VueLazyloadImage {
   src: string;
   error: string;
   loading: string;
 }
 
-export interface LazyloadOptions {
+export interface VueLazyloadOptions {
   lazyComponent?: boolean;
   preLoad?: number;
   error?: string;
@@ -31,7 +31,7 @@ export interface LazyloadOptions {
   hasbind?: boolean;
 }
 
-export interface ReactiveListener {
+export interface VueReactiveListener {
   el: Element;
   src: string;
   error: string;
@@ -40,7 +40,7 @@ export interface ReactiveListener {
   attempt: number;
   naturalHeight: number;
   naturalWidth: number;
-  options: LazyloadOptions;
+  options: VueLazyloadOptions;
   rect: DOMRect;
   $parent: Element
   elRenderer: Function;
@@ -51,11 +51,11 @@ export interface ReactiveListener {
   };
 }
 
-export interface LazyloadHandler {
+export interface VueLazyloadHandler {
   $on (event: string, callback: Function): void;
   $once (event: string, callback: Function): void;
   $off (event: string, callback?: Function): void;
   lazyLoadHandler (): void;
 }
 
-export interface VueLazyLoadPluginObject extends PluginObject<LazyloadOptions> {}
+export interface VueLazyloadPluginObject extends PluginObject<VueLazyloadOptions> {}

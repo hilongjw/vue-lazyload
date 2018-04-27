@@ -8,6 +8,7 @@
     "build": "node build",
     "lint": "eslint ./src",
     "test": "karma start",
+    "test:types": "tsc -p types/test",
     "test:debug": "cross-env DEBUG=true karma start"
   },
   "dependencies": {},

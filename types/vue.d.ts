@@ -3,11 +3,11 @@
  */
 
 import Vue from "vue";
-import { LazyloadHandler } from "./index";
+import { VueLazyloadHandler } from "./index";
 
 declare module "vue/types/vue" {
   interface Vue {
-    $Lazyload: LazyloadHandler;
+    $Lazyload: VueLazyloadHandler;
   }
 }
 
