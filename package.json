@@ -15,6 +15,7 @@
     "type": "git",
     "url": "https://github.com/hilongjw/vue-lazyload.git"
   },
+  "typings": "types/index.d.ts",
   "keywords": [
     "vue-lazyload",
     "vue",
@@ -62,6 +63,6 @@
     "rollup-plugin-node-resolve": "^3.2.0",
     "rollup-plugin-replace": "^2.0.0",
     "rollup-plugin-uglify": "^1.0.1",
-    "vue": "^2.5.13"
+    "vue": "^2.5.16"
   }
 }
