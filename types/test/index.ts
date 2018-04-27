@@ -1,5 +1,12 @@
 import Vue from "vue";
 import VueLazyload, { VueLazyloadOptions } from "../index";
-import VueLazyLoad from "../index";
 
-Vue.use<VueLazyloadOptions>(VueLazyLoad);
+Vue.use<VueLazyloadOptions>(VueLazyload);
+
+Vue.use<VueLazyloadOptions>(VueLazyload, {
+  preLoad: 0,
+});
+
+const vm = new Vue({});
+
+vm.$Lazyload.lazyLoadHandler();
