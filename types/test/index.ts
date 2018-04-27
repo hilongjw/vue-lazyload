@@ -10,3 +10,8 @@ Vue.use<VueLazyloadOptions>(VueLazyload, {
 const vm = new Vue({});
 
 vm.$Lazyload.lazyLoadHandler();
+vm.$Lazyload.$on('loading', function (state, cache) {
+  const err: string = state.error;
+  const el: Element = state.el;
+  const bol: boolean = cache;
+});
