@@ -1,4 +1,4 @@
-import Vue, { PluginObject } from "vue";
+import { PluginObject } from "vue";
 
 interface IntersectionObserverInit {
   root?: Element | null;
