@@ -51,10 +51,14 @@ export interface VueReactiveListener {
   };
 }
 
+export interface VueLazyloadListenEvent {
+  (listener: VueReactiveListener, cache: boolean) : void;
+}
+
 export interface VueLazyloadHandler {
-  $on (event: string, callback: Function): void;
-  $once (event: string, callback: Function): void;
-  $off (event: string, callback?: Function): void;
+  $on (event: string, callback: VueLazyloadListenEvent): void;
+  $once (event: string, callback: VueLazyloadListenEvent): void;
+  $off (event: string, callback?: VueLazyloadListenEvent): void;
   lazyLoadHandler (): void;
 }
 
