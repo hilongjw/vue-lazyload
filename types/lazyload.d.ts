@@ -58,4 +58,4 @@ export interface LazyloadHandler {
   lazyLoadHandler (): void;
 }
 
-export interface VueLazyLoad extends PluginObject<LazyOptions> {}
+export var VueLazyLoad: PluginObject<LazyOptions>;
