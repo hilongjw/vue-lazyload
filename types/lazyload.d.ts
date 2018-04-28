@@ -8,8 +8,8 @@ interface IntersectionObserverInit {
 
 export interface VueLazyloadImage {
   src: string;
-  error: string;
-  loading: string;
+  error?: string;
+  loading?: string;
 }
 
 export interface VueLazyloadOptions {
