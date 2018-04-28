@@ -8,6 +8,7 @@
     "build": "node build",
     "lint": "eslint ./src",
     "test": "karma start",
+    "test:types": "tsc -p types/test",
     "test:debug": "cross-env DEBUG=true karma start"
   },
   "dependencies": {},
@@ -15,6 +16,7 @@
     "type": "git",
     "url": "https://github.com/hilongjw/vue-lazyload.git"
   },
+  "typings": "types/index.d.ts",
   "keywords": [
     "vue-lazyload",
     "vue",
@@ -62,6 +64,6 @@
     "rollup-plugin-node-resolve": "^3.2.0",
     "rollup-plugin-replace": "^2.0.0",
     "rollup-plugin-uglify": "^1.0.1",
-    "vue": "^2.5.13"
+    "vue": "^2.5.16"
   }
 }
