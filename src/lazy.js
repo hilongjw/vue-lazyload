@@ -43,7 +43,7 @@ export default function (Vue) {
         loading: loading || DEFAULT_URL,
         attempt: attempt || 3,
         scale: scale || getDPR(scale),
-        ListenEvents: listenEvents || DEFAULT_EVENTS,
+        listenEvents: listenEvents || DEFAULT_EVENTS,
         hasbind: false,
         supportWebp: supportWebp(),
         filter: filter || {},
@@ -286,7 +286,7 @@ export default function (Vue) {
      * @return
      */
     _initListen (el, start) {
-      this.options.ListenEvents.forEach((evt) => _[start ? 'on' : 'off'](el, evt, this.lazyLoadHandler))
+      this.options.listenEvents.forEach((evt) => _[start ? 'on' : 'off'](el, evt, this.lazyLoadHandler))
     }
 
     _initEvent () {
