@@ -48,7 +48,12 @@ export default class ReactiveListener {
    * @return
    */
   initState () {
-    this.el.dataset.src = this.src
+    if ('dataset' in this.el) {
+      this.el.dataset.src = this.src
+    } else {
+      this.el.setAttribute('data-src', this.src)
+    }
+
     this.state = {
       error: false,
       loaded: false,

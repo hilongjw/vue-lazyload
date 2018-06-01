@@ -55,9 +55,9 @@ class LazyContainer {
     imgs.forEach(el => {
       this.lazy.add(el, assign({}, this.binding, {
         value: {
-          src: el.dataset.src,
-          error: el.dataset.error,
-          loading: el.dataset.loading
+          src: 'dataset' in el ? el.dataset.src : el.getAttribute('data-src'),
+          error: 'dataset' in el ? el.dataset.error : el.getAttribute('data-error'),
+          loading: 'dataset' in el ? el.dataset.loading : el.getAttribute('data-loading')
         }
       }), this.vnode)
     })
