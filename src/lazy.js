@@ -336,7 +336,8 @@ export default function (Vue) {
         if (!catIn) return
         listener.load(() => {
           if (!listener.state.error && listener.state.loaded) {
-            this.ListenerQueue.splice(index, 1)
+            const f = this.ListenerQueue.indexOf(listener);
+            if (f > -1) this.ListenerQueue.splice(f, 1);
           }
         })
       })
