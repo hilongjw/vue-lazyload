@@ -331,14 +331,13 @@ export default function (Vue) {
     _lazyLoadHandler () {
       let catIn = false
       this.ListenerQueue.forEach((listener, index) => {
-        if (listener.state.loaded) return
+        if (!listener.state.error && listener.state.loaded) {
+          this.ListenerQueue.splice(index, 1)
+          return
+        }        
         catIn = listener.checkInView()
         if (!catIn) return
-        listener.load(() => {
-          if (!listener.state.error && listener.state.loaded) {
-            this.ListenerQueue.splice(index, 1)
-          }
-        })
+        listener.load()
       })
     }
     /**
