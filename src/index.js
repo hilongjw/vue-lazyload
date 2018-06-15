@@ -1,6 +1,7 @@
 import Lazy from './lazy'
 import LazyComponent from './lazy-component'
 import LazyContainer from './lazy-container'
+import LazyImage from './lazy-image'
 import { assign } from './util'
 
 export default {
@@ -20,6 +21,10 @@ export default {
 
     if (options.lazyComponent) {
       Vue.component('lazy-component', LazyComponent(lazy))
+    }
+
+    if (options.lazyImage) {
+      Vue.component('lazy-image', LazyImage(lazy))
     }
 
     if (isVue2) {
