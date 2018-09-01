@@ -6,6 +6,10 @@ export default (lazy) => {
       tag: {
         type: String,
         default: 'div'
+      },
+      options: {
+        type: Object,
+        default: () => {}
       }
     },
     render (h) {
@@ -21,7 +25,8 @@ export default (lazy) => {
           loaded: false
         },
         rect: {},
-        show: false
+        show: false,
+        lazyOptions: Object.assign({}, lazy.options, this.options)
       }
     },
     mounted () {
@@ -38,8 +43,10 @@ export default (lazy) => {
       },
       checkInView () {
         this.getRect()
+
+        const observeBottom = (this.lazyOptions) ? this.rect.bottom > 0 : true
         return inBrowser &&
-                    (this.rect.top < window.innerHeight * lazy.options.preLoad && this.rect.bottom > 0) &&
+                    (this.rect.top < window.innerHeight * lazy.options.preLoad && observeBottom) &&
                     (this.rect.left < window.innerWidth * lazy.options.preLoad && this.rect.right > 0)
       },
       load () {

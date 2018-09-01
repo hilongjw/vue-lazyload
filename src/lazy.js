@@ -25,9 +25,13 @@ const DEFAULT_OBSERVER_OPTIONS = {
   threshold: 0
 }
 
+const DEFAULT_LAZYLOAD_COMPONENT_OPTIONS = {
+  observeBottom: true
+}
+
 export default function (Vue) {
   return class Lazy {
-    constructor ({ preLoad, error, throttleWait, preLoadTop, dispatchEvent, loading, attempt, silent = true, scale, listenEvents, hasbind, filter, adapter, observer, observerOptions }) {
+    constructor ({ preLoad, error, throttleWait, preLoadTop, dispatchEvent, loading, attempt, silent = true, scale, listenEvents, hasbind, filter, adapter, observer, observerOptions, lazyComponentOptions }) {
       this.version = '__VUE_LAZYLOAD_VERSION__'
       this.mode = modeType.event
       this.ListenerQueue = []
@@ -49,7 +53,8 @@ export default function (Vue) {
         filter: filter || {},
         adapter: adapter || {},
         observer: !!observer,
-        observerOptions: observerOptions || DEFAULT_OBSERVER_OPTIONS
+        observerOptions: observerOptions || DEFAULT_OBSERVER_OPTIONS,
+        lazyComponentOptions: lazyComponentOptions || DEFAULT_LAZYLOAD_COMPONENT_OPTIONS
       }
       this._initEvent()
 
