@@ -340,7 +340,7 @@ export default function (Vue) {
         if (!catIn) return
         listener.load()
       })
-      freeList.forEach(vm => remove(this.ListenerQueue, vm))
+      // freeList.forEach(vm => remove(this.ListenerQueue, vm))
     }
     /**
     * init IntersectionObserver
