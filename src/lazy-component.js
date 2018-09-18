@@ -9,9 +9,6 @@ export default (lazy) => {
       }
     },
     render (h) {
-      if (this.show === false) {
-        return h(this.tag)
-      }
       return h(this.tag, null, this.$slots.default)
     },
     data () {
@@ -46,6 +43,11 @@ export default (lazy) => {
         this.show = true
         this.state.loaded = true
         this.$emit('show', this)
+      },
+      hide () {
+        this.show = false
+        this.state.loaded = false
+        this.$emit('hide', this)
       }
     }
   }
