@@ -27,7 +27,7 @@ const DEFAULT_OBSERVER_OPTIONS = {
 
 export default function (Vue) {
   return class Lazy {
-    constructor ({ preLoad, error, throttleWait, preLoadTop, dispatchEvent, debounceLoad, loading, attempt, silent = true, scale, listenEvents, hasbind, filter, adapter, observer, observerOptions }) {
+    constructor ({ preLoad, error, throttleWait, preLoadTop, dispatchEvent, debounceLoadComponent, shouldNotifyOnHideComponent, loading, attempt, silent = true, scale, listenEvents, hasbind, filter, adapter, observer, observerOptions }) {
       this.version = '__VUE_LAZYLOAD_VERSION__'
       this.mode = modeType.event
       this.ListenerQueue = []
@@ -36,7 +36,8 @@ export default function (Vue) {
       this.options = {
         silent: silent,
         dispatchEvent: !!dispatchEvent,
-        debounceLoad: debounceLoad || 100,
+        debounceLoadComponent: debounceLoadComponent || 100,
+        shouldNotifyOnHideComponent: shouldNotifyOnHideComponent || false,
         throttleWait: throttleWait || 200,
         preLoad: preLoad || 1.3,
         preLoadTop: preLoadTop || 0,
@@ -370,14 +371,14 @@ export default function (Vue) {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           this.ListenerQueue.forEach(listener => {
-            if (listener.show) return listener.hide()
+            if (listener.show && this.options.shouldNotifyOnHideComponent) return listener.hide()
             if (listener.el === entry.target) {
               if (listener.state.loaded) return this._observer.unobserve(listener.el)
               setTimeout(() => {
                 if (listener.checkInView()) {
                   listener.load()
                 }
-              }, this.options.debounceLoad)
+              }, this.options.debounceLoadComponent)
             }
           })
         }
