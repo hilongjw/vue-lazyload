@@ -426,6 +426,13 @@ this.$Lazyload.$on('loaded', function (listener) {
 
 ![performance-demo](http://ww1.sinaimg.cn/large/69402bf8gw1fbo62ocvlaj213k09w78w.jpg)
 
+### Dynamic switching pictures
+
+```vue
+ <img v-lazy="lazyImg" :key="lazyImg.src">
+```
+
+
 # Authors && Contributors
 
 - [hilongjw](https://github.com/hilongjw)
