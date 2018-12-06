@@ -36,7 +36,7 @@ export default {
       })
       Vue.directive('lazy-container', {
         bind: lazyContainer.bind.bind(lazyContainer),
-        update: lazyContainer.update.bind(lazyContainer),
+        componentUpdated: lazyContainer.update.bind(lazyContainer),
         unbind: lazyContainer.unbind.bind(lazyContainer)
       })
     } else {
