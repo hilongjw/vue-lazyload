@@ -32,7 +32,8 @@ export default class LazyContainerMananger {
 }
 
 const defaultOptions = {
-  selector: 'img'
+  selector: 'img',
+  srcset: 'data-src'
 }
 
 class LazyContainer {
@@ -55,7 +56,7 @@ class LazyContainer {
     imgs.forEach(el => {
       this.lazy.add(el, assign({}, this.binding, {
         value: {
-          src: 'dataset' in el ? el.dataset.src : el.getAttribute('data-src'),
+          src: el.getAttribute(this.options.srcset),
           error: ('dataset' in el ? el.dataset.error : el.getAttribute('data-error')) || this.options.error,
           loading: ('dataset' in el ? el.dataset.loading : el.getAttribute('data-loading')) || this.options.loading
         }
