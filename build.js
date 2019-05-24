@@ -23,7 +23,7 @@ async function build () {
         commonjs(),
         babel({ runtimeHelpers: true }),
         uglify()
-      ]
+      ]  
     })
 
     let { code } = await bundle.generate({
