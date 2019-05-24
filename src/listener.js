@@ -102,11 +102,10 @@ export default class ReactiveListener {
    */
   checkInView () {
     this.getRect()
-    return 
-      (0 < this.rect.top     && this.rect.top    < window.innerHeight * this.options.preLoad) || 
-      (0 < this.rect.bottom  && this.rect.bottom < window.innerHeight * this.options.preLoad) || 
-      (0 < this.rect.left    && this.rect.left   < window.innerWidth * this.options.preLoad) || 
-      (0 < this.rect.right   && this.rect.right  < window.innerWidth * this.options.preLoad)
+    return  (0 < this.rect.top     && this.rect.top    < window.innerHeight * this.options.preLoad) || 
+            (0 < this.rect.bottom  && this.rect.bottom < window.innerHeight * this.options.preLoad) || 
+            (0 < this.rect.left    && this.rect.left   < window.innerWidth * this.options.preLoad) || 
+            (0 < this.rect.right   && this.rect.right  < window.innerWidth * this.options.preLoad)
   }
 
   /*
