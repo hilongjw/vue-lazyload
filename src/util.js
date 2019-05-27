@@ -4,7 +4,8 @@ const inBrowser = typeof window !== 'undefined'
 export const hasIntersectionObserver = checkIntersectionObserver()
 
 function checkIntersectionObserver () {
-  if ('IntersectionObserver' in window &&
+  if (inBrowser && 
+    'IntersectionObserver' in window &&
     'IntersectionObserverEntry' in window &&
     'intersectionRatio' in window.IntersectionObserverEntry.prototype) {
   // Minimal polyfill for Edge 15's lack of `isIntersecting`
