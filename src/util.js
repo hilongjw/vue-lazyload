@@ -88,10 +88,10 @@ function getBestSelectionFromSrcset (el, scale) {
 
   result.sort(function (a, b) {
     if (a[0] < b[0]) {
-      return -1
+      return 1
     }
     if (a[0] > b[0]) {
-      return 1
+      return -1
     }
     if (a[0] === b[0]) {
       if (b[1].indexOf('.webp', b[1].length - 5) !== -1) {
@@ -105,11 +105,15 @@ function getBestSelectionFromSrcset (el, scale) {
   })
   let bestSelectedSrc = ''
   let tmpOption
-  const resultCount = result.length
 
-  for (let i = 0; i < resultCount; i++) {
+  for (let i = 0; i < result.length; i++) {
     tmpOption = result[i]
-    if (tmpOption[0] >= containerWidth) {
+    bestSelectedSrc = tmpOption[1]
+    const next = result[i + 1]
+    if (next && next[0] < containerWidth) {
+      bestSelectedSrc = tmpOption[1]
+      break
+    } else if (!next) {
       bestSelectedSrc = tmpOption[1]
       break
     }
