@@ -14,30 +14,20 @@ const banner =
     ' * Released under the MIT License.\n' +
     ' */\n'
 
-async function build () {
+async function build (options, output) {
   try {
-    const bundle = await rollup.rollup({
-      input: path.resolve(__dirname, 'src/index.js'),
-      plugins: [
-        resolve(),
-        commonjs(),
-        babel({ runtimeHelpers: true }),
-        uglify()
-      ]  
-    })
+    const bundle = await rollup.rollup(options)
 
     let { code } = await bundle.generate({
-      format: 'umd',
+      format: output.format,
       name: 'VueLazyload'
     })
 
     code = rewriteVersion(code)
 
-    await write(path.resolve(__dirname, 'vue-lazyload.js'), code)
-
-    console.log('Vue-Lazyload.js v' + version + ' builded')
+    await write(path.resolve(__dirname, output.filename), code)
   } catch (e) {
-    console.log(e)
+    console.error(e)
   }
 }
 
@@ -64,4 +54,27 @@ function write (dest, code) {
   })
 }
 
-build()
+build({
+  input: path.resolve(__dirname, 'src/index.js'),
+  plugins: [
+    resolve(),
+    commonjs(),
+    babel({ runtimeHelpers: true }),
+    uglify()
+  ]
+}, {
+  format: 'umd',
+  filename: 'vue-lazyload.js'
+})
+
+build({
+  input: path.resolve(__dirname, 'src/index.js'),
+  plugins: [
+    resolve(),
+    commonjs(),
+    babel({ runtimeHelpers: true })
+  ]
+}, {
+  format: 'es',
+  filename: 'vue-lazyload.esm.js'
+})

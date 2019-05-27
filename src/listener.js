@@ -102,10 +102,10 @@ export default class ReactiveListener {
    */
   checkInView () {
     this.getRect()
-    return  (0 < this.rect.top     && this.rect.top    < window.innerHeight * this.options.preLoad) || 
-            (0 < this.rect.bottom  && this.rect.bottom < window.innerHeight * this.options.preLoad) || 
-            (0 < this.rect.left    && this.rect.left   < window.innerWidth * this.options.preLoad) || 
-            (0 < this.rect.right   && this.rect.right  < window.innerWidth * this.options.preLoad)
+    return (this.rect.top > 0 && this.rect.top < window.innerHeight * this.options.preLoad) ||
+            (this.rect.bottom > 0 && this.rect.bottom < window.innerHeight * this.options.preLoad) ||
+            (this.rect.left > 0 && this.rect.left < window.innerWidth * this.options.preLoad) ||
+            (this.rect.right > 0 && this.rect.right < window.innerWidth * this.options.preLoad)
   }
 
   /*
@@ -151,10 +151,10 @@ export default class ReactiveListener {
       onFinish()
       return this.render('loaded', true)
     }
-    
+
     this.renderLoading(() => {
       this.attempt++
-      
+
       this.options.adapter['beforeLoad'] && this.options.adapter['beforeLoad'](this, this.options)
       this.record('loadStart')
 

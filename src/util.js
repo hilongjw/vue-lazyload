@@ -4,7 +4,7 @@ const inBrowser = typeof window !== 'undefined'
 export const hasIntersectionObserver = checkIntersectionObserver()
 
 function checkIntersectionObserver () {
-  if (inBrowser && 
+  if (inBrowser &&
     'IntersectionObserver' in window &&
     'IntersectionObserverEntry' in window &&
     'intersectionRatio' in window.IntersectionObserverEntry.prototype) {
