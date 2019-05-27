@@ -151,10 +151,11 @@ export default class ReactiveListener {
       onFinish()
       return this.render('loaded', true)
     }
-
+    
     this.renderLoading(() => {
       this.attempt++
-
+      
+      this.options.adapter['beforeLoad'] && this.options.adapter['beforeLoad'](this, this.options)
       this.record('loadStart')
 
       loadImageAsync({
