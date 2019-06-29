@@ -4,8 +4,6 @@ import {
   noop
 } from './util'
 
-let imageCache = {}
-
 // el: {
 //     state,
 //     src,
@@ -14,7 +12,7 @@ let imageCache = {}
 // }
 
 export default class ReactiveListener {
-  constructor ({ el, src, error, loading, bindType, $parent, options, elRenderer }) {
+  constructor ({ el, src, error, loading, bindType, $parent, options, elRenderer, imageCache }) {
     this.el = el
     this.src = src
     this.error = error
@@ -31,7 +29,7 @@ export default class ReactiveListener {
 
     this.$parent = $parent
     this.elRenderer = elRenderer
-
+    this._imageCache = imageCache
     this.performanceData = {
       init: Date.now(),
       loadStart: 0,
@@ -55,6 +53,7 @@ export default class ReactiveListener {
     }
 
     this.state = {
+      loading: false,
       error: false,
       loaded: false,
       rendered: false
@@ -102,10 +101,8 @@ export default class ReactiveListener {
    */
   checkInView () {
     this.getRect()
-    return (this.rect.top > 0 && this.rect.top < window.innerHeight * this.options.preLoad) ||
-            (this.rect.bottom > 0 && this.rect.bottom < window.innerHeight * this.options.preLoad) ||
-            (this.rect.left > 0 && this.rect.left < window.innerWidth * this.options.preLoad) ||
-            (this.rect.right > 0 && this.rect.right < window.innerWidth * this.options.preLoad)
+    return (this.rect.top < window.innerHeight * this.options.preLoad && this.rect.bottom > this.options.preLoadTop) &&
+            (this.rect.left < window.innerWidth * this.options.preLoad && this.rect.right > 0)
   }
 
   /*
@@ -123,14 +120,17 @@ export default class ReactiveListener {
    * @return
    */
   renderLoading (cb) {
+    this.state.loading = true
     loadImageAsync({
       src: this.loading
     }, data => {
       this.render('loading', false)
+      this.state.loading = false
       cb()
     }, () => {
       // handler `loading image` load failed
       cb()
+      this.state.loading = false
       if (!this.options.silent) console.warn(`VueLazyload log: load failed with loading image(${this.loading})`)
     })
   }
@@ -145,11 +145,12 @@ export default class ReactiveListener {
       onFinish()
       return
     }
-
-    if (this.state.loaded || imageCache[this.src]) {
+    if (this.state.rendered && this.state.loaded) return
+    if (this._imageCache.has(this.src)) {
       this.state.loaded = true
-      onFinish()
-      return this.render('loaded', true)
+      this.render('loaded', true)
+      this.state.rendered = true
+      return onFinish()
     }
 
     this.renderLoading(() => {
@@ -167,7 +168,8 @@ export default class ReactiveListener {
         this.state.error = false
         this.record('loadEnd')
         this.render('loaded', false)
-        imageCache[this.src] = 1
+        this.state.rendered = true
+        this._imageCache.add(this.src)
         onFinish()
       }, err => {
         !this.options.silent && console.error(err)

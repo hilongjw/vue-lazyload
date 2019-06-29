@@ -1,5 +1,5 @@
 /*!
- * Vue-Lazyload.js v1.3.0
+ * Vue-Lazyload.js v1.3.1
  * (c) 2019 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
@@ -269,7 +269,7 @@ function extend(target, obj) {
   assignSymbols(target, obj);
 
   for (var key in obj) {
-    if (key !== '__proto__' && hasOwn(obj, key)) {
+    if (isValidKey(key) && hasOwn(obj, key)) {
       var val = obj[key];
       if (isObject$1(val)) {
         if (kindOf(target[key]) === 'undefined' && kindOf(val) === 'function') {
@@ -298,6 +298,14 @@ function isObject$1(obj) {
 
 function hasOwn(obj, key) {
   return Object.prototype.hasOwnProperty.call(obj, key);
+}
+
+/**
+ * Returns true if the given `key` is a valid key that can be used for assigning properties.
+ */
+
+function isValidKey(key) {
+  return key !== '__proto__' && key !== 'constructor' && key !== 'prototype';
 }
 
 /**
@@ -601,7 +609,39 @@ function ArrayFrom(arrLike) {
 
 function noop() {}
 
-var imageCache = {};
+var ImageCache = function () {
+  function ImageCache(_ref) {
+    var max = _ref.max;
+    classCallCheck(this, ImageCache);
+
+    this.options = {
+      max: max || 100
+    };
+    this._caches = [];
+  }
+
+  createClass(ImageCache, [{
+    key: 'has',
+    value: function has(key) {
+      return this._caches.indexOf(key) > -1;
+    }
+  }, {
+    key: 'add',
+    value: function add(key) {
+      if (this.has(key)) return;
+      this._caches.push(key);
+      if (this._caches.length > this.options.max) {
+        this.free();
+      }
+    }
+  }, {
+    key: 'free',
+    value: function free() {
+      this._caches.shift();
+    }
+  }]);
+  return ImageCache;
+}();
 
 // el: {
 //     state,
@@ -619,7 +659,8 @@ var ReactiveListener = function () {
         bindType = _ref.bindType,
         $parent = _ref.$parent,
         options = _ref.options,
-        elRenderer = _ref.elRenderer;
+        elRenderer = _ref.elRenderer,
+        imageCache = _ref.imageCache;
     classCallCheck(this, ReactiveListener);
 
     this.el = el;
@@ -638,7 +679,7 @@ var ReactiveListener = function () {
 
     this.$parent = $parent;
     this.elRenderer = elRenderer;
-
+    this._imageCache = imageCache;
     this.performanceData = {
       init: Date.now(),
       loadStart: 0,
@@ -666,6 +707,7 @@ var ReactiveListener = function () {
       }
 
       this.state = {
+        loading: false,
         error: false,
         loaded: false,
         rendered: false
@@ -729,7 +771,7 @@ var ReactiveListener = function () {
     key: 'checkInView',
     value: function checkInView() {
       this.getRect();
-      return 0 < this.rect.top && this.rect.top < window.innerHeight * this.options.preLoad || 0 < this.rect.bottom && this.rect.bottom < window.innerHeight * this.options.preLoad || 0 < this.rect.left && this.rect.left < window.innerWidth * this.options.preLoad || 0 < this.rect.right && this.rect.right < window.innerWidth * this.options.preLoad;
+      return this.rect.top < window.innerHeight * this.options.preLoad && this.rect.bottom > this.options.preLoadTop && this.rect.left < window.innerWidth * this.options.preLoad && this.rect.right > 0;
     }
 
     /*
@@ -757,14 +799,17 @@ var ReactiveListener = function () {
     value: function renderLoading(cb) {
       var _this2 = this;
 
+      this.state.loading = true;
       loadImageAsync({
         src: this.loading
       }, function (data) {
         _this2.render('loading', false);
+        _this2.state.loading = false;
         cb();
       }, function () {
         // handler `loading image` load failed
         cb();
+        _this2.state.loading = false;
         if (!_this2.options.silent) console.warn('VueLazyload log: load failed with loading image(' + _this2.loading + ')');
       });
     }
@@ -786,11 +831,12 @@ var ReactiveListener = function () {
         onFinish();
         return;
       }
-
-      if (this.state.loaded || imageCache[this.src]) {
+      if (this.state.rendered && this.state.loaded) return;
+      if (this._imageCache.has(this.src)) {
         this.state.loaded = true;
-        onFinish();
-        return this.render('loaded', true);
+        this.render('loaded', true);
+        this.state.rendered = true;
+        return onFinish();
       }
 
       this.renderLoading(function () {
@@ -808,7 +854,8 @@ var ReactiveListener = function () {
           _this3.state.error = false;
           _this3.record('loadEnd');
           _this3.render('loaded', false);
-          imageCache[_this3.src] = 1;
+          _this3.state.rendered = true;
+          _this3._imageCache.add(_this3.src);
           onFinish();
         }, function (err) {
           !_this3.options.silent && console.error(err);
@@ -904,7 +951,7 @@ var Lazy = function (Vue) {
           observerOptions = _ref.observerOptions;
       classCallCheck(this, Lazy);
 
-      this.version = '1.3.0';
+      this.version = '1.3.1';
       this.mode = modeType.event;
       this.ListenerQueue = [];
       this.TargetIndex = 0;
@@ -928,7 +975,7 @@ var Lazy = function (Vue) {
         observerOptions: observerOptions || DEFAULT_OBSERVER_OPTIONS
       };
       this._initEvent();
-
+      this._imageCache = new ImageCache({ max: 200 });
       this.lazyLoadHandler = throttle(this._lazyLoadHandler.bind(this), this.options.throttleWait);
 
       this.setMode(this.options.observer ? modeType.observer : modeType.event);
@@ -1035,7 +1082,8 @@ var Lazy = function (Vue) {
             error: error,
             src: src,
             elRenderer: _this._elRenderer.bind(_this),
-            options: _this.options
+            options: _this.options,
+            imageCache: _this._imageCache
           });
 
           _this.ListenerQueue.push(newListener);
@@ -1110,7 +1158,8 @@ var Lazy = function (Vue) {
         if (existItem) {
           this._removeListenerTarget(existItem.$parent);
           this._removeListenerTarget(window);
-          remove(this.ListenerQueue, existItem) && existItem.destroy();
+          remove(this.ListenerQueue, existItem);
+          existItem.destroy();
         }
       }
 
@@ -1288,15 +1337,16 @@ var Lazy = function (Vue) {
 
         var freeList = [];
         this.ListenerQueue.forEach(function (listener, index) {
-          if (!listener.state.error && listener.state.loaded) {
-            return freeList.push(listener);
+          if (!listener.el || !listener.el.parentNode) {
+            freeList.push(listener);
           }
           var catIn = listener.checkInView();
           if (!catIn) return;
           listener.load();
         });
-        freeList.forEach(function (vm) {
-          return remove(_this7.ListenerQueue, vm);
+        freeList.forEach(function (item) {
+          remove(_this7.ListenerQueue, item);
+          item.destroy();
         });
       }
       /**

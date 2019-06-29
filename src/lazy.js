@@ -13,7 +13,8 @@ import {
   assign,
   isObject,
   hasIntersectionObserver,
-  modeType
+  modeType,
+  ImageCache
 } from './util'
 
 import ReactiveListener from './listener'
@@ -52,7 +53,7 @@ export default function (Vue) {
         observerOptions: observerOptions || DEFAULT_OBSERVER_OPTIONS
       }
       this._initEvent()
-
+      this._imageCache = new ImageCache({ max: 200 })
       this.lazyLoadHandler = throttle(this._lazyLoadHandler.bind(this), this.options.throttleWait)
 
       this.setMode(this.options.observer ? modeType.observer : modeType.event)
@@ -137,7 +138,8 @@ export default function (Vue) {
           error,
           src,
           elRenderer: this._elRenderer.bind(this),
-          options: this.options
+          options: this.options,
+          imageCache: this._imageCache
         })
 
         this.ListenerQueue.push(newListener)
@@ -192,7 +194,8 @@ export default function (Vue) {
       if (existItem) {
         this._removeListenerTarget(existItem.$parent)
         this._removeListenerTarget(window)
-        remove(this.ListenerQueue, existItem) && existItem.destroy()
+        remove(this.ListenerQueue, existItem)
+        existItem.destroy()
       }
     }
 
@@ -337,14 +340,17 @@ export default function (Vue) {
     _lazyLoadHandler () {
       const freeList = []
       this.ListenerQueue.forEach((listener, index) => {
-        if (!listener.state.error && listener.state.loaded) {
-          return freeList.push(listener)
+        if (!listener.el || !listener.el.parentNode) {
+          freeList.push(listener)
         }
         const catIn = listener.checkInView()
         if (!catIn) return
         listener.load()
       })
-      freeList.forEach(vm => remove(this.ListenerQueue, vm))
+      freeList.forEach(item => {
+        remove(this.ListenerQueue, item)
+        item.destroy()
+      })
     }
     /**
     * init IntersectionObserver

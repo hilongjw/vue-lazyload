@@ -295,7 +295,33 @@ function ArrayFrom (arrLike) {
 
 function noop () {}
 
+class ImageCache {
+  constructor ({ max }) {
+    this.options = {
+      max: max || 100
+    }
+    this._caches = []
+  }
+
+  has (key) {
+    return this._caches.indexOf(key) > -1
+  }
+
+  add (key) {
+    if (this.has(key)) return
+    this._caches.push(key)
+    if (this._caches.length > this.options.max) {
+      this.free()
+    }
+  }
+
+  free () {
+    this._caches.shift()
+  }
+}
+
 export {
+  ImageCache,
   inBrowser,
   CustomEvent,
   remove,
