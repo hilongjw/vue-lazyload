@@ -46,6 +46,9 @@ export default (lazy) => {
         this.show = true
         this.state.loaded = true
         this.$emit('show', this)
+      },
+      destroy () {
+        return this.$destroy
       }
     }
   }
