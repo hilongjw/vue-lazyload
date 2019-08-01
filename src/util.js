@@ -71,7 +71,7 @@ function getBestSelectionFromSrcset (el, scale) {
   let tmpSrc
   let tmpWidth
 
-  options = options.trim().split(',')
+  options = options.split(', ')
 
   options.map(item => {
     item = item.trim()
