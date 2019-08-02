@@ -66,12 +66,13 @@ function getBestSelectionFromSrcset (el, scale) {
   const result = []
   const container = el.parentNode
   const containerWidth = container.offsetWidth * scale
+  const splitArg = options.includes(',\n') ? ',\n' : ', '
 
   let spaceIndex
   let tmpSrc
   let tmpWidth
 
-  options = options.split(', ')
+  options = options.trim().split(splitArg)
 
   options.map(item => {
     item = item.trim()

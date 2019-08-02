@@ -375,12 +375,13 @@ function getBestSelectionFromSrcset(el, scale) {
   var result = [];
   var container = el.parentNode;
   var containerWidth = container.offsetWidth * scale;
+  var splitArg = options.includes(',\n') ? ',\n' : ', ';
 
   var spaceIndex = void 0;
   var tmpSrc = void 0;
   var tmpWidth = void 0;
 
-  options = options.trim().split(',');
+  options = options.trim().split(splitArg);
 
   options.map(function (item) {
     item = item.trim();
