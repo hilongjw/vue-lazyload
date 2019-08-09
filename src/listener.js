@@ -213,10 +213,10 @@ export default class ReactiveListener {
   }
 
   /*
-   * destroy
+   * $destroy
    * @return
    */
-  destroy () {
+  $destroy () {
     this.el = null
     this.src = null
     this.error = null

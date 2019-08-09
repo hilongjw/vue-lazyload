@@ -195,7 +195,7 @@ export default function (Vue) {
         this._removeListenerTarget(existItem.$parent)
         this._removeListenerTarget(window)
         remove(this.ListenerQueue, existItem)
-        existItem.destroy()
+        existItem.$destroy()
       }
     }
 
@@ -349,8 +349,7 @@ export default function (Vue) {
       })
       freeList.forEach(item => {
         remove(this.ListenerQueue, item)
-        const destroy = item.destroy || item.$destroy
-        destroy()
+        item.$destroy()
       })
     }
     /**
