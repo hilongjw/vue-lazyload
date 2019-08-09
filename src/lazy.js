@@ -349,7 +349,8 @@ export default function (Vue) {
       })
       freeList.forEach(item => {
         remove(this.ListenerQueue, item)
-        item.destroy()
+        const destroy = item.destroy || item.$destroy
+        destroy()
       })
     }
     /**
