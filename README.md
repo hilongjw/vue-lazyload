@@ -53,6 +53,14 @@ $ npm i vue-lazyload -S
 
 ```
 
+## yarn
+
+```bash
+
+$ yarn add vue-lazyload
+
+```
+
 ## CDN
 
 CDN: [https://unpkg.com/vue-lazyload/vue-lazyload.js](https://unpkg.com/vue-lazyload/vue-lazyload.js)
