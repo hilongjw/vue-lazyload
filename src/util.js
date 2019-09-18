@@ -213,6 +213,7 @@ const _ = {
 
 const loadImageAsync = (item, resolve, reject) => {
   let image = new Image()
+  if (!item.src) return
   image.src = item.src
 
   image.onload = function () {
