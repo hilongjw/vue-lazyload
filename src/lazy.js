@@ -111,7 +111,7 @@ export default function (Vue) {
         return Vue.nextTick(this.lazyLoadHandler)
       }
 
-      let { src, loading, error } = this._valueFormatter(binding.value)
+      let { src, loading, error, cors } = this._valueFormatter(binding.value)
 
       Vue.nextTick(() => {
         src = getBestSelectionFromSrcset(el, this.options.scale) || src
@@ -137,6 +137,7 @@ export default function (Vue) {
           loading,
           error,
           src,
+          cors,
           elRenderer: this._elRenderer.bind(this),
           options: this.options,
           imageCache: this._imageCache

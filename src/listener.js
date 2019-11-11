@@ -12,13 +12,14 @@ import {
 // }
 
 export default class ReactiveListener {
-  constructor ({ el, src, error, loading, bindType, $parent, options, elRenderer, imageCache }) {
+  constructor ({ el, src, error, loading, bindType, $parent, options, cors, elRenderer, imageCache }) {
     this.el = el
     this.src = src
     this.error = error
     this.loading = loading
     this.bindType = bindType
     this.attempt = 0
+    this.cors = cors
 
     this.naturalHeight = 0
     this.naturalWidth = 0
@@ -122,7 +123,8 @@ export default class ReactiveListener {
   renderLoading (cb) {
     this.state.loading = true
     loadImageAsync({
-      src: this.loading
+      src: this.loading,
+      cors: this.cors
     }, data => {
       this.render('loading', false)
       this.state.loading = false
@@ -160,7 +162,8 @@ export default class ReactiveListener {
       this.record('loadStart')
 
       loadImageAsync({
-        src: this.src
+        src: this.src,
+        cors: this.cors
       }, data => {
         this.naturalHeight = data.naturalHeight
         this.naturalWidth = data.naturalWidth
