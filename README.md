@@ -258,6 +258,12 @@ Vue.use(VueLazyload, {
   }
 </script>
 ```
+Use in list
+```html
+<lazy-component v-for="(item, index) in list" :key="item.src" >
+  <img class="mini-cover" :src="item.src" width="100%" height="400">
+</lazy-component>
+```
 
 
 ## Implementation
