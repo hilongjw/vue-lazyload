@@ -1,6 +1,6 @@
 /*!
  * Vue-Lazyload.js v1.3.3
- * (c) 2019 Awe <hilongjw@gmail.com>
+ * (c) 2020 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
@@ -269,7 +269,7 @@ function extend(target, obj) {
   assignSymbols(target, obj);
 
   for (var key in obj) {
-    if (key !== '__proto__' && hasOwn(obj, key)) {
+    if (isValidKey(key) && hasOwn(obj, key)) {
       var val = obj[key];
       if (isObject$1(val)) {
         if (kindOf(target[key]) === 'undefined' && kindOf(val) === 'function') {
@@ -301,12 +301,21 @@ function hasOwn(obj, key) {
 }
 
 /**
+ * Returns true if the given `key` is a valid key that can be used for assigning properties.
+ */
+
+function isValidKey(key) {
+  return key !== '__proto__' && key !== 'constructor' && key !== 'prototype';
+}
+
+/**
  * Expose `assign`
  */
 
 var assignDeep = assign;
 
-var inBrowser = typeof window !== 'undefined';
+var inBrowser = typeof window !== 'undefined' && window !== null;
+
 var hasIntersectionObserver = checkIntersectionObserver();
 
 function checkIntersectionObserver() {
