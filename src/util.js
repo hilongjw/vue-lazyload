@@ -220,6 +220,9 @@ const loadImageAsync = (item, resolve, reject) => {
   }
 
   image.src = item.src
+  if (item.cors) {
+    image.crossOrigin = item.cors
+  }
 
   image.onload = function () {
     resolve({
