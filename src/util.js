@@ -1,6 +1,7 @@
 import assign from 'assign-deep'
 
-const inBrowser = typeof window !== 'undefined'
+const inBrowser = typeof window !== 'undefined' && window !== null
+
 export const hasIntersectionObserver = checkIntersectionObserver()
 
 function checkIntersectionObserver () {
