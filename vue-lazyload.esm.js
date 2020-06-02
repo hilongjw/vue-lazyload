@@ -536,6 +536,9 @@ var loadImageAsync = function loadImageAsync(item, resolve, reject) {
   }
 
   image.src = item.src;
+  if (item.cors) {
+    image.crossOrigin = item.cors;
+  }
 
   image.onload = function () {
     resolve({
@@ -665,6 +668,7 @@ var ReactiveListener = function () {
         bindType = _ref.bindType,
         $parent = _ref.$parent,
         options = _ref.options,
+        cors = _ref.cors,
         elRenderer = _ref.elRenderer,
         imageCache = _ref.imageCache;
     classCallCheck(this, ReactiveListener);
@@ -675,6 +679,7 @@ var ReactiveListener = function () {
     this.loading = loading;
     this.bindType = bindType;
     this.attempt = 0;
+    this.cors = cors;
 
     this.naturalHeight = 0;
     this.naturalWidth = 0;
@@ -807,7 +812,8 @@ var ReactiveListener = function () {
 
       this.state.loading = true;
       loadImageAsync({
-        src: this.loading
+        src: this.loading,
+        cors: this.cors
       }, function (data) {
         _this2.render('loading', false);
         _this2.state.loading = false;
@@ -852,7 +858,8 @@ var ReactiveListener = function () {
         _this3.record('loadStart');
 
         loadImageAsync({
-          src: _this3.src
+          src: _this3.src,
+          cors: _this3.cors
         }, function (data) {
           _this3.naturalHeight = data.naturalHeight;
           _this3.naturalWidth = data.naturalWidth;
@@ -1061,7 +1068,8 @@ var Lazy = function (Vue) {
         var _valueFormatter2 = this._valueFormatter(binding.value),
             src = _valueFormatter2.src,
             loading = _valueFormatter2.loading,
-            error = _valueFormatter2.error;
+            error = _valueFormatter2.error,
+            cors = _valueFormatter2.cors;
 
         Vue.nextTick(function () {
           src = getBestSelectionFromSrcset(el, _this.options.scale) || src;
@@ -1087,6 +1095,7 @@ var Lazy = function (Vue) {
             loading: loading,
             error: error,
             src: src,
+            cors: cors,
             elRenderer: _this._elRenderer.bind(_this),
             options: _this.options,
             imageCache: _this._imageCache
@@ -1485,10 +1494,7 @@ var LazyComponent = (function (lazy) {
       }
     },
     render: function render(h) {
-      if (this.show === false) {
-        return h(this.tag);
-      }
-      return h(this.tag, null, this.$slots.default);
+      return h(this.tag, null, this.show ? this.$slots.default : null);
     },
     data: function data() {
       return {

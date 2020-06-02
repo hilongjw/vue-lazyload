@@ -9,10 +9,7 @@ export default (lazy) => {
       }
     },
     render (h) {
-      if (this.show === false) {
-        return h(this.tag)
-      }
-      return h(this.tag, null, this.$slots.default)
+      return h(this.tag, null, this.show ? this.$slots.default : null)
     },
     data () {
       return {
