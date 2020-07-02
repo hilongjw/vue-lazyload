@@ -143,13 +143,11 @@ function supportWebp () {
   const d = document
 
   try {
-    let el = d.createElement('object')
-    el.type = 'image/webp'
-    el.style.visibility = 'hidden'
-    el.innerHTML = '!'
-    d.body.appendChild(el)
-    support = !el.offsetWidth
-    d.body.removeChild(el)
+    const elem = document.createElement('canvas');
+
+    if (!!(elem.getContext && elem.getContext('2d'))) {
+      support = elem.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+    }
   } catch (err) {
     support = false
   }
