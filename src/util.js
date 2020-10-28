@@ -311,7 +311,8 @@ class ImageCache {
   }
 
   has (key) {
-    return this._caches.indexOf(key) > -1
+    const img = this.get(key)
+    return !!img
   }
 
   add (key) {
@@ -320,6 +321,11 @@ class ImageCache {
     if (this._caches.length > this.options.max) {
       this.free()
     }
+  }
+
+  get (key) {
+    const imgs = this._caches.filter(t => t.src === key)
+    return imgs.find(t => t.src === key)
   }
 
   free () {
