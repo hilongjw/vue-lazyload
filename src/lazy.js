@@ -344,9 +344,11 @@ export default function (Vue) {
         if (!listener.el || !listener.el.parentNode) {
           freeList.push(listener)
         }
+        if(listener._loaded) return
         const catIn = listener.checkInView()
         if (!catIn) return
         listener.load()
+        listener._loaded = true
       })
       freeList.forEach(item => {
         remove(this.ListenerQueue, item)
