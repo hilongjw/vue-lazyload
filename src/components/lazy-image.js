@@ -2,7 +2,7 @@ import {
   inBrowser,
   loadImageAsync,
   noop
-} from './util'
+} from '../util'
 
 export default (lazyManager) => {
   return {
