@@ -141,13 +141,12 @@ function supportWebp () {
   if (!inBrowser) return false
 
   let support = true
-  const d = document
 
   try {
-    const elem = document.createElement('canvas');
+    const elem = document.createElement('canvas')
 
-    if (!!(elem.getContext && elem.getContext('2d'))) {
-      support = elem.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+    if (elem.getContext && elem.getContext('2d')) {
+      support = elem.toDataURL('image/webp').indexOf('data:image/webp') === 0
     }
   } catch (err) {
     support = false
