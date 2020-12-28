@@ -29,9 +29,10 @@ export const modeType = {
   observer: 'observer'
 }
 
-// CustomEvent polyfill
+// CustomEvent polyfill for IE
 const CustomEvent = (function () {
   if (!inBrowser) return
+  // not IE
   if (typeof window.CustomEvent === 'function') return window.CustomEvent
   function CustomEvent (event, params) {
     params = params || { bubbles: false, cancelable: false, detail: undefined }
