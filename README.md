@@ -53,6 +53,14 @@ $ npm i vue-lazyload -S
 
 ```
 
+## yarn
+
+```bash
+
+$ yarn add vue-lazyload
+
+```
+
 ## CDN
 
 CDN: [https://unpkg.com/vue-lazyload/vue-lazyload.js](https://unpkg.com/vue-lazyload/vue-lazyload.js)
@@ -79,10 +87,13 @@ import VueLazyload from 'vue-lazyload'
 Vue.use(VueLazyload)
 
 // or with options
+const loadimage = require('./assets/loading.gif')
+const errorimage = require('./assets/error.gif')
+
 Vue.use(VueLazyload, {
   preLoad: 1.3,
-  error: 'dist/error.png',
-  loading: 'dist/loading.gif',
+  error: errorimage,
+  loading: loadimage,
   attempt: 1
 })
 
