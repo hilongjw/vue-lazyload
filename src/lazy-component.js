@@ -1,6 +1,6 @@
 import { inBrowser } from './util'
-
-export default (lazy) => {
+import Lazy from './lazy'
+const LazyComponent = (lazy) => {
   return {
     props: {
       tag: {
@@ -50,3 +50,11 @@ export default (lazy) => {
     }
   }
 }
+
+LazyComponent.install = function (Vue, options = {}) {
+  const LazyClass = Lazy(Vue)
+  const lazy = new LazyClass(options)
+  Vue.component('lazy-component', LazyComponent(lazy))
+}
+
+export default LazyComponent

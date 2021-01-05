@@ -4,7 +4,7 @@ import {
   assign,
   ArrayFrom
 } from './util'
-
+import Lazy from './lazy'
 export default class LazyContainerMananger {
   constructor ({ lazy }) {
     this.lazy = lazy
@@ -74,5 +74,36 @@ class LazyContainer {
     this.vnode = null
     this.binding = null
     this.lazy = null
+  }
+}
+
+LazyContainer.install = (Vue, options = {}) => {
+  const LazyClass = Lazy(Vue)
+  const lazy = new LazyClass(options)
+  const lazyContainer = new LazyContainer({ lazy })
+
+  const isVue2 = Vue.version.split('.')[0] === '2'
+  if (isVue2) {
+    Vue.directive('lazy-container', {
+      bind: lazyContainer.bind.bind(lazyContainer),
+      componentUpdated: lazyContainer.update.bind(lazyContainer),
+      unbind: lazyContainer.unbind.bind(lazyContainer)
+    })
+  } else {
+    Vue.directive('lazy-container', {
+      update (newValue, oldValue) {
+        lazyContainer.update(this.el, {
+          modifiers: this.modifiers || {},
+          arg: this.arg,
+          value: newValue,
+          oldValue: oldValue
+        }, {
+          context: this.vm
+        })
+      },
+      unbind () {
+        lazyContainer.unbind(this.el)
+      }
+    })
   }
 }

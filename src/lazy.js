@@ -26,7 +26,7 @@ const DEFAULT_OBSERVER_OPTIONS = {
   threshold: 0
 }
 
-export default function (Vue) {
+export default function Lazy (Vue) {
   return class Lazy {
     constructor ({ preLoad, error, throttleWait, preLoadTop, dispatchEvent, loading, attempt, silent = true, scale, listenEvents, hasbind, filter, adapter, observer, observerOptions }) {
       this.version = '__VUE_LAZYLOAD_VERSION__'
@@ -451,5 +451,38 @@ export default function (Vue) {
         error
       }
     }
+  }
+}
+
+Lazy.install = (Vue, options = {}) => {
+  const LazyClass = Lazy(Vue)
+  const lazy = new LazyClass(options)
+
+  const isVue2 = Vue.version.split('.')[0] === '2'
+  if (isVue2) {
+    Vue.directive('lazy', {
+      bind: lazy.add.bind(lazy),
+      update: lazy.update.bind(lazy),
+      componentUpdated: lazy.lazyLoadHandler.bind(lazy),
+      unbind: lazy.remove.bind(lazy)
+    })
+  } else {
+    Vue.directive('lazy', {
+      bind: lazy.lazyLoadHandler.bind(lazy),
+      update (newValue, oldValue) {
+        assign(this.vm.$refs, this.vm.$els)
+        lazy.add(this.el, {
+          modifiers: this.modifiers || {},
+          arg: this.arg,
+          value: newValue,
+          oldValue: oldValue
+        }, {
+          context: this.vm
+        })
+      },
+      unbind () {
+        lazy.remove(this.el)
+      }
+    })
   }
 }

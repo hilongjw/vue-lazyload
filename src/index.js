@@ -76,3 +76,10 @@ export default {
     }
   }
 }
+
+export {
+  Lazy,
+  LazyComponent,
+  LazyImage,
+  LazyContainer
+}
