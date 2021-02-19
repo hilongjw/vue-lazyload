@@ -3,8 +3,9 @@ import {
   loadImageAsync,
   noop
 } from './util'
+import Lazy from './lazy'
 
-export default (lazyManager) => {
+const LazyImage = (lazyManager) => {
   return {
     props: {
       src: [String, Object],
@@ -94,3 +95,11 @@ export default (lazyManager) => {
     }
   }
 }
+
+LazyImage.install = (Vue, options = {}) => {
+  const LazyClass = Lazy(Vue)
+  const lazy = new LazyClass(options)
+  Vue.component('lazy-image', LazyImage(lazy))
+}
+
+export default LazyImage

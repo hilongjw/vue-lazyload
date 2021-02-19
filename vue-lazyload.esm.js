@@ -1,6 +1,6 @@
 /*!
  * Vue-Lazyload.js v1.3.3
- * (c) 2020 Awe <hilongjw@gmail.com>
+ * (c) 2021 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
@@ -338,9 +338,10 @@ var modeType = {
   event: 'event',
   observer: 'observer'
 
-  // CustomEvent polyfill
+  // CustomEvent polyfill for IE
 };var CustomEvent = function () {
   if (!inBrowser) return;
+  // not IE
   if (typeof window.CustomEvent === 'function') return window.CustomEvent;
   function CustomEvent(event, params) {
     params = params || { bubbles: false, cancelable: false, detail: undefined };
@@ -452,16 +453,13 @@ function supportWebp() {
   if (!inBrowser) return false;
 
   var support = true;
-  var d = document;
 
   try {
-    var el = d.createElement('object');
-    el.type = 'image/webp';
-    el.style.visibility = 'hidden';
-    el.innerHTML = '!';
-    d.body.appendChild(el);
-    support = !el.offsetWidth;
-    d.body.removeChild(el);
+    var elem = document.createElement('canvas');
+
+    if (elem.getContext && elem.getContext('2d')) {
+      support = elem.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+    }
   } catch (err) {
     support = false;
   }
@@ -943,7 +941,7 @@ var DEFAULT_OBSERVER_OPTIONS = {
   threshold: 0
 };
 
-var Lazy = function (Vue) {
+function Lazy(Vue) {
   return function () {
     function Lazy(_ref) {
       var preLoad = _ref.preLoad,
@@ -1483,9 +1481,44 @@ var Lazy = function (Vue) {
     }]);
     return Lazy;
   }();
+}
+
+Lazy.install = function (Vue) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  var LazyClass = Lazy(Vue);
+  var lazy = new LazyClass(options);
+
+  var isVue2 = Vue.version.split('.')[0] === '2';
+  if (isVue2) {
+    Vue.directive('lazy', {
+      bind: lazy.add.bind(lazy),
+      update: lazy.update.bind(lazy),
+      componentUpdated: lazy.lazyLoadHandler.bind(lazy),
+      unbind: lazy.remove.bind(lazy)
+    });
+  } else {
+    Vue.directive('lazy', {
+      bind: lazy.lazyLoadHandler.bind(lazy),
+      update: function update(newValue, oldValue) {
+        assignDeep(this.vm.$refs, this.vm.$els);
+        lazy.add(this.el, {
+          modifiers: this.modifiers || {},
+          arg: this.arg,
+          value: newValue,
+          oldValue: oldValue
+        }, {
+          context: this.vm
+        });
+      },
+      unbind: function unbind() {
+        lazy.remove(this.el);
+      }
+    });
+  }
 };
 
-var LazyComponent = (function (lazy) {
+var LazyComponent = function LazyComponent(lazy) {
   return {
     props: {
       tag: {
@@ -1533,7 +1566,15 @@ var LazyComponent = (function (lazy) {
       }
     }
   };
-});
+};
+
+LazyComponent.install = function (Vue) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  var LazyClass = Lazy(Vue);
+  var lazy = new LazyClass(options);
+  Vue.component('lazy-component', LazyComponent(lazy));
+};
 
 var LazyContainerMananger = function () {
   function LazyContainerMananger(_ref) {
@@ -1641,7 +1682,40 @@ var LazyContainer$1 = function () {
   return LazyContainer;
 }();
 
-var LazyImage = (function (lazyManager) {
+LazyContainer$1.install = function (Vue) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  var LazyClass = Lazy(Vue);
+  var lazy = new LazyClass(options);
+  var lazyContainer = new LazyContainer$1({ lazy: lazy });
+
+  var isVue2 = Vue.version.split('.')[0] === '2';
+  if (isVue2) {
+    Vue.directive('lazy-container', {
+      bind: lazyContainer.bind.bind(lazyContainer),
+      componentUpdated: lazyContainer.update.bind(lazyContainer),
+      unbind: lazyContainer.unbind.bind(lazyContainer)
+    });
+  } else {
+    Vue.directive('lazy-container', {
+      update: function update(newValue, oldValue) {
+        lazyContainer.update(this.el, {
+          modifiers: this.modifiers || {},
+          arg: this.arg,
+          value: newValue,
+          oldValue: oldValue
+        }, {
+          context: this.vm
+        });
+      },
+      unbind: function unbind() {
+        lazyContainer.unbind(this.el);
+      }
+    });
+  }
+};
+
+var LazyImage = function LazyImage(lazyManager) {
   return {
     props: {
       src: [String, Object],
@@ -1740,7 +1814,15 @@ var LazyImage = (function (lazyManager) {
       }
     }
   };
-});
+};
+
+LazyImage.install = function (Vue) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  var LazyClass = Lazy(Vue);
+  var lazy = new LazyClass(options);
+  Vue.component('lazy-image', LazyImage(lazy));
+};
 
 var index = {
   /*
@@ -1817,4 +1899,5 @@ var index = {
   }
 };
 
+export { Lazy, LazyComponent, LazyImage, LazyContainerMananger as LazyContainer };
 export default index;
