@@ -1,4 +1,3 @@
-const fs = require('fs')
 const path = require('path')
 const rollup = require('rollup')
 const babel = require('rollup-plugin-babel')
@@ -21,6 +20,7 @@ async function build (options, _outputOptions) {
     const outputOptions = {
       format: _outputOptions.format,
       exports: 'named',
+      banner: banner,
       file: path.resolve(__dirname, _outputOptions.filename),
       name: 'VueLazyload'
     }

@@ -1,4 +1,10 @@
 /*!
+ * Vue-Lazyload.js v1.3.4
+ * (c) 2021 Awe <hilongjw@gmail.com>
+ * Released under the MIT License.
+ */
+
+/*!
  * is-primitive <https://github.com/jonschlinkert/is-primitive>
  *
  * Copyright (c) 2014-2015, Jon Schlinkert.

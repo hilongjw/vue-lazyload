@@ -1,3 +1,8 @@
+/*!
+ * Vue-Lazyload.js v1.3.4
+ * (c) 2021 Awe <hilongjw@gmail.com>
+ * Released under the MIT License.
+ */
 !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"function"==typeof define&&define.amd?define(["exports"],e):e((t="undefined"!=typeof globalThis?globalThis:t||self).VueLazyload={})}(this,(function(t){"use strict";
 /*!
    * is-primitive <https://github.com/jonschlinkert/is-primitive>
