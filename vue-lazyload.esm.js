@@ -1,5 +1,5 @@
 /*!
- * Vue-Lazyload.js v1.3.3
+ * Vue-Lazyload.js v1.3.4
  * (c) 2021 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
@@ -469,8 +469,11 @@ function supportWebp() {
 
 function throttle(action, delay) {
   var timeout = null;
+  var movement = null;
   var lastRun = 0;
+  var needRun = false;
   return function () {
+    needRun = true;
     if (timeout) {
       return;
     }
@@ -486,6 +489,10 @@ function throttle(action, delay) {
       runCallback();
     } else {
       timeout = setTimeout(runCallback, delay);
+    }
+    if (needRun) {
+      clearTimeout(movement);
+      movement = setTimeout(runCallback, 2 * delay);
     }
   };
 }
@@ -962,7 +969,7 @@ function Lazy(Vue) {
           observerOptions = _ref.observerOptions;
       classCallCheck(this, Lazy);
 
-      this.version = '1.3.3';
+      this.version = '1.3.4';
       this.mode = modeType.event;
       this.ListenerQueue = [];
       this.TargetIndex = 0;

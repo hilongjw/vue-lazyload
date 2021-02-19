@@ -20,6 +20,7 @@ async function build (options, output) {
 
     let { code } = await bundle.generate({
       format: output.format,
+      exports: 'named',
       name: 'VueLazyload'
     })
 
