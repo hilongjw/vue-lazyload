@@ -1,49 +1,4 @@
 /*!
- * Vue-Lazyload.js v1.3.4
- * (c) 2021 Awe <hilongjw@gmail.com>
- * Released under the MIT License.
- */
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-  return typeof obj;
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-};
-
-
-
-
-
-
-
-
-
-
-
-var classCallCheck = function (instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-};
-
-var createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
-      descriptor.enumerable = descriptor.enumerable || false;
-      descriptor.configurable = true;
-      if ("value" in descriptor) descriptor.writable = true;
-      Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }
-
-  return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) defineProperties(Constructor, staticProps);
-    return Constructor;
-  };
-}();
-
-/*!
  * is-primitive <https://github.com/jonschlinkert/is-primitive>
  *
  * Copyright (c) 2014-2015, Jon Schlinkert.
@@ -53,8 +8,14 @@ var createClass = function () {
 // see http://jsperf.com/testing-value-is-primitive/7
 
 var isPrimitive = function isPrimitive(value) {
-  return value == null || typeof value !== 'function' && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) !== 'object';
+  return value == null || typeof value !== 'function' && typeof value !== 'object';
 };
+
+var isPrimitive$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  'default': isPrimitive,
+  __moduleExports: isPrimitive
+});
 
 /*!
  * assign-symbols <https://github.com/jonschlinkert/assign-symbols>
@@ -63,7 +24,7 @@ var isPrimitive = function isPrimitive(value) {
  * Licensed under the MIT License.
  */
 
-var assignSymbols = function assignSymbols(receiver, objects) {
+var assignSymbols = function (receiver, objects) {
   if (receiver === null || typeof receiver === 'undefined') {
     throw new TypeError('expected first argument to be an object.');
   }
@@ -96,6 +57,12 @@ var assignSymbols = function assignSymbols(receiver, objects) {
   return target;
 };
 
+var assignSymbols$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  'default': assignSymbols,
+  __moduleExports: assignSymbols
+});
+
 var toString = Object.prototype.toString;
 
 /**
@@ -106,7 +73,7 @@ var toString = Object.prototype.toString;
  */
 
 var kindOf = function kindOf(val) {
-  var type = typeof val === 'undefined' ? 'undefined' : _typeof(val);
+  var type = typeof val;
 
   // primitivies
   if (type === 'undefined') {
@@ -242,6 +209,18 @@ function isBuffer(val) {
   return val.constructor && typeof val.constructor.isBuffer === 'function' && val.constructor.isBuffer(val);
 }
 
+var kindOf$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  'default': kindOf,
+  __moduleExports: kindOf
+});
+
+var isPrimitive$2 = ( isPrimitive$1 && isPrimitive ) || isPrimitive$1;
+
+var assignSymbols$2 = ( assignSymbols$1 && assignSymbols ) || assignSymbols$1;
+
+var typeOf = ( kindOf$1 && kindOf ) || kindOf$1;
+
 function assign(target /*, objects*/) {
   target = target || {};
   var len = arguments.length,
@@ -251,10 +230,10 @@ function assign(target /*, objects*/) {
   }
   while (++i < len) {
     var val = arguments[i];
-    if (isPrimitive(target)) {
+    if (isPrimitive$2(target)) {
       target = val;
     }
-    if (isObject$1(val)) {
+    if (isObject(val)) {
       extend(target, val);
     }
   }
@@ -266,13 +245,13 @@ function assign(target /*, objects*/) {
  */
 
 function extend(target, obj) {
-  assignSymbols(target, obj);
+  assignSymbols$2(target, obj);
 
   for (var key in obj) {
     if (isValidKey(key) && hasOwn(obj, key)) {
       var val = obj[key];
-      if (isObject$1(val)) {
-        if (kindOf(target[key]) === 'undefined' && kindOf(val) === 'function') {
+      if (isObject(val)) {
+        if (typeOf(target[key]) === 'undefined' && typeOf(val) === 'function') {
           target[key] = val;
         }
         target[key] = assign(target[key] || {}, val);
@@ -288,8 +267,8 @@ function extend(target, obj) {
  * Returns true if the object is a plain object or a function.
  */
 
-function isObject$1(obj) {
-  return kindOf(obj) === 'object' || kindOf(obj) === 'function';
+function isObject(obj) {
+  return typeOf(obj) === 'object' || typeOf(obj) === 'function';
 }
 
 /**
@@ -314,9 +293,9 @@ function isValidKey(key) {
 
 var assignDeep = assign;
 
-var inBrowser = typeof window !== 'undefined' && window !== null;
+const inBrowser = typeof window !== 'undefined' && window !== null;
 
-var hasIntersectionObserver = checkIntersectionObserver();
+const hasIntersectionObserver = checkIntersectionObserver();
 
 function checkIntersectionObserver() {
   if (inBrowser && 'IntersectionObserver' in window && 'IntersectionObserverEntry' in window && 'intersectionRatio' in window.IntersectionObserverEntry.prototype) {
@@ -324,7 +303,7 @@ function checkIntersectionObserver() {
     // See: https://github.com/w3c/IntersectionObserver/issues/211
     if (!('isIntersecting' in window.IntersectionObserverEntry.prototype)) {
       Object.defineProperty(window.IntersectionObserverEntry.prototype, 'isIntersecting', {
-        get: function get$$1() {
+        get: function () {
           return this.intersectionRatio > 0;
         }
       });
@@ -334,12 +313,12 @@ function checkIntersectionObserver() {
   return false;
 }
 
-var modeType = {
+const modeType = {
   event: 'event',
   observer: 'observer'
 
   // CustomEvent polyfill for IE
-};var CustomEvent = function () {
+};const CustomEvent = function () {
   if (!inBrowser) return;
   // not IE
   if (typeof window.CustomEvent === 'function') return window.CustomEvent;
@@ -355,13 +334,13 @@ var modeType = {
 
 function remove(arr, item) {
   if (!arr.length) return;
-  var index = arr.indexOf(item);
+  const index = arr.indexOf(item);
   if (index > -1) return arr.splice(index, 1);
 }
 
 function some(arr, fn) {
-  var has = false;
-  for (var i = 0, len = arr.length; i < len; i++) {
+  let has = false;
+  for (let i = 0, len = arr.length; i < len; i++) {
     if (fn(arr[i])) {
       has = true;
       break;
@@ -373,18 +352,18 @@ function some(arr, fn) {
 function getBestSelectionFromSrcset(el, scale) {
   if (el.tagName !== 'IMG' || !el.getAttribute('data-srcset')) return;
 
-  var options = el.getAttribute('data-srcset');
-  var result = [];
-  var container = el.parentNode;
-  var containerWidth = container.offsetWidth * scale;
+  let options = el.getAttribute('data-srcset');
+  const result = [];
+  const container = el.parentNode;
+  const containerWidth = container.offsetWidth * scale;
 
-  var spaceIndex = void 0;
-  var tmpSrc = void 0;
-  var tmpWidth = void 0;
+  let spaceIndex;
+  let tmpSrc;
+  let tmpWidth;
 
   options = options.trim().split(',');
 
-  options.map(function (item) {
+  options.map(item => {
     item = item.trim();
     spaceIndex = item.lastIndexOf(' ');
     if (spaceIndex === -1) {
@@ -414,13 +393,13 @@ function getBestSelectionFromSrcset(el, scale) {
     }
     return 0;
   });
-  var bestSelectedSrc = '';
-  var tmpOption = void 0;
+  let bestSelectedSrc = '';
+  let tmpOption;
 
-  for (var i = 0; i < result.length; i++) {
+  for (let i = 0; i < result.length; i++) {
     tmpOption = result[i];
     bestSelectedSrc = tmpOption[1];
-    var next = result[i + 1];
+    const next = result[i + 1];
     if (next && next[0] < containerWidth) {
       bestSelectedSrc = tmpOption[1];
       break;
@@ -434,8 +413,8 @@ function getBestSelectionFromSrcset(el, scale) {
 }
 
 function find(arr, fn) {
-  var item = void 0;
-  for (var i = 0, len = arr.length; i < len; i++) {
+  let item;
+  for (let i = 0, len = arr.length; i < len; i++) {
     if (fn(arr[i])) {
       item = arr[i];
       break;
@@ -444,18 +423,15 @@ function find(arr, fn) {
   return item;
 }
 
-var getDPR = function getDPR() {
-  var scale = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-  return inBrowser ? window.devicePixelRatio || scale : scale;
-};
+const getDPR = (scale = 1) => inBrowser ? window.devicePixelRatio || scale : scale;
 
 function supportWebp() {
   if (!inBrowser) return false;
 
-  var support = true;
+  let support = true;
 
   try {
-    var elem = document.createElement('canvas');
+    const elem = document.createElement('canvas');
 
     if (elem.getContext && elem.getContext('2d')) {
       support = elem.toDataURL('image/webp').indexOf('data:image/webp') === 0;
@@ -468,19 +444,19 @@ function supportWebp() {
 }
 
 function throttle(action, delay) {
-  var timeout = null;
-  var movement = null;
-  var lastRun = 0;
-  var needRun = false;
+  let timeout = null;
+  let movement = null;
+  let lastRun = 0;
+  let needRun = false;
   return function () {
     needRun = true;
     if (timeout) {
       return;
     }
-    var elapsed = Date.now() - lastRun;
-    var context = this;
-    var args = arguments;
-    var runCallback = function runCallback() {
+    let elapsed = Date.now() - lastRun;
+    let context = this;
+    let args = arguments;
+    let runCallback = function () {
       lastRun = Date.now();
       timeout = false;
       action.apply(context, args);
@@ -499,10 +475,10 @@ function throttle(action, delay) {
 
 function testSupportsPassive() {
   if (!inBrowser) return;
-  var support = false;
+  let support = false;
   try {
-    var opts = Object.defineProperty({}, 'passive', {
-      get: function get$$1() {
+    let opts = Object.defineProperty({}, 'passive', {
+      get: function () {
         support = true;
       }
     });
@@ -511,12 +487,10 @@ function testSupportsPassive() {
   return support;
 }
 
-var supportsPassive = testSupportsPassive();
+const supportsPassive = testSupportsPassive();
 
-var _ = {
-  on: function on(el, type, func) {
-    var capture = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-
+const _ = {
+  on(el, type, func, capture = false) {
     if (supportsPassive) {
       el.addEventListener(type, func, {
         capture: capture,
@@ -526,17 +500,15 @@ var _ = {
       el.addEventListener(type, func, capture);
     }
   },
-  off: function off(el, type, func) {
-    var capture = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-
+  off(el, type, func, capture = false) {
     el.removeEventListener(type, func, capture);
   }
 };
 
-var loadImageAsync = function loadImageAsync(item, resolve, reject) {
-  var image = new Image();
+const loadImageAsync = (item, resolve, reject) => {
+  let image = new Image();
   if (!item || !item.src) {
-    var err = new Error('image src is required');
+    const err = new Error('image src is required');
     return reject(err);
   }
 
@@ -558,21 +530,21 @@ var loadImageAsync = function loadImageAsync(item, resolve, reject) {
   };
 };
 
-var style = function style(el, prop) {
+const style = (el, prop) => {
   return typeof getComputedStyle !== 'undefined' ? getComputedStyle(el, null).getPropertyValue(prop) : el.style[prop];
 };
 
-var overflow = function overflow(el) {
+const overflow = el => {
   return style(el, 'overflow') + style(el, 'overflow-y') + style(el, 'overflow-x');
 };
 
-var scrollParent = function scrollParent(el) {
+const scrollParent = el => {
   if (!inBrowser) return;
   if (!(el instanceof HTMLElement)) {
     return window;
   }
 
-  var parent = el;
+  let parent = el;
 
   while (parent) {
     if (parent === document.body || parent === document.documentElement) {
@@ -593,8 +565,8 @@ var scrollParent = function scrollParent(el) {
   return window;
 };
 
-function isObject(obj) {
-  return obj !== null && (typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object';
+function isObject$1(obj) {
+  return obj !== null && typeof obj === 'object';
 }
 
 function ObjectKeys(obj) {
@@ -602,8 +574,8 @@ function ObjectKeys(obj) {
   if (Object.keys) {
     return Object.keys(obj);
   } else {
-    var keys = [];
-    for (var key in obj) {
+    let keys = [];
+    for (let key in obj) {
       if (obj.hasOwnProperty(key)) {
         keys.push(key);
       }
@@ -613,9 +585,9 @@ function ObjectKeys(obj) {
 }
 
 function ArrayFrom(arrLike) {
-  var len = arrLike.length;
-  var list = [];
-  for (var i = 0; i < len; i++) {
+  let len = arrLike.length;
+  const list = [];
+  for (let i = 0; i < len; i++) {
     list.push(arrLike[i]);
   }
   return list;
@@ -623,39 +595,30 @@ function ArrayFrom(arrLike) {
 
 function noop() {}
 
-var ImageCache = function () {
-  function ImageCache(_ref) {
-    var max = _ref.max;
-    classCallCheck(this, ImageCache);
-
+class ImageCache {
+  constructor({ max }) {
     this.options = {
       max: max || 100
     };
     this._caches = [];
   }
 
-  createClass(ImageCache, [{
-    key: 'has',
-    value: function has(key) {
-      return this._caches.indexOf(key) > -1;
+  has(key) {
+    return this._caches.indexOf(key) > -1;
+  }
+
+  add(key) {
+    if (this.has(key)) return;
+    this._caches.push(key);
+    if (this._caches.length > this.options.max) {
+      this.free();
     }
-  }, {
-    key: 'add',
-    value: function add(key) {
-      if (this.has(key)) return;
-      this._caches.push(key);
-      if (this._caches.length > this.options.max) {
-        this.free();
-      }
-    }
-  }, {
-    key: 'free',
-    value: function free() {
-      this._caches.shift();
-    }
-  }]);
-  return ImageCache;
-}();
+  }
+
+  free() {
+    this._caches.shift();
+  }
+}
 
 // el: {
 //     state,
@@ -664,20 +627,8 @@ var ImageCache = function () {
 //     loading
 // }
 
-var ReactiveListener = function () {
-  function ReactiveListener(_ref) {
-    var el = _ref.el,
-        src = _ref.src,
-        error = _ref.error,
-        loading = _ref.loading,
-        bindType = _ref.bindType,
-        $parent = _ref.$parent,
-        options = _ref.options,
-        cors = _ref.cors,
-        elRenderer = _ref.elRenderer,
-        imageCache = _ref.imageCache;
-    classCallCheck(this, ReactiveListener);
-
+class ReactiveListener {
+  constructor({ el, src, error, loading, bindType, $parent, options, cors, elRenderer, imageCache }) {
     this.el = el;
     this.src = src;
     this.error = error;
@@ -711,265 +662,199 @@ var ReactiveListener = function () {
    * init listener state
    * @return
    */
-
-
-  createClass(ReactiveListener, [{
-    key: 'initState',
-    value: function initState() {
-      if ('dataset' in this.el) {
-        this.el.dataset.src = this.src;
-      } else {
-        this.el.setAttribute('data-src', this.src);
-      }
-
-      this.state = {
-        loading: false,
-        error: false,
-        loaded: false,
-        rendered: false
-      };
+  initState() {
+    if ('dataset' in this.el) {
+      this.el.dataset.src = this.src;
+    } else {
+      this.el.setAttribute('data-src', this.src);
     }
 
-    /*
-     * record performance
-     * @return
-     */
+    this.state = {
+      loading: false,
+      error: false,
+      loaded: false,
+      rendered: false
+    };
+  }
 
-  }, {
-    key: 'record',
-    value: function record(event) {
-      this.performanceData[event] = Date.now();
-    }
+  /*
+   * record performance
+   * @return
+   */
+  record(event) {
+    this.performanceData[event] = Date.now();
+  }
 
-    /*
-     * update image listener data
-     * @param  {String} image uri
-     * @param  {String} loading image uri
-     * @param  {String} error image uri
-     * @return
-     */
-
-  }, {
-    key: 'update',
-    value: function update(_ref2) {
-      var src = _ref2.src,
-          loading = _ref2.loading,
-          error = _ref2.error;
-
-      var oldSrc = this.src;
-      this.src = src;
-      this.loading = loading;
-      this.error = error;
-      this.filter();
-      if (oldSrc !== this.src) {
-        this.attempt = 0;
-        this.initState();
-      }
-    }
-
-    /*
-     * get el node rect
-     * @return
-     */
-
-  }, {
-    key: 'getRect',
-    value: function getRect() {
-      this.rect = this.el.getBoundingClientRect();
-    }
-
-    /*
-     *  check el is in view
-     * @return {Boolean} el is in view
-     */
-
-  }, {
-    key: 'checkInView',
-    value: function checkInView() {
-      this.getRect();
-      return this.rect.top < window.innerHeight * this.options.preLoad && this.rect.bottom > this.options.preLoadTop && this.rect.left < window.innerWidth * this.options.preLoad && this.rect.right > 0;
-    }
-
-    /*
-     * listener filter
-     */
-
-  }, {
-    key: 'filter',
-    value: function filter() {
-      var _this = this;
-
-      ObjectKeys(this.options.filter).map(function (key) {
-        _this.options.filter[key](_this, _this.options);
-      });
-    }
-
-    /*
-     * render loading first
-     * @params cb:Function
-     * @return
-     */
-
-  }, {
-    key: 'renderLoading',
-    value: function renderLoading(cb) {
-      var _this2 = this;
-
-      this.state.loading = true;
-      loadImageAsync({
-        src: this.loading,
-        cors: this.cors
-      }, function (data) {
-        _this2.render('loading', false);
-        _this2.state.loading = false;
-        cb();
-      }, function () {
-        // handler `loading image` load failed
-        cb();
-        _this2.state.loading = false;
-        if (!_this2.options.silent) console.warn('VueLazyload log: load failed with loading image(' + _this2.loading + ')');
-      });
-    }
-
-    /*
-     * try load image and  render it
-     * @return
-     */
-
-  }, {
-    key: 'load',
-    value: function load() {
-      var _this3 = this;
-
-      var onFinish = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : noop;
-
-      if (this.attempt > this.options.attempt - 1 && this.state.error) {
-        if (!this.options.silent) console.log('VueLazyload log: ' + this.src + ' tried too more than ' + this.options.attempt + ' times');
-        onFinish();
-        return;
-      }
-      if (this.state.rendered && this.state.loaded) return;
-      if (this._imageCache.has(this.src)) {
-        this.state.loaded = true;
-        this.render('loaded', true);
-        this.state.rendered = true;
-        return onFinish();
-      }
-
-      this.renderLoading(function () {
-        _this3.attempt++;
-
-        _this3.options.adapter['beforeLoad'] && _this3.options.adapter['beforeLoad'](_this3, _this3.options);
-        _this3.record('loadStart');
-
-        loadImageAsync({
-          src: _this3.src,
-          cors: _this3.cors
-        }, function (data) {
-          _this3.naturalHeight = data.naturalHeight;
-          _this3.naturalWidth = data.naturalWidth;
-          _this3.state.loaded = true;
-          _this3.state.error = false;
-          _this3.record('loadEnd');
-          _this3.render('loaded', false);
-          _this3.state.rendered = true;
-          _this3._imageCache.add(_this3.src);
-          onFinish();
-        }, function (err) {
-          !_this3.options.silent && console.error(err);
-          _this3.state.error = true;
-          _this3.state.loaded = false;
-          _this3.render('error', false);
-        });
-      });
-    }
-
-    /*
-     * render image
-     * @param  {String} state to render // ['loading', 'src', 'error']
-     * @param  {String} is form cache
-     * @return
-     */
-
-  }, {
-    key: 'render',
-    value: function render(state, cache) {
-      this.elRenderer(this, state, cache);
-    }
-
-    /*
-     * output performance data
-     * @return {Object} performance data
-     */
-
-  }, {
-    key: 'performance',
-    value: function performance() {
-      var state = 'loading';
-      var time = 0;
-
-      if (this.state.loaded) {
-        state = 'loaded';
-        time = (this.performanceData.loadEnd - this.performanceData.loadStart) / 1000;
-      }
-
-      if (this.state.error) state = 'error';
-
-      return {
-        src: this.src,
-        state: state,
-        time: time
-      };
-    }
-
-    /*
-     * $destroy
-     * @return
-     */
-
-  }, {
-    key: '$destroy',
-    value: function $destroy() {
-      this.el = null;
-      this.src = null;
-      this.error = null;
-      this.loading = null;
-      this.bindType = null;
+  /*
+   * update image listener data
+   * @param  {String} image uri
+   * @param  {String} loading image uri
+   * @param  {String} error image uri
+   * @return
+   */
+  update({ src, loading, error }) {
+    const oldSrc = this.src;
+    this.src = src;
+    this.loading = loading;
+    this.error = error;
+    this.filter();
+    if (oldSrc !== this.src) {
       this.attempt = 0;
+      this.initState();
     }
-  }]);
-  return ReactiveListener;
-}();
+  }
 
-var DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-var DEFAULT_EVENTS = ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend', 'touchmove'];
-var DEFAULT_OBSERVER_OPTIONS = {
+  /*
+   * get el node rect
+   * @return
+   */
+  getRect() {
+    this.rect = this.el.getBoundingClientRect();
+  }
+
+  /*
+   *  check el is in view
+   * @return {Boolean} el is in view
+   */
+  checkInView() {
+    this.getRect();
+    return this.rect.top < window.innerHeight * this.options.preLoad && this.rect.bottom > this.options.preLoadTop && this.rect.left < window.innerWidth * this.options.preLoad && this.rect.right > 0;
+  }
+
+  /*
+   * listener filter
+   */
+  filter() {
+    ObjectKeys(this.options.filter).map(key => {
+      this.options.filter[key](this, this.options);
+    });
+  }
+
+  /*
+   * render loading first
+   * @params cb:Function
+   * @return
+   */
+  renderLoading(cb) {
+    this.state.loading = true;
+    loadImageAsync({
+      src: this.loading,
+      cors: this.cors
+    }, data => {
+      this.render('loading', false);
+      this.state.loading = false;
+      cb();
+    }, () => {
+      // handler `loading image` load failed
+      cb();
+      this.state.loading = false;
+      if (!this.options.silent) console.warn(`VueLazyload log: load failed with loading image(${this.loading})`);
+    });
+  }
+
+  /*
+   * try load image and  render it
+   * @return
+   */
+  load(onFinish = noop) {
+    if (this.attempt > this.options.attempt - 1 && this.state.error) {
+      if (!this.options.silent) console.log(`VueLazyload log: ${this.src} tried too more than ${this.options.attempt} times`);
+      onFinish();
+      return;
+    }
+    if (this.state.rendered && this.state.loaded) return;
+    if (this._imageCache.has(this.src)) {
+      this.state.loaded = true;
+      this.render('loaded', true);
+      this.state.rendered = true;
+      return onFinish();
+    }
+
+    this.renderLoading(() => {
+      this.attempt++;
+
+      this.options.adapter['beforeLoad'] && this.options.adapter['beforeLoad'](this, this.options);
+      this.record('loadStart');
+
+      loadImageAsync({
+        src: this.src,
+        cors: this.cors
+      }, data => {
+        this.naturalHeight = data.naturalHeight;
+        this.naturalWidth = data.naturalWidth;
+        this.state.loaded = true;
+        this.state.error = false;
+        this.record('loadEnd');
+        this.render('loaded', false);
+        this.state.rendered = true;
+        this._imageCache.add(this.src);
+        onFinish();
+      }, err => {
+        !this.options.silent && console.error(err);
+        this.state.error = true;
+        this.state.loaded = false;
+        this.render('error', false);
+      });
+    });
+  }
+
+  /*
+   * render image
+   * @param  {String} state to render // ['loading', 'src', 'error']
+   * @param  {String} is form cache
+   * @return
+   */
+  render(state, cache) {
+    this.elRenderer(this, state, cache);
+  }
+
+  /*
+   * output performance data
+   * @return {Object} performance data
+   */
+  performance() {
+    let state = 'loading';
+    let time = 0;
+
+    if (this.state.loaded) {
+      state = 'loaded';
+      time = (this.performanceData.loadEnd - this.performanceData.loadStart) / 1000;
+    }
+
+    if (this.state.error) state = 'error';
+
+    return {
+      src: this.src,
+      state,
+      time
+    };
+  }
+
+  /*
+   * $destroy
+   * @return
+   */
+  $destroy() {
+    this.el = null;
+    this.src = null;
+    this.error = null;
+    this.loading = null;
+    this.bindType = null;
+    this.attempt = 0;
+  }
+}
+
+const DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+const DEFAULT_EVENTS = ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend', 'touchmove'];
+const DEFAULT_OBSERVER_OPTIONS = {
   rootMargin: '0px',
   threshold: 0
 };
 
 function Lazy(Vue) {
-  return function () {
-    function Lazy(_ref) {
-      var preLoad = _ref.preLoad,
-          error = _ref.error,
-          throttleWait = _ref.throttleWait,
-          preLoadTop = _ref.preLoadTop,
-          dispatchEvent = _ref.dispatchEvent,
-          loading = _ref.loading,
-          attempt = _ref.attempt,
-          _ref$silent = _ref.silent,
-          silent = _ref$silent === undefined ? true : _ref$silent,
-          scale = _ref.scale,
-          listenEvents = _ref.listenEvents,
-          hasbind = _ref.hasbind,
-          filter = _ref.filter,
-          adapter = _ref.adapter,
-          observer = _ref.observer,
-          observerOptions = _ref.observerOptions;
-      classCallCheck(this, Lazy);
-
-      this.version = '1.3.4';
+  return class Lazy {
+    constructor({ preLoad, error, throttleWait, preLoadTop, dispatchEvent, loading, attempt, silent = true, scale, listenEvents, hasbind, filter, adapter, observer, observerOptions }) {
+      this.version = '"1.3.4"';
       this.mode = modeType.event;
       this.ListenerQueue = [];
       this.TargetIndex = 0;
@@ -1004,499 +889,401 @@ function Lazy(Vue) {
      * @param  {Object} config params
      * @return
      */
+    config(options = {}) {
+      assignDeep(this.options, options);
+    }
 
+    /**
+     * output listener's load performance
+     * @return {Array}
+     */
+    performance() {
+      let list = [];
 
-    createClass(Lazy, [{
-      key: 'config',
-      value: function config() {
-        var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      this.ListenerQueue.map(item => {
+        list.push(item.performance());
+      });
 
-        assignDeep(this.options, options);
+      return list;
+    }
+
+    /*
+     * add lazy component to queue
+     * @param  {Vue} vm lazy component instance
+     * @return
+     */
+    addLazyBox(vm) {
+      this.ListenerQueue.push(vm);
+      if (inBrowser) {
+        this._addListenerTarget(window);
+        this._observer && this._observer.observe(vm.el);
+        if (vm.$el && vm.$el.parentNode) {
+          this._addListenerTarget(vm.$el.parentNode);
+        }
+      }
+    }
+
+    /*
+     * add image listener to queue
+     * @param  {DOM} el
+     * @param  {object} binding vue directive binding
+     * @param  {vnode} vnode vue directive vnode
+     * @return
+     */
+    add(el, binding, vnode) {
+      if (some(this.ListenerQueue, item => item.el === el)) {
+        this.update(el, binding);
+        return Vue.nextTick(this.lazyLoadHandler);
       }
 
-      /**
-       * output listener's load performance
-       * @return {Array}
-       */
+      let { src, loading, error, cors } = this._valueFormatter(binding.value);
 
-    }, {
-      key: 'performance',
-      value: function performance() {
-        var list = [];
+      Vue.nextTick(() => {
+        src = getBestSelectionFromSrcset(el, this.options.scale) || src;
+        this._observer && this._observer.observe(el);
 
-        this.ListenerQueue.map(function (item) {
-          list.push(item.performance());
+        const container = Object.keys(binding.modifiers)[0];
+        let $parent;
+
+        if (container) {
+          $parent = vnode.context.$refs[container];
+          // if there is container passed in, try ref first, then fallback to getElementById to support the original usage
+          $parent = $parent ? $parent.$el || $parent : document.getElementById(container);
+        }
+
+        if (!$parent) {
+          $parent = scrollParent(el);
+        }
+
+        const newListener = new ReactiveListener({
+          bindType: binding.arg,
+          $parent,
+          el,
+          loading,
+          error,
+          src,
+          cors,
+          elRenderer: this._elRenderer.bind(this),
+          options: this.options,
+          imageCache: this._imageCache
         });
 
-        return list;
-      }
+        this.ListenerQueue.push(newListener);
 
-      /*
-       * add lazy component to queue
-       * @param  {Vue} vm lazy component instance
-       * @return
-       */
-
-    }, {
-      key: 'addLazyBox',
-      value: function addLazyBox(vm) {
-        this.ListenerQueue.push(vm);
         if (inBrowser) {
           this._addListenerTarget(window);
-          this._observer && this._observer.observe(vm.el);
-          if (vm.$el && vm.$el.parentNode) {
-            this._addListenerTarget(vm.$el.parentNode);
-          }
-        }
-      }
-
-      /*
-       * add image listener to queue
-       * @param  {DOM} el
-       * @param  {object} binding vue directive binding
-       * @param  {vnode} vnode vue directive vnode
-       * @return
-       */
-
-    }, {
-      key: 'add',
-      value: function add(el, binding, vnode) {
-        var _this = this;
-
-        if (some(this.ListenerQueue, function (item) {
-          return item.el === el;
-        })) {
-          this.update(el, binding);
-          return Vue.nextTick(this.lazyLoadHandler);
+          this._addListenerTarget($parent);
         }
 
-        var _valueFormatter2 = this._valueFormatter(binding.value),
-            src = _valueFormatter2.src,
-            loading = _valueFormatter2.loading,
-            error = _valueFormatter2.error,
-            cors = _valueFormatter2.cors;
-
-        Vue.nextTick(function () {
-          src = getBestSelectionFromSrcset(el, _this.options.scale) || src;
-          _this._observer && _this._observer.observe(el);
-
-          var container = Object.keys(binding.modifiers)[0];
-          var $parent = void 0;
-
-          if (container) {
-            $parent = vnode.context.$refs[container];
-            // if there is container passed in, try ref first, then fallback to getElementById to support the original usage
-            $parent = $parent ? $parent.$el || $parent : document.getElementById(container);
-          }
-
-          if (!$parent) {
-            $parent = scrollParent(el);
-          }
-
-          var newListener = new ReactiveListener({
-            bindType: binding.arg,
-            $parent: $parent,
-            el: el,
-            loading: loading,
-            error: error,
-            src: src,
-            cors: cors,
-            elRenderer: _this._elRenderer.bind(_this),
-            options: _this.options,
-            imageCache: _this._imageCache
-          });
-
-          _this.ListenerQueue.push(newListener);
-
-          if (inBrowser) {
-            _this._addListenerTarget(window);
-            _this._addListenerTarget($parent);
-          }
-
-          _this.lazyLoadHandler();
-          Vue.nextTick(function () {
-            return _this.lazyLoadHandler();
-          });
-        });
-      }
-
-      /**
-      * update image src
-      * @param  {DOM} el
-      * @param  {object} vue directive binding
-      * @return
-      */
-
-    }, {
-      key: 'update',
-      value: function update(el, binding, vnode) {
-        var _this2 = this;
-
-        var _valueFormatter3 = this._valueFormatter(binding.value),
-            src = _valueFormatter3.src,
-            loading = _valueFormatter3.loading,
-            error = _valueFormatter3.error;
-
-        src = getBestSelectionFromSrcset(el, this.options.scale) || src;
-
-        var exist = find(this.ListenerQueue, function (item) {
-          return item.el === el;
-        });
-        if (!exist) {
-          this.add(el, binding, vnode);
-        } else {
-          exist.update({
-            src: src,
-            loading: loading,
-            error: error
-          });
-        }
-        if (this._observer) {
-          this._observer.unobserve(el);
-          this._observer.observe(el);
-        }
         this.lazyLoadHandler();
-        Vue.nextTick(function () {
-          return _this2.lazyLoadHandler();
+        Vue.nextTick(() => this.lazyLoadHandler());
+      });
+    }
+
+    /**
+    * update image src
+    * @param  {DOM} el
+    * @param  {object} vue directive binding
+    * @return
+    */
+    update(el, binding, vnode) {
+      let { src, loading, error } = this._valueFormatter(binding.value);
+      src = getBestSelectionFromSrcset(el, this.options.scale) || src;
+
+      const exist = find(this.ListenerQueue, item => item.el === el);
+      if (!exist) {
+        this.add(el, binding, vnode);
+      } else {
+        exist.update({
+          src,
+          loading,
+          error
         });
       }
-
-      /**
-      * remove listener form list
-      * @param  {DOM} el
-      * @return
-      */
-
-    }, {
-      key: 'remove',
-      value: function remove$$1(el) {
-        if (!el) return;
-        this._observer && this._observer.unobserve(el);
-        var existItem = find(this.ListenerQueue, function (item) {
-          return item.el === el;
-        });
-        if (existItem) {
-          this._removeListenerTarget(existItem.$parent);
-          this._removeListenerTarget(window);
-          remove(this.ListenerQueue, existItem);
-          existItem.$destroy();
-        }
+      if (this._observer) {
+        this._observer.unobserve(el);
+        this._observer.observe(el);
       }
+      this.lazyLoadHandler();
+      Vue.nextTick(() => this.lazyLoadHandler());
+    }
 
-      /*
-       * remove lazy components form list
-       * @param  {Vue} vm Vue instance
-       * @return
-       */
-
-    }, {
-      key: 'removeComponent',
-      value: function removeComponent(vm) {
-        if (!vm) return;
-        remove(this.ListenerQueue, vm);
-        this._observer && this._observer.unobserve(vm.el);
-        if (vm.$parent && vm.$el.parentNode) {
-          this._removeListenerTarget(vm.$el.parentNode);
-        }
+    /**
+    * remove listener form list
+    * @param  {DOM} el
+    * @return
+    */
+    remove(el) {
+      if (!el) return;
+      this._observer && this._observer.unobserve(el);
+      const existItem = find(this.ListenerQueue, item => item.el === el);
+      if (existItem) {
+        this._removeListenerTarget(existItem.$parent);
         this._removeListenerTarget(window);
+        remove(this.ListenerQueue, existItem);
+        existItem.$destroy();
       }
-    }, {
-      key: 'setMode',
-      value: function setMode(mode) {
-        var _this3 = this;
+    }
 
-        if (!hasIntersectionObserver && mode === modeType.observer) {
-          mode = modeType.event;
-        }
+    /*
+     * remove lazy components form list
+     * @param  {Vue} vm Vue instance
+     * @return
+     */
+    removeComponent(vm) {
+      if (!vm) return;
+      remove(this.ListenerQueue, vm);
+      this._observer && this._observer.unobserve(vm.el);
+      if (vm.$parent && vm.$el.parentNode) {
+        this._removeListenerTarget(vm.$el.parentNode);
+      }
+      this._removeListenerTarget(window);
+    }
 
-        this.mode = mode; // event or observer
-
-        if (mode === modeType.event) {
-          if (this._observer) {
-            this.ListenerQueue.forEach(function (listener) {
-              _this3._observer.unobserve(listener.el);
-            });
-            this._observer = null;
-          }
-
-          this.TargetQueue.forEach(function (target) {
-            _this3._initListen(target.el, true);
-          });
-        } else {
-          this.TargetQueue.forEach(function (target) {
-            _this3._initListen(target.el, false);
-          });
-          this._initIntersectionObserver();
-        }
+    setMode(mode) {
+      if (!hasIntersectionObserver && mode === modeType.observer) {
+        mode = modeType.event;
       }
 
-      /*
-      *** Private functions ***
-      */
+      this.mode = mode; // event or observer
 
-      /*
-       * add listener target
-       * @param  {DOM} el listener target
-       * @return
-       */
+      if (mode === modeType.event) {
+        if (this._observer) {
+          this.ListenerQueue.forEach(listener => {
+            this._observer.unobserve(listener.el);
+          });
+          this._observer = null;
+        }
 
-    }, {
-      key: '_addListenerTarget',
-      value: function _addListenerTarget(el) {
-        if (!el) return;
-        var target = find(this.TargetQueue, function (target) {
-          return target.el === el;
+        this.TargetQueue.forEach(target => {
+          this._initListen(target.el, true);
         });
-        if (!target) {
-          target = {
-            el: el,
-            id: ++this.TargetIndex,
-            childrenCount: 1,
-            listened: true
-          };
-          this.mode === modeType.event && this._initListen(target.el, true);
-          this.TargetQueue.push(target);
-        } else {
-          target.childrenCount++;
-        }
-        return this.TargetIndex;
+      } else {
+        this.TargetQueue.forEach(target => {
+          this._initListen(target.el, false);
+        });
+        this._initIntersectionObserver();
       }
+    }
 
-      /*
-       * remove listener target or reduce target childrenCount
-       * @param  {DOM} el or window
-       * @return
-       */
+    /*
+    *** Private functions ***
+    */
 
-    }, {
-      key: '_removeListenerTarget',
-      value: function _removeListenerTarget(el) {
-        var _this4 = this;
+    /*
+     * add listener target
+     * @param  {DOM} el listener target
+     * @return
+     */
+    _addListenerTarget(el) {
+      if (!el) return;
+      let target = find(this.TargetQueue, target => target.el === el);
+      if (!target) {
+        target = {
+          el: el,
+          id: ++this.TargetIndex,
+          childrenCount: 1,
+          listened: true
+        };
+        this.mode === modeType.event && this._initListen(target.el, true);
+        this.TargetQueue.push(target);
+      } else {
+        target.childrenCount++;
+      }
+      return this.TargetIndex;
+    }
 
-        this.TargetQueue.forEach(function (target, index) {
-          if (target.el === el) {
-            target.childrenCount--;
-            if (!target.childrenCount) {
-              _this4._initListen(target.el, false);
-              _this4.TargetQueue.splice(index, 1);
-              target = null;
+    /*
+     * remove listener target or reduce target childrenCount
+     * @param  {DOM} el or window
+     * @return
+     */
+    _removeListenerTarget(el) {
+      this.TargetQueue.forEach((target, index) => {
+        if (target.el === el) {
+          target.childrenCount--;
+          if (!target.childrenCount) {
+            this._initListen(target.el, false);
+            this.TargetQueue.splice(index, 1);
+            target = null;
+          }
+        }
+      });
+    }
+
+    /*
+     * add or remove eventlistener
+     * @param  {DOM} el DOM or Window
+     * @param  {boolean} start flag
+     * @return
+     */
+    _initListen(el, start) {
+      this.options.ListenEvents.forEach(evt => _[start ? 'on' : 'off'](el, evt, this.lazyLoadHandler));
+    }
+
+    _initEvent() {
+      this.Event = {
+        listeners: {
+          loading: [],
+          loaded: [],
+          error: []
+        }
+      };
+
+      this.$on = (event, func) => {
+        if (!this.Event.listeners[event]) this.Event.listeners[event] = [];
+        this.Event.listeners[event].push(func);
+      };
+
+      this.$once = (event, func) => {
+        const vm = this;
+        function on() {
+          vm.$off(event, on);
+          func.apply(vm, arguments);
+        }
+        this.$on(event, on);
+      };
+
+      this.$off = (event, func) => {
+        if (!func) {
+          if (!this.Event.listeners[event]) return;
+          this.Event.listeners[event].length = 0;
+          return;
+        }
+        remove(this.Event.listeners[event], func);
+      };
+
+      this.$emit = (event, context, inCache) => {
+        if (!this.Event.listeners[event]) return;
+        this.Event.listeners[event].forEach(func => func(context, inCache));
+      };
+    }
+
+    /**
+     * find nodes which in viewport and trigger load
+     * @return
+     */
+    _lazyLoadHandler() {
+      const freeList = [];
+      this.ListenerQueue.forEach((listener, index) => {
+        if (!listener.el || !listener.el.parentNode) {
+          freeList.push(listener);
+        }
+        const catIn = listener.checkInView();
+        if (!catIn) return;
+        listener.load();
+      });
+      freeList.forEach(item => {
+        remove(this.ListenerQueue, item);
+        item.$destroy();
+      });
+    }
+    /**
+    * init IntersectionObserver
+    * set mode to observer
+    * @return
+    */
+    _initIntersectionObserver() {
+      if (!hasIntersectionObserver) return;
+      this._observer = new IntersectionObserver(this._observerHandler.bind(this), this.options.observerOptions);
+      if (this.ListenerQueue.length) {
+        this.ListenerQueue.forEach(listener => {
+          this._observer.observe(listener.el);
+        });
+      }
+    }
+
+    /**
+    * init IntersectionObserver
+    * @return
+    */
+    _observerHandler(entries, observer) {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          this.ListenerQueue.forEach(listener => {
+            if (listener.el === entry.target) {
+              if (listener.state.loaded) return this._observer.unobserve(listener.el);
+              listener.load();
             }
-          }
-        });
-      }
-
-      /*
-       * add or remove eventlistener
-       * @param  {DOM} el DOM or Window
-       * @param  {boolean} start flag
-       * @return
-       */
-
-    }, {
-      key: '_initListen',
-      value: function _initListen(el, start) {
-        var _this5 = this;
-
-        this.options.ListenEvents.forEach(function (evt) {
-          return _[start ? 'on' : 'off'](el, evt, _this5.lazyLoadHandler);
-        });
-      }
-    }, {
-      key: '_initEvent',
-      value: function _initEvent() {
-        var _this6 = this;
-
-        this.Event = {
-          listeners: {
-            loading: [],
-            loaded: [],
-            error: []
-          }
-        };
-
-        this.$on = function (event, func) {
-          if (!_this6.Event.listeners[event]) _this6.Event.listeners[event] = [];
-          _this6.Event.listeners[event].push(func);
-        };
-
-        this.$once = function (event, func) {
-          var vm = _this6;
-          function on() {
-            vm.$off(event, on);
-            func.apply(vm, arguments);
-          }
-          _this6.$on(event, on);
-        };
-
-        this.$off = function (event, func) {
-          if (!func) {
-            if (!_this6.Event.listeners[event]) return;
-            _this6.Event.listeners[event].length = 0;
-            return;
-          }
-          remove(_this6.Event.listeners[event], func);
-        };
-
-        this.$emit = function (event, context, inCache) {
-          if (!_this6.Event.listeners[event]) return;
-          _this6.Event.listeners[event].forEach(function (func) {
-            return func(context, inCache);
-          });
-        };
-      }
-
-      /**
-       * find nodes which in viewport and trigger load
-       * @return
-       */
-
-    }, {
-      key: '_lazyLoadHandler',
-      value: function _lazyLoadHandler() {
-        var _this7 = this;
-
-        var freeList = [];
-        this.ListenerQueue.forEach(function (listener, index) {
-          if (!listener.el || !listener.el.parentNode) {
-            freeList.push(listener);
-          }
-          var catIn = listener.checkInView();
-          if (!catIn) return;
-          listener.load();
-        });
-        freeList.forEach(function (item) {
-          remove(_this7.ListenerQueue, item);
-          item.$destroy();
-        });
-      }
-      /**
-      * init IntersectionObserver
-      * set mode to observer
-      * @return
-      */
-
-    }, {
-      key: '_initIntersectionObserver',
-      value: function _initIntersectionObserver() {
-        var _this8 = this;
-
-        if (!hasIntersectionObserver) return;
-        this._observer = new IntersectionObserver(this._observerHandler.bind(this), this.options.observerOptions);
-        if (this.ListenerQueue.length) {
-          this.ListenerQueue.forEach(function (listener) {
-            _this8._observer.observe(listener.el);
           });
         }
+      });
+    }
+
+    /**
+    * set element attribute with image'url and state
+    * @param  {object} lazyload listener object
+    * @param  {string} state will be rendered
+    * @param  {bool} inCache  is rendered from cache
+    * @return
+    */
+    _elRenderer(listener, state, cache) {
+      if (!listener.el) return;
+      const { el, bindType } = listener;
+
+      let src;
+      switch (state) {
+        case 'loading':
+          src = listener.loading;
+          break;
+        case 'error':
+          src = listener.error;
+          break;
+        default:
+          src = listener.src;
+          break;
       }
 
-      /**
-      * init IntersectionObserver
-      * @return
-      */
+      if (bindType) {
+        el.style[bindType] = 'url("' + src + '")';
+      } else if (el.getAttribute('src') !== src) {
+        el.setAttribute('src', src);
+      }
 
-    }, {
-      key: '_observerHandler',
-      value: function _observerHandler(entries, observer) {
-        var _this9 = this;
+      el.setAttribute('lazy', state);
 
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            _this9.ListenerQueue.forEach(function (listener) {
-              if (listener.el === entry.target) {
-                if (listener.state.loaded) return _this9._observer.unobserve(listener.el);
-                listener.load();
-              }
-            });
-          }
+      this.$emit(state, listener, cache);
+      this.options.adapter[state] && this.options.adapter[state](listener, this.options);
+
+      if (this.options.dispatchEvent) {
+        const event = new CustomEvent(state, {
+          detail: listener
         });
+        el.dispatchEvent(event);
       }
+    }
 
-      /**
-      * set element attribute with image'url and state
-      * @param  {object} lazyload listener object
-      * @param  {string} state will be rendered
-      * @param  {bool} inCache  is rendered from cache
-      * @return
-      */
+    /**
+    * generate loading loaded error image url
+    * @param {string} image's src
+    * @return {object} image's loading, loaded, error url
+    */
+    _valueFormatter(value) {
+      let src = value;
+      let loading = this.options.loading;
+      let error = this.options.error;
 
-    }, {
-      key: '_elRenderer',
-      value: function _elRenderer(listener, state, cache) {
-        if (!listener.el) return;
-        var el = listener.el,
-            bindType = listener.bindType;
-
-
-        var src = void 0;
-        switch (state) {
-          case 'loading':
-            src = listener.loading;
-            break;
-          case 'error':
-            src = listener.error;
-            break;
-          default:
-            src = listener.src;
-            break;
-        }
-
-        if (bindType) {
-          el.style[bindType] = 'url("' + src + '")';
-        } else if (el.getAttribute('src') !== src) {
-          el.setAttribute('src', src);
-        }
-
-        el.setAttribute('lazy', state);
-
-        this.$emit(state, listener, cache);
-        this.options.adapter[state] && this.options.adapter[state](listener, this.options);
-
-        if (this.options.dispatchEvent) {
-          var event = new CustomEvent(state, {
-            detail: listener
-          });
-          el.dispatchEvent(event);
-        }
+      // value is object
+      if (isObject$1(value)) {
+        if (!value.src && !this.options.silent) console.error('Vue Lazyload warning: miss src with ' + value);
+        src = value.src;
+        loading = value.loading || this.options.loading;
+        error = value.error || this.options.error;
       }
-
-      /**
-      * generate loading loaded error image url
-      * @param {string} image's src
-      * @return {object} image's loading, loaded, error url
-      */
-
-    }, {
-      key: '_valueFormatter',
-      value: function _valueFormatter(value) {
-        var src = value;
-        var loading = this.options.loading;
-        var error = this.options.error;
-
-        // value is object
-        if (isObject(value)) {
-          if (!value.src && !this.options.silent) console.error('Vue Lazyload warning: miss src with ' + value);
-          src = value.src;
-          loading = value.loading || this.options.loading;
-          error = value.error || this.options.error;
-        }
-        return {
-          src: src,
-          loading: loading,
-          error: error
-        };
-      }
-    }]);
-    return Lazy;
-  }();
+      return {
+        src,
+        loading,
+        error
+      };
+    }
+  };
 }
 
-Lazy.install = function (Vue) {
-  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+Lazy.install = (Vue, options = {}) => {
+  const LazyClass = Lazy(Vue);
+  const lazy = new LazyClass(options);
 
-  var LazyClass = Lazy(Vue);
-  var lazy = new LazyClass(options);
-
-  var isVue2 = Vue.version.split('.')[0] === '2';
+  const isVue2 = Vue.version.split('.')[0] === '2';
   if (isVue2) {
     Vue.directive('lazy', {
       bind: lazy.add.bind(lazy),
@@ -1507,7 +1294,7 @@ Lazy.install = function (Vue) {
   } else {
     Vue.directive('lazy', {
       bind: lazy.lazyLoadHandler.bind(lazy),
-      update: function update(newValue, oldValue) {
+      update(newValue, oldValue) {
         assignDeep(this.vm.$refs, this.vm.$els);
         lazy.add(this.el, {
           modifiers: this.modifiers || {},
@@ -1518,14 +1305,14 @@ Lazy.install = function (Vue) {
           context: this.vm
         });
       },
-      unbind: function unbind() {
+      unbind() {
         lazy.remove(this.el);
       }
     });
   }
 };
 
-var LazyComponent = function LazyComponent(lazy) {
+const LazyComponent = lazy => {
   return {
     props: {
       tag: {
@@ -1533,10 +1320,10 @@ var LazyComponent = function LazyComponent(lazy) {
         default: 'div'
       }
     },
-    render: function render(h) {
+    render(h) {
       return h(this.tag, null, this.show ? this.$slots.default : null);
     },
-    data: function data() {
+    data() {
       return {
         el: null,
         state: {
@@ -1546,94 +1333,72 @@ var LazyComponent = function LazyComponent(lazy) {
         show: false
       };
     },
-    mounted: function mounted() {
+    mounted() {
       this.el = this.$el;
       lazy.addLazyBox(this);
       lazy.lazyLoadHandler();
     },
-    beforeDestroy: function beforeDestroy() {
+    beforeDestroy() {
       lazy.removeComponent(this);
     },
-
     methods: {
-      getRect: function getRect() {
+      getRect() {
         this.rect = this.$el.getBoundingClientRect();
       },
-      checkInView: function checkInView() {
+      checkInView() {
         this.getRect();
         return inBrowser && this.rect.top < window.innerHeight * lazy.options.preLoad && this.rect.bottom > 0 && this.rect.left < window.innerWidth * lazy.options.preLoad && this.rect.right > 0;
       },
-      load: function load() {
+      load() {
         this.show = true;
         this.state.loaded = true;
         this.$emit('show', this);
       },
-      destroy: function destroy() {
+      destroy() {
         return this.$destroy;
       }
     }
   };
 };
 
-LazyComponent.install = function (Vue) {
-  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-  var LazyClass = Lazy(Vue);
-  var lazy = new LazyClass(options);
+LazyComponent.install = function (Vue, options = {}) {
+  const LazyClass = Lazy(Vue);
+  const lazy = new LazyClass(options);
   Vue.component('lazy-component', LazyComponent(lazy));
 };
 
-var LazyContainerMananger = function () {
-  function LazyContainerMananger(_ref) {
-    var lazy = _ref.lazy;
-    classCallCheck(this, LazyContainerMananger);
-
+class LazyContainerMananger {
+  constructor({ lazy }) {
     this.lazy = lazy;
     lazy.lazyContainerMananger = this;
     this._queue = [];
   }
 
-  createClass(LazyContainerMananger, [{
-    key: 'bind',
-    value: function bind(el, binding, vnode) {
-      var container = new LazyContainer$1({ el: el, binding: binding, vnode: vnode, lazy: this.lazy });
-      this._queue.push(container);
-    }
-  }, {
-    key: 'update',
-    value: function update(el, binding, vnode) {
-      var container = find(this._queue, function (item) {
-        return item.el === el;
-      });
-      if (!container) return;
-      container.update({ el: el, binding: binding, vnode: vnode });
-    }
-  }, {
-    key: 'unbind',
-    value: function unbind(el, binding, vnode) {
-      var container = find(this._queue, function (item) {
-        return item.el === el;
-      });
-      if (!container) return;
-      container.clear();
-      remove(this._queue, container);
-    }
-  }]);
-  return LazyContainerMananger;
-}();
+  bind(el, binding, vnode) {
+    const container = new LazyContainer({ el, binding, vnode, lazy: this.lazy });
+    this._queue.push(container);
+  }
 
-var defaultOptions = {
+  update(el, binding, vnode) {
+    const container = find(this._queue, item => item.el === el);
+    if (!container) return;
+    container.update({ el, binding, vnode });
+  }
+
+  unbind(el, binding, vnode) {
+    const container = find(this._queue, item => item.el === el);
+    if (!container) return;
+    container.clear();
+    remove(this._queue, container);
+  }
+}
+
+const defaultOptions = {
   selector: 'img'
 };
 
-var LazyContainer$1 = function () {
-  function LazyContainer(_ref2) {
-    var el = _ref2.el,
-        binding = _ref2.binding,
-        vnode = _ref2.vnode,
-        lazy = _ref2.lazy;
-    classCallCheck(this, LazyContainer);
-
+class LazyContainer {
+  constructor({ el, binding, vnode, lazy }) {
     this.el = null;
     this.vnode = vnode;
     this.binding = binding;
@@ -1641,62 +1406,45 @@ var LazyContainer$1 = function () {
     this.lazy = lazy;
 
     this._queue = [];
-    this.update({ el: el, binding: binding });
+    this.update({ el, binding });
   }
 
-  createClass(LazyContainer, [{
-    key: 'update',
-    value: function update(_ref3) {
-      var _this = this;
+  update({ el, binding }) {
+    this.el = el;
+    this.options = assignDeep({}, defaultOptions, binding.value);
 
-      var el = _ref3.el,
-          binding = _ref3.binding;
+    const imgs = this.getImgs();
+    imgs.forEach(el => {
+      this.lazy.add(el, assignDeep({}, this.binding, {
+        value: {
+          src: 'dataset' in el ? el.dataset.src : el.getAttribute('data-src'),
+          error: ('dataset' in el ? el.dataset.error : el.getAttribute('data-error')) || this.options.error,
+          loading: ('dataset' in el ? el.dataset.loading : el.getAttribute('data-loading')) || this.options.loading
+        }
+      }), this.vnode);
+    });
+  }
 
-      this.el = el;
-      this.options = assignDeep({}, defaultOptions, binding.value);
+  getImgs() {
+    return ArrayFrom(this.el.querySelectorAll(this.options.selector));
+  }
 
-      var imgs = this.getImgs();
-      imgs.forEach(function (el) {
-        _this.lazy.add(el, assignDeep({}, _this.binding, {
-          value: {
-            src: 'dataset' in el ? el.dataset.src : el.getAttribute('data-src'),
-            error: ('dataset' in el ? el.dataset.error : el.getAttribute('data-error')) || _this.options.error,
-            loading: ('dataset' in el ? el.dataset.loading : el.getAttribute('data-loading')) || _this.options.loading
-          }
-        }), _this.vnode);
-      });
-    }
-  }, {
-    key: 'getImgs',
-    value: function getImgs() {
-      return ArrayFrom(this.el.querySelectorAll(this.options.selector));
-    }
-  }, {
-    key: 'clear',
-    value: function clear() {
-      var _this2 = this;
+  clear() {
+    const imgs = this.getImgs();
+    imgs.forEach(el => this.lazy.remove(el));
 
-      var imgs = this.getImgs();
-      imgs.forEach(function (el) {
-        return _this2.lazy.remove(el);
-      });
+    this.vnode = null;
+    this.binding = null;
+    this.lazy = null;
+  }
+}
 
-      this.vnode = null;
-      this.binding = null;
-      this.lazy = null;
-    }
-  }]);
-  return LazyContainer;
-}();
+LazyContainer.install = (Vue, options = {}) => {
+  const LazyClass = Lazy(Vue);
+  const lazy = new LazyClass(options);
+  const lazyContainer = new LazyContainer({ lazy });
 
-LazyContainer$1.install = function (Vue) {
-  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-  var LazyClass = Lazy(Vue);
-  var lazy = new LazyClass(options);
-  var lazyContainer = new LazyContainer$1({ lazy: lazy });
-
-  var isVue2 = Vue.version.split('.')[0] === '2';
+  const isVue2 = Vue.version.split('.')[0] === '2';
   if (isVue2) {
     Vue.directive('lazy-container', {
       bind: lazyContainer.bind.bind(lazyContainer),
@@ -1705,7 +1453,7 @@ LazyContainer$1.install = function (Vue) {
     });
   } else {
     Vue.directive('lazy-container', {
-      update: function update(newValue, oldValue) {
+      update(newValue, oldValue) {
         lazyContainer.update(this.el, {
           modifiers: this.modifiers || {},
           arg: this.arg,
@@ -1715,14 +1463,14 @@ LazyContainer$1.install = function (Vue) {
           context: this.vm
         });
       },
-      unbind: function unbind() {
+      unbind() {
         lazyContainer.unbind(this.el);
       }
     });
   }
 };
 
-var LazyImage = function LazyImage(lazyManager) {
+const LazyImage = lazyManager => {
   return {
     props: {
       src: [String, Object],
@@ -1731,14 +1479,14 @@ var LazyImage = function LazyImage(lazyManager) {
         default: 'img'
       }
     },
-    render: function render(h) {
+    render(h) {
       return h(this.tag, {
         attrs: {
           src: this.renderSrc
         }
       }, this.$slots.default);
     },
-    data: function data() {
+    data() {
       return {
         el: null,
         options: {
@@ -1756,78 +1504,64 @@ var LazyImage = function LazyImage(lazyManager) {
         renderSrc: ''
       };
     },
-
     watch: {
-      src: function src() {
+      src() {
         this.init();
         lazyManager.addLazyBox(this);
         lazyManager.lazyLoadHandler();
       }
     },
-    created: function created() {
+    created() {
       this.init();
       this.renderSrc = this.options.loading;
     },
-    mounted: function mounted() {
+    mounted() {
       this.el = this.$el;
       lazyManager.addLazyBox(this);
       lazyManager.lazyLoadHandler();
     },
-    beforeDestroy: function beforeDestroy() {
+    beforeDestroy() {
       lazyManager.removeComponent(this);
     },
-
     methods: {
-      init: function init() {
-        var _lazyManager$_valueFo = lazyManager._valueFormatter(this.src),
-            src = _lazyManager$_valueFo.src,
-            loading = _lazyManager$_valueFo.loading,
-            error = _lazyManager$_valueFo.error;
-
+      init() {
+        const { src, loading, error } = lazyManager._valueFormatter(this.src);
         this.state.loaded = false;
         this.options.src = src;
         this.options.error = error;
         this.options.loading = loading;
         this.renderSrc = this.options.loading;
       },
-      getRect: function getRect() {
+      getRect() {
         this.rect = this.$el.getBoundingClientRect();
       },
-      checkInView: function checkInView() {
+      checkInView() {
         this.getRect();
         return inBrowser && this.rect.top < window.innerHeight * lazyManager.options.preLoad && this.rect.bottom > 0 && this.rect.left < window.innerWidth * lazyManager.options.preLoad && this.rect.right > 0;
       },
-      load: function load() {
-        var _this = this;
-
-        var onFinish = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : noop;
-
+      load(onFinish = noop) {
         if (this.state.attempt > this.options.attempt - 1 && this.state.error) {
-          if (!lazyManager.options.silent) console.log('VueLazyload log: ' + this.options.src + ' tried too more than ' + this.options.attempt + ' times');
+          if (!lazyManager.options.silent) console.log(`VueLazyload log: ${this.options.src} tried too more than ${this.options.attempt} times`);
           onFinish();
           return;
         }
-        var src = this.options.src;
-        loadImageAsync({ src: src }, function (_ref) {
-          var src = _ref.src;
-
-          _this.renderSrc = src;
-          _this.state.loaded = true;
-        }, function (e) {
-          _this.state.attempt++;
-          _this.renderSrc = _this.options.error;
-          _this.state.error = true;
+        const src = this.options.src;
+        loadImageAsync({ src }, ({ src }) => {
+          this.renderSrc = src;
+          this.state.loaded = true;
+        }, e => {
+          this.state.attempt++;
+          this.renderSrc = this.options.error;
+          this.state.error = true;
         });
       }
     }
   };
 };
 
-LazyImage.install = function (Vue) {
-  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-  var LazyClass = Lazy(Vue);
-  var lazy = new LazyClass(options);
+LazyImage.install = (Vue, options = {}) => {
+  const LazyClass = Lazy(Vue);
+  const lazy = new LazyClass(options);
   Vue.component('lazy-image', LazyImage(lazy));
 };
 
@@ -1837,14 +1571,12 @@ var index = {
   * @param  {Vue} Vue
   * @param  {object} options  lazyload options
   */
-  install: function install(Vue) {
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  install(Vue, options = {}) {
+    const LazyClass = Lazy(Vue);
+    const lazy = new LazyClass(options);
+    const lazyContainer = new LazyContainerMananger({ lazy });
 
-    var LazyClass = Lazy(Vue);
-    var lazy = new LazyClass(options);
-    var lazyContainer = new LazyContainerMananger({ lazy: lazy });
-
-    var isVue2 = Vue.version.split('.')[0] === '2';
+    const isVue2 = Vue.version.split('.')[0] === '2';
 
     Vue.prototype.$Lazyload = lazy;
 
@@ -1871,7 +1603,7 @@ var index = {
     } else {
       Vue.directive('lazy', {
         bind: lazy.lazyLoadHandler.bind(lazy),
-        update: function update(newValue, oldValue) {
+        update(newValue, oldValue) {
           assignDeep(this.vm.$refs, this.vm.$els);
           lazy.add(this.el, {
             modifiers: this.modifiers || {},
@@ -1882,13 +1614,13 @@ var index = {
             context: this.vm
           });
         },
-        unbind: function unbind() {
+        unbind() {
           lazy.remove(this.el);
         }
       });
 
       Vue.directive('lazy-container', {
-        update: function update(newValue, oldValue) {
+        update(newValue, oldValue) {
           lazyContainer.update(this.el, {
             modifiers: this.modifiers || {},
             arg: this.arg,
@@ -1898,7 +1630,7 @@ var index = {
             context: this.vm
           });
         },
-        unbind: function unbind() {
+        unbind() {
           lazyContainer.unbind(this.el);
         }
       });
@@ -1906,5 +1638,5 @@ var index = {
   }
 };
 
-export { Lazy, LazyComponent, LazyImage, LazyContainerMananger as LazyContainer };
 export default index;
+export { Lazy, LazyComponent, LazyContainerMananger as LazyContainer, LazyImage };

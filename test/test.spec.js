@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueLazyload from '../src'
 import genLazyCore from '../src/lazy'
+import assert from 'assert'
 
 describe('VueLazyload.js Test Suite', function () {
   it('install', function () {
@@ -17,26 +18,26 @@ describe('VueLazyload.js Test Suite', function () {
       loading: 'loading'
     })
 
-    expect(lazyload._valueFormatter('src').src).to.equal('src')
-    expect(lazyload._valueFormatter('src').error).to.equal('error')
-    expect(lazyload._valueFormatter('src').loading).to.equal('loading')
+    expect(lazyload._valueFormatter('src').src).toBe('src')
+    expect(lazyload._valueFormatter('src').error).toBe('error')
+    expect(lazyload._valueFormatter('src').loading).toBe('loading')
 
     expect(lazyload._valueFormatter({
       src: 'src',
       error: 'error',
       loading: 'loading'
-    }).src).to.equal('src')
+    }).src).toBe('src')
 
     expect(lazyload._valueFormatter({
       src: 'src',
       error: 'error',
       loading: 'loading'
-    }).error).to.equal('error')
+    }).error).toBe('error')
 
     expect(lazyload._valueFormatter({
       src: 'src',
       error: 'error',
       loading: 'loading'
-    }).loading).to.equal('loading')
+    }).loading).toBe('loading')
   })
 })

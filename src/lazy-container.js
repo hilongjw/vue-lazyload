@@ -5,6 +5,7 @@ import {
   ArrayFrom
 } from './util'
 import Lazy from './lazy'
+
 export default class LazyContainerMananger {
   constructor ({ lazy }) {
     this.lazy = lazy

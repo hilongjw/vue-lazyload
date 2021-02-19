@@ -1,5 +1,6 @@
 import { inBrowser } from './util'
 import Lazy from './lazy'
+
 const LazyComponent = (lazy) => {
   return {
     props: {
