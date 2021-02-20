@@ -8,7 +8,7 @@
   "scripts": {
     "build": "node build",
     "lint": "eslint ./src",
-    "test": "karma start"
+    "test": "jest"
   },
   "dependencies": {},
   "repository": {
