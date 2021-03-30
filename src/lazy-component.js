@@ -1,5 +1,6 @@
 import { inBrowser } from './util'
 import Lazy from './lazy'
+import { h } from 'vue'
 
 const LazyComponent = (lazy) => {
   return {
@@ -9,8 +10,8 @@ const LazyComponent = (lazy) => {
         default: 'div'
       }
     },
-    render (h) {
-      return h(this.tag, null, this.show ? this.$slots.default : null)
+    render () {
+      return h(this.tag, null, this.show ? this.$slots.default() : null)
     },
     data () {
       return {
@@ -27,7 +28,7 @@ const LazyComponent = (lazy) => {
       lazy.addLazyBox(this)
       lazy.lazyLoadHandler()
     },
-    beforeDestroy () {
+    beforeUnmount () {
       lazy.removeComponent(this)
     },
     methods: {

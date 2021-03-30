@@ -18,6 +18,7 @@ import {
 } from './util'
 
 import ReactiveListener from './listener'
+import { nextTick } from 'vue'
 
 const DEFAULT_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 const DEFAULT_EVENTS = ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend', 'touchmove']
@@ -108,12 +109,12 @@ export default function Lazy (Vue) {
     add (el, binding, vnode) {
       if (some(this.ListenerQueue, item => item.el === el)) {
         this.update(el, binding)
-        return Vue.nextTick(this.lazyLoadHandler)
+        return nextTick(this.lazyLoadHandler)
       }
 
       let { src, loading, error, cors } = this._valueFormatter(binding.value)
 
-      Vue.nextTick(() => {
+      nextTick(() => {
         src = getBestSelectionFromSrcset(el, this.options.scale) || src
         this._observer && this._observer.observe(el)
 
@@ -151,7 +152,7 @@ export default function Lazy (Vue) {
         }
 
         this.lazyLoadHandler()
-        Vue.nextTick(() => this.lazyLoadHandler())
+        nextTick(() => this.lazyLoadHandler())
       })
     }
 
