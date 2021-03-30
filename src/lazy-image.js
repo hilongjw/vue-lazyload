@@ -4,6 +4,7 @@ import {
   noop
 } from './util'
 import Lazy from './lazy'
+import { h } from 'vue'
 
 const LazyImage = (lazyManager) => {
   return {
@@ -14,12 +15,12 @@ const LazyImage = (lazyManager) => {
         default: 'img'
       }
     },
-    render (h) {
+    render () {
       return h(this.tag, {
         attrs: {
           src: this.renderSrc
         }
-      }, this.$slots.default)
+      }, this.$slots.default())
     },
     data () {
       return {
@@ -55,7 +56,7 @@ const LazyImage = (lazyManager) => {
       lazyManager.addLazyBox(this)
       lazyManager.lazyLoadHandler()
     },
-    beforeDestroy () {
+    beforeUnmount () {
       lazyManager.removeComponent(this)
     },
     methods: {
