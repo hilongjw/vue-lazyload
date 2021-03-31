@@ -5,6 +5,7 @@ const replace = require('@rollup/plugin-replace')
 const { terser } = require('rollup-plugin-terser')
 const resolve = require('rollup-plugin-node-resolve')
 const commonjs = require('rollup-plugin-commonjs')
+const typescript = require('rollup-plugin-typescript')
 const version = process.env.VERSION || require('./package.json').version
 
 const banner =
@@ -42,13 +43,15 @@ function blue (str) {
 }
 
 build({
-  input: path.resolve(__dirname, 'src/index.js'),
+  input: path.resolve(__dirname, 'src/index.ts'),
+  external: ['vue'],
   plugins: [
     resolve(),
     commonjs(),
+    typescript(),
     babel({ runtimeHelpers: true }),
     replace({
-      '__VUE_LAZYLOAD_VERSION__': JSON.stringify(version)
+      __VUE_LAZYLOAD_VERSION__: JSON.stringify(version)
     }),
     terser()
   ]
@@ -58,12 +61,14 @@ build({
 })
 
 build({
-  input: path.resolve(__dirname, 'src/index.js'),
+  input: path.resolve(__dirname, 'src/index.ts'),
+  external: ['vue'],
   plugins: [
     resolve(),
     commonjs(),
+    typescript(),
     replace({
-      '__VUE_LAZYLOAD_VERSION__': JSON.stringify(version)
+      __VUE_LAZYLOAD_VERSION__: JSON.stringify(version)
     }),
     babel({ runtimeHelpers: true })
   ]

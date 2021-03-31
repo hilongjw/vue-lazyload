@@ -2,17 +2,23 @@ import Lazy from './lazy'
 import LazyComponent from './lazy-component'
 import LazyContainer from './lazy-container'
 import LazyImage from './lazy-image'
+import { VueLazyloadOptions } from '../types/lazyload'
+import { App } from 'vue'
 
 export default {
   /*
-   * install function
-   * @param  {Vue} Vue
-   * @param  {object} options  lazyload options
-   */
-  install (Vue, options = {}) {
-    const LazyClass = Lazy(Vue)
-    const lazy = new LazyClass(options)
-    const lazyContainer = new LazyContainer({ lazy })
+  * install function
+  * @param  {Vue} Vue
+  * @param  {object} options lazyload options
+  */
+  install (Vue: App, options: VueLazyloadOptions = {}) {
+    const lazy = new Lazy(options)
+    const lazyContainer = new LazyContainer(lazy)
+
+    const vueVersion = Number(Vue.version.split('.')[0])
+    if (vueVersion < 3) return new Error('Vue version at least 3.0')
+
+    Vue.config.globalProperties.$Lazyload = lazy
 
     Vue.provide('Lazyload', lazy)
 
@@ -36,11 +42,4 @@ export default {
       unmounted: lazyContainer.unbind.bind(lazyContainer)
     })
   }
-}
-
-export {
-  Lazy,
-  LazyComponent,
-  LazyImage,
-  LazyContainer
 }

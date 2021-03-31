@@ -5,8 +5,9 @@ declare var VueLazyload: VueLazyloadPluginObject;
 export default VueLazyload;
 
 export {
-  VueLazyloadImage,
   VueLazyloadOptions,
   VueLazyloadHandler,
-  VueReactiveListener
+  VueReactiveListener,
+  loadImageAsyncOption
 } from "./lazyload";
+

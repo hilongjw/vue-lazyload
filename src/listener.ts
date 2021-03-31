@@ -1,8 +1,9 @@
 import {
   loadImageAsync,
-  ObjectKeys,
-  noop
+  noop,
+  ImageCache
 } from './util'
+import { VueLazyloadOptions } from '../types/lazyload'
 
 // el: {
 //     state,
@@ -12,7 +13,43 @@ import {
 // }
 
 export default class ReactiveListener {
-  constructor ({ el, src, error, loading, bindType, $parent, options, cors, elRenderer, imageCache }) {
+  el: HTMLElement | null;
+  src: string;
+  error: string | null;
+  loading: string;
+  bindType: string | null;
+  $parent: Element | null;
+  options: VueLazyloadOptions;
+  cors: string;
+  elRenderer: Function;
+  attempt: number;
+  naturalHeight: number;
+  naturalWidth: number;
+  performanceData: {
+    init: number;
+    loadStart: number;
+    loadEnd: number;
+  };
+  state!: {
+    loading: boolean;
+    error: boolean;
+    loaded: boolean;
+    rendered: boolean;
+  };
+  rect: DOMRect;
+  _imageCache: ImageCache;
+  constructor (
+    el: HTMLElement,
+    src: string,
+    error: string,
+    loading: string,
+    bindType: string,
+    $parent: Element,
+    options: VueLazyloadOptions,
+    cors: string,
+    elRenderer: Function,
+    imageCache: ImageCache
+  ) {
     this.el = el
     this.src = src
     this.error = error
@@ -26,7 +63,7 @@ export default class ReactiveListener {
 
     this.options = options
 
-    this.rect = null
+    this.rect = {} as DOMRect
 
     this.$parent = $parent
     this.elRenderer = elRenderer
@@ -47,10 +84,10 @@ export default class ReactiveListener {
    * @return
    */
   initState () {
-    if ('dataset' in this.el) {
+    if ('dataset' in this.el!) {
       this.el.dataset.src = this.src
     } else {
-      this.el.setAttribute('data-src', this.src)
+      this.el!.setAttribute('data-src', this.src)
     }
 
     this.state = {
@@ -65,7 +102,7 @@ export default class ReactiveListener {
    * record performance
    * @return
    */
-  record (event) {
+  record (event: 'init' | 'loadStart' | 'loadEnd') {
     this.performanceData[event] = Date.now()
   }
 
@@ -76,11 +113,11 @@ export default class ReactiveListener {
    * @param  {String} error image uri
    * @return
    */
-  update ({ src, loading, error }) {
+  update (option: { src: string, loading: string, error: string }) {
     const oldSrc = this.src
-    this.src = src
-    this.loading = loading
-    this.error = error
+    this.src = option.src 
+    this.loading = option.loading
+    this.error = option.error
     this.filter()
     if (oldSrc !== this.src) {
       this.attempt = 0
@@ -93,26 +130,28 @@ export default class ReactiveListener {
    * @return
    */
   getRect () {
-    this.rect = this.el.getBoundingClientRect()
+    this.rect = this.el!.getBoundingClientRect()
   }
 
   /*
-   *  check el is in view
+   * check el is in view
    * @return {Boolean} el is in view
    */
   checkInView () {
     this.getRect()
-    return (this.rect.top < window.innerHeight * this.options.preLoad && this.rect.bottom > this.options.preLoadTop) &&
-            (this.rect.left < window.innerWidth * this.options.preLoad && this.rect.right > 0)
+    return this.rect.top < window.innerHeight * this.options.preLoad! &&
+           this.rect.bottom > this.options.preLoadTop! &&
+           this.rect.left < window.innerWidth * this.options.preLoad! &&
+           this.rect.right > 0
   }
 
   /*
    * listener filter
    */
   filter () {
-    ObjectKeys(this.options.filter).map(key => {
+    for (const key in this.options.filter) {
       this.options.filter[key](this, this.options)
-    })
+    }
   }
 
   /*
@@ -120,12 +159,12 @@ export default class ReactiveListener {
    * @params cb:Function
    * @return
    */
-  renderLoading (cb) {
+  renderLoading (cb: Function) {
     this.state.loading = true
     loadImageAsync({
       src: this.loading,
       cors: this.cors
-    }, data => {
+    }, () => {
       this.render('loading', false)
       this.state.loading = false
       cb()
@@ -142,13 +181,13 @@ export default class ReactiveListener {
    * @return
    */
   load (onFinish = noop) {
-    if ((this.attempt > this.options.attempt - 1) && this.state.error) {
+    if ((this.attempt > this.options.attempt! - 1) && this.state.error) {
       if (!this.options.silent) console.log(`VueLazyload log: ${this.src} tried too more than ${this.options.attempt} times`)
       onFinish()
       return
     }
     if (this.state.rendered && this.state.loaded) return
-    if (this._imageCache.has(this.src)) {
+    if (this._imageCache.has(this.src as string)) {
       this.state.loaded = true
       this.render('loaded', true)
       this.state.rendered = true
@@ -158,13 +197,19 @@ export default class ReactiveListener {
     this.renderLoading(() => {
       this.attempt++
 
-      this.options.adapter['beforeLoad'] && this.options.adapter['beforeLoad'](this, this.options)
+      this.options.adapter.beforeLoad && this.options.adapter.beforeLoad(this, this.options)
       this.record('loadStart')
 
       loadImageAsync({
         src: this.src,
         cors: this.cors
-      }, data => {
+      }, (
+        data: {
+          naturalHeight: number;
+          naturalWidth: number
+          src: string;
+        }
+      ) => {
         this.naturalHeight = data.naturalHeight
         this.naturalWidth = data.naturalWidth
         this.state.loaded = true
@@ -174,7 +219,7 @@ export default class ReactiveListener {
         this.state.rendered = true
         this._imageCache.add(this.src)
         onFinish()
-      }, err => {
+      }, (err: Error) => {
         !this.options.silent && console.error(err)
         this.state.error = true
         this.state.loaded = false
@@ -189,7 +234,7 @@ export default class ReactiveListener {
    * @param  {String} is form cache
    * @return
    */
-  render (state, cache) {
+  render (state: string, cache: boolean) {
     this.elRenderer(this, state, cache)
   }
 
@@ -221,9 +266,9 @@ export default class ReactiveListener {
    */
   $destroy () {
     this.el = null
-    this.src = null
+    this.src = ''
     this.error = null
-    this.loading = null
+    this.loading = ''
     this.bindType = null
     this.attempt = 0
   }
