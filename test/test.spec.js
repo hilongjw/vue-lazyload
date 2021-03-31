@@ -1,17 +1,32 @@
-import Vue from 'vue'
+import { mount } from '@vue/test-utils'
 import VueLazyload from '../src'
 import genLazyCore from '../src/lazy'
 import assert from 'assert'
+import { createApp, inject } from 'vue'
 
 describe('VueLazyload.js Test Suite', function () {
+  const App = {
+    template: '<div></div>',
+    data() {
+      return  {
+        Lazyload: inject('Lazyload')
+      }
+    }
+  }
+
   it('install', function () {
-    Vue.use(VueLazyload)
-    const vm = new Vue()
-    assert(vm.$Lazyload, 'has $Lazyload')
+    const wrapper = mount(App, {
+      global: {
+        plugins: [VueLazyload]
+      }
+    })
+
+    assert(wrapper.vm.Lazyload.mode, 'event')
   })
 
   it('_valueFormatter', function () {
-    const LazyCore = genLazyCore(Vue)
+    const app = createApp(App)
+    const LazyCore = genLazyCore(app)
 
     const lazyload = new LazyCore({
       error: 'error',
