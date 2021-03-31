@@ -1035,9 +1035,10 @@ const set = /*#__PURE__*/createSetter();
 const shallowSet = /*#__PURE__*/createSetter(true);
 function createSetter(shallow = false) {
     return function set(target, key, value, receiver) {
-        const oldValue = target[key];
+        let oldValue = target[key];
         if (!shallow) {
             value = toRaw(value);
+            oldValue = toRaw(oldValue);
             if (!isArray(target) && isRef(oldValue) && !isRef(value)) {
                 oldValue.value = value;
                 return true;
@@ -3045,15 +3046,22 @@ prevChildren, parentComponent, parentSuspense, unmountChildren) {
 
 // Async edge case fix requires storing an event listener's attach timestamp.
 let _getNow = Date.now;
-// Determine what event timestamp the browser is using. Annoyingly, the
-// timestamp can either be hi-res (relative to page load) or low-res
-// (relative to UNIX epoch), so in order to compare time we have to use the
-// same timestamp type when saving the flush timestamp.
-if (typeof document !== 'undefined' && _getNow() > document.createEvent('Event').timeStamp) {
-    // if the low-res timestamp which is bigger than the event timestamp
-    // (which is evaluated AFTER) it means the event is using a hi-res timestamp,
-    // and we need to use the hi-res version for event listeners as well.
-    _getNow = () => performance.now();
+let skipTimestampCheck = false;
+if (typeof window !== 'undefined') {
+    // Determine what event timestamp the browser is using. Annoyingly, the
+    // timestamp can either be hi-res (relative to page load) or low-res
+    // (relative to UNIX epoch), so in order to compare time we have to use the
+    // same timestamp type when saving the flush timestamp.
+    if (_getNow() > document.createEvent('Event').timeStamp) {
+        // if the low-res timestamp which is bigger than the event timestamp
+        // (which is evaluated AFTER) it means the event is using a hi-res timestamp,
+        // and we need to use the hi-res version for event listeners as well.
+        _getNow = () => performance.now();
+    }
+    // #3485: Firefox <= 53 has incorrect Event.timeStamp implementation
+    // and does not fire microtasks in between event propagation, so safe to exclude.
+    const ffMatch = navigator.userAgent.match(/firefox\/(\d+)/i);
+    skipTimestampCheck = !!(ffMatch && Number(ffMatch[1]) <= 53);
 }
 // To avoid the overhead of repeatedly calling performance.now(), we cache
 // and use the same timestamp for all event listeners attached in the same tick.
@@ -3111,7 +3119,7 @@ function createInvoker(initialValue, instance) {
         // and the handler would only fire if the event passed to it was fired
         // AFTER it was attached.
         const timeStamp = e.timeStamp || _getNow();
-        if (timeStamp >= invoker.attached - 1) {
+        if (skipTimestampCheck || timeStamp >= invoker.attached - 1) {
             callWithAsyncErrorHandling(patchStopImmediatePropagation(e, invoker.value), instance, 5 /* NATIVE_EVENT_HANDLER */, [e]);
         }
     };
@@ -3660,33 +3668,12 @@ Lazy.install = (Vue, options = {}) => {
   const LazyClass = Lazy(Vue);
   const lazy = new LazyClass(options);
 
-  const isVue2 = Vue.version.split('.')[0] === '2';
-  if (isVue2) {
-    Vue.directive('lazy', {
-      bind: lazy.add.bind(lazy),
-      update: lazy.update.bind(lazy),
-      componentUpdated: lazy.lazyLoadHandler.bind(lazy),
-      unbind: lazy.remove.bind(lazy)
-    });
-  } else {
-    Vue.directive('lazy', {
-      bind: lazy.lazyLoadHandler.bind(lazy),
-      update(newValue, oldValue) {
-        assignDeep(this.vm.$refs, this.vm.$els);
-        lazy.add(this.el, {
-          modifiers: this.modifiers || {},
-          arg: this.arg,
-          value: newValue,
-          oldValue: oldValue
-        }, {
-          context: this.vm
-        });
-      },
-      unbind() {
-        lazy.remove(this.el);
-      }
-    });
-  }
+  Vue.directive('lazy', {
+    beforeMount: lazy.add.bind(lazy),
+    beforeUpdate: lazy.update.bind(lazy),
+    updated: lazy.lazyLoadHandler.bind(lazy),
+    unmounted: lazy.remove.bind(lazy)
+  });
 };
 
 const LazyComponent = lazy => {
@@ -3816,35 +3803,16 @@ class LazyContainer {
   }
 }
 
-LazyContainer.install = (Vue, options = {}) => {
+LazyContainerMananger.install = (Vue, options = {}) => {
   const LazyClass = Lazy(Vue);
   const lazy = new LazyClass(options);
-  const lazyContainer = new LazyContainer({ lazy });
+  const lazyContainer = new LazyContainerMananger({ lazy });
 
-  const isVue2 = Vue.version.split('.')[0] === '2';
-  if (isVue2) {
-    Vue.directive('lazy-container', {
-      bind: lazyContainer.bind.bind(lazyContainer),
-      componentUpdated: lazyContainer.update.bind(lazyContainer),
-      unbind: lazyContainer.unbind.bind(lazyContainer)
-    });
-  } else {
-    Vue.directive('lazy-container', {
-      update(newValue, oldValue) {
-        lazyContainer.update(this.el, {
-          modifiers: this.modifiers || {},
-          arg: this.arg,
-          value: newValue,
-          oldValue: oldValue
-        }, {
-          context: this.vm
-        });
-      },
-      unbind() {
-        lazyContainer.unbind(this.el);
-      }
-    });
-  }
+  Vue.directive('lazy-container', {
+    beforeMount: lazyContainer.bind.bind(lazyContainer),
+    updated: lazyContainer.update.bind(lazyContainer),
+    unmounted: lazyContainer.unbind.bind(lazyContainer)
+  });
 };
 
 const LazyImage = lazyManager => {
