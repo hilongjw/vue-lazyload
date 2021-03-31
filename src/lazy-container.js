@@ -78,33 +78,14 @@ class LazyContainer {
   }
 }
 
-LazyContainer.install = (Vue, options = {}) => {
+LazyContainerMananger.install = (Vue, options = {}) => {
   const LazyClass = Lazy(Vue)
   const lazy = new LazyClass(options)
-  const lazyContainer = new LazyContainer({ lazy })
+  const lazyContainer = new LazyContainerMananger({ lazy })
 
-  const isVue2 = Vue.version.split('.')[0] === '2'
-  if (isVue2) {
-    Vue.directive('lazy-container', {
-      bind: lazyContainer.bind.bind(lazyContainer),
-      componentUpdated: lazyContainer.update.bind(lazyContainer),
-      unbind: lazyContainer.unbind.bind(lazyContainer)
-    })
-  } else {
-    Vue.directive('lazy-container', {
-      update (newValue, oldValue) {
-        lazyContainer.update(this.el, {
-          modifiers: this.modifiers || {},
-          arg: this.arg,
-          value: newValue,
-          oldValue: oldValue
-        }, {
-          context: this.vm
-        })
-      },
-      unbind () {
-        lazyContainer.unbind(this.el)
-      }
-    })
-  }
+  Vue.directive('lazy-container', {
+    beforeMount: lazyContainer.bind.bind(lazyContainer),
+    updated: lazyContainer.update.bind(lazyContainer),
+    unmounted: lazyContainer.unbind.bind(lazyContainer)
+  })
 }
