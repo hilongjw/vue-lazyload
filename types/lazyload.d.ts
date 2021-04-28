@@ -1,24 +1,38 @@
-import { PluginObject } from "vue";
+import { App } from 'vue'
+type PluginFunction<T> = (Vue: App, options?: T) => void;
 
+interface PluginObject<T> {
+  install: PluginFunction<T>;
+  [key: string]: any;
+}
 interface IntersectionObserverInit {
   root?: Element | null;
   rootMargin?: string;
   threshold?: number | number[];
 }
 
-export interface VueLazyloadImage {
+export interface VueLazyloadImageOptions {
   src: string;
-  error?: string;
-  loading?: string;
+  error: string;
+  loading: string;
+  attempt: number;
+}
+
+export interface loadImageAsyncOption {
+  src: string;
+  cors?: string;
 }
 
 export interface VueLazyloadOptions {
   lazyComponent?: boolean;
+  lazyImage?: boolean;
   preLoad?: number;
   error?: string;
   loading?: string;
+  cors?: string;
   attempt?: number;
   listenEvents?: string[];
+  supportWebp?: boolean;
   adapter?: any;
   filter?: any;
   dispatchEvent?: boolean;
@@ -28,7 +42,13 @@ export interface VueLazyloadOptions {
   silent?: boolean;
   preLoadTop?: number;
   scale?: number;
-  hasbind?: boolean;
+}
+
+
+export interface Performance {
+  init: number;
+  loadStart: number;
+  loadEnd: number;
 }
 
 export interface VueReactiveListener {
@@ -44,11 +64,7 @@ export interface VueReactiveListener {
   rect: DOMRect;
   $parent: Element
   elRenderer: Function;
-  performanceData: {
-    init: number,
-    loadStart: number,
-    loadEnd: number
-  };
+  performanceData: Performance;
 }
 
 export interface VueLazyloadListenEvent {
