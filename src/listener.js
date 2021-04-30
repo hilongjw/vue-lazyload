@@ -149,6 +149,9 @@ export default class ReactiveListener {
     }
     if (this.state.rendered && this.state.loaded) return
     if (this._imageCache.has(this.src)) {
+      const { naturalHeight, naturalWidth } = this._imageCache.get(this.src)
+      this.naturalHeight = naturalHeight
+      this.naturalWidth = naturalWidth
       this.state.loaded = true
       this.render('loaded', true)
       this.state.rendered = true
@@ -172,7 +175,7 @@ export default class ReactiveListener {
         this.record('loadEnd')
         this.render('loaded', false)
         this.state.rendered = true
-        this._imageCache.add(this.src)
+        this._imageCache.add(data)
         onFinish()
       }, err => {
         !this.options.silent && console.error(err)
