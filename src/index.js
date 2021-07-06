@@ -39,7 +39,7 @@ export default {
         unbind: lazyContainer.unbind.bind(lazyContainer)
       })
     } else {
-      app.config.globalProperties.$Lazyload = lazy
+      Vue.config.globalProperties.$Lazyload = lazy
       Vue.directive('lazy', {
         bind: lazy.lazyLoadHandler.bind(lazy),
         update (newValue, oldValue) {
