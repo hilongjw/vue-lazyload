@@ -4,300 +4,87 @@
  * Released under the MIT License.
  */
 
-/*!
- * is-primitive <https://github.com/jonschlinkert/is-primitive>
- *
- * Copyright (c) 2014-2015, Jon Schlinkert.
- * Licensed under the MIT License.
- */
-
-// see http://jsperf.com/testing-value-is-primitive/7
-
-var isPrimitive = function isPrimitive(value) {
-  return value == null || typeof value !== 'function' && typeof value !== 'object';
-};
-
-var isPrimitive$1 = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  'default': isPrimitive,
-  __moduleExports: isPrimitive
-});
-
-/*!
- * assign-symbols <https://github.com/jonschlinkert/assign-symbols>
- *
- * Copyright (c) 2015, Jon Schlinkert.
- * Licensed under the MIT License.
- */
-
-var assignSymbols = function (receiver, objects) {
-  if (receiver === null || typeof receiver === 'undefined') {
-    throw new TypeError('expected first argument to be an object.');
-  }
-
-  if (typeof objects === 'undefined' || typeof Symbol === 'undefined') {
-    return receiver;
-  }
-
-  if (typeof Object.getOwnPropertySymbols !== 'function') {
-    return receiver;
-  }
-
-  var isEnumerable = Object.prototype.propertyIsEnumerable;
-  var target = Object(receiver);
-  var len = arguments.length,
-      i = 0;
-
-  while (++i < len) {
-    var provider = Object(arguments[i]);
-    var names = Object.getOwnPropertySymbols(provider);
-
-    for (var j = 0; j < names.length; j++) {
-      var key = names[j];
-
-      if (isEnumerable.call(provider, key)) {
-        target[key] = provider[key];
-      }
-    }
-  }
-  return target;
-};
-
-var assignSymbols$1 = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  'default': assignSymbols,
-  __moduleExports: assignSymbols
-});
-
-var toString = Object.prototype.toString;
-
-/**
- * Get the native `typeof` a value.
- *
- * @param  {*} `val`
- * @return {*} Native javascript type
- */
-
-var kindOf = function kindOf(val) {
-  var type = typeof val;
-
-  // primitivies
-  if (type === 'undefined') {
-    return 'undefined';
-  }
-  if (val === null) {
-    return 'null';
-  }
-  if (val === true || val === false || val instanceof Boolean) {
-    return 'boolean';
-  }
-  if (type === 'string' || val instanceof String) {
-    return 'string';
-  }
-  if (type === 'number' || val instanceof Number) {
-    return 'number';
-  }
-
-  // functions
-  if (type === 'function' || val instanceof Function) {
-    if (typeof val.constructor.name !== 'undefined' && val.constructor.name.slice(0, 9) === 'Generator') {
-      return 'generatorfunction';
-    }
-    return 'function';
-  }
-
-  // array
-  if (typeof Array.isArray !== 'undefined' && Array.isArray(val)) {
-    return 'array';
-  }
-
-  // check for instances of RegExp and Date before calling `toString`
-  if (val instanceof RegExp) {
-    return 'regexp';
-  }
-  if (val instanceof Date) {
-    return 'date';
-  }
-
-  // other objects
-  type = toString.call(val);
-
-  if (type === '[object RegExp]') {
-    return 'regexp';
-  }
-  if (type === '[object Date]') {
-    return 'date';
-  }
-  if (type === '[object Arguments]') {
-    return 'arguments';
-  }
-  if (type === '[object Error]') {
-    return 'error';
-  }
-  if (type === '[object Promise]') {
-    return 'promise';
-  }
-
-  // buffer
-  if (isBuffer(val)) {
-    return 'buffer';
-  }
-
-  // es6: Map, WeakMap, Set, WeakSet
-  if (type === '[object Set]') {
-    return 'set';
-  }
-  if (type === '[object WeakSet]') {
-    return 'weakset';
-  }
-  if (type === '[object Map]') {
-    return 'map';
-  }
-  if (type === '[object WeakMap]') {
-    return 'weakmap';
-  }
-  if (type === '[object Symbol]') {
-    return 'symbol';
-  }
-
-  if (type === '[object Map Iterator]') {
-    return 'mapiterator';
-  }
-  if (type === '[object Set Iterator]') {
-    return 'setiterator';
-  }
-  if (type === '[object String Iterator]') {
-    return 'stringiterator';
-  }
-  if (type === '[object Array Iterator]') {
-    return 'arrayiterator';
-  }
-
-  // typed arrays
-  if (type === '[object Int8Array]') {
-    return 'int8array';
-  }
-  if (type === '[object Uint8Array]') {
-    return 'uint8array';
-  }
-  if (type === '[object Uint8ClampedArray]') {
-    return 'uint8clampedarray';
-  }
-  if (type === '[object Int16Array]') {
-    return 'int16array';
-  }
-  if (type === '[object Uint16Array]') {
-    return 'uint16array';
-  }
-  if (type === '[object Int32Array]') {
-    return 'int32array';
-  }
-  if (type === '[object Uint32Array]') {
-    return 'uint32array';
-  }
-  if (type === '[object Float32Array]') {
-    return 'float32array';
-  }
-  if (type === '[object Float64Array]') {
-    return 'float64array';
-  }
-
-  // must be a plain object
-  return 'object';
-};
-
-/**
- * If you need to support Safari 5-7 (8-10 yr-old browser),
- * take a look at https://github.com/feross/is-buffer
- */
-
-function isBuffer(val) {
-  return val.constructor && typeof val.constructor.isBuffer === 'function' && val.constructor.isBuffer(val);
+function createCommonjsModule(fn, module) {
+	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
 
-var kindOf$1 = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  'default': kindOf,
-  __moduleExports: kindOf
-});
+var assignSymbols$1 = createCommonjsModule(function (module) {
 
-var isPrimitive$2 = ( isPrimitive$1 && isPrimitive ) || isPrimitive$1;
+  const toString = Object.prototype.toString;
+  const isEnumerable = Object.prototype.propertyIsEnumerable;
+  const getSymbols = Object.getOwnPropertySymbols;
 
-var assignSymbols$2 = ( assignSymbols$1 && assignSymbols ) || assignSymbols$1;
-
-var typeOf = ( kindOf$1 && kindOf ) || kindOf$1;
-
-function assign(target /*, objects*/) {
-  target = target || {};
-  var len = arguments.length,
-      i = 0;
-  if (len === 1) {
-    return target;
-  }
-  while (++i < len) {
-    var val = arguments[i];
-    if (isPrimitive$2(target)) {
-      target = val;
+  module.exports = (target, ...args) => {
+    if (!isObject(target)) {
+      throw new TypeError('expected the first argument to be an object');
     }
-    if (isObject(val)) {
-      extend(target, val);
+
+    if (args.length === 0 || typeof Symbol !== 'function' || typeof getSymbols !== 'function') {
+      return target;
     }
-  }
-  return target;
-}
 
-/**
- * Shallow extend
- */
+    for (let arg of args) {
+      let names = getSymbols(arg);
 
-function extend(target, obj) {
-  assignSymbols$2(target, obj);
-
-  for (var key in obj) {
-    if (isValidKey(key) && hasOwn(obj, key)) {
-      var val = obj[key];
-      if (isObject(val)) {
-        if (typeOf(target[key]) === 'undefined' && typeOf(val) === 'function') {
-          target[key] = val;
+      for (let key of names) {
+        if (isEnumerable.call(arg, key)) {
+          target[key] = arg[key];
         }
-        target[key] = assign(target[key] || {}, val);
-      } else {
-        target[key] = val;
       }
     }
+    return target;
+  };
+
+  function isObject(val) {
+    return typeof val === 'function' || toString.call(val) === '[object Object]' || Array.isArray(val);
   }
-  return target;
-}
+});
 
-/**
- * Returns true if the object is a plain object or a function.
- */
+var assignSymbols$2 = /*#__PURE__*/Object.freeze({
+	__proto__: null,
+	'default': assignSymbols$1,
+	__moduleExports: assignSymbols$1
+});
 
-function isObject(obj) {
-  return typeOf(obj) === 'object' || typeOf(obj) === 'function';
-}
+var assignSymbols = ( assignSymbols$2 && assignSymbols$1 ) || assignSymbols$2;
 
-/**
- * Returns true if the given `key` is an own property of `obj`.
- */
+var assignDeep = createCommonjsModule(function (module) {
 
-function hasOwn(obj, key) {
-  return Object.prototype.hasOwnProperty.call(obj, key);
-}
+  const toString = Object.prototype.toString;
 
-/**
- * Returns true if the given `key` is a valid key that can be used for assigning properties.
- */
+  const isValidKey = key => {
+    return key !== '__proto__' && key !== 'constructor' && key !== 'prototype';
+  };
 
-function isValidKey(key) {
-  return key !== '__proto__' && key !== 'constructor' && key !== 'prototype';
-}
+  const assign = module.exports = (target, ...args) => {
+    let i = 0;
+    if (isPrimitive(target)) target = args[i++];
+    if (!target) target = {};
+    for (; i < args.length; i++) {
+      if (isObject(args[i])) {
+        for (const key of Object.keys(args[i])) {
+          if (isValidKey(key)) {
+            if (isObject(target[key]) && isObject(args[i][key])) {
+              assign(target[key], args[i][key]);
+            } else {
+              target[key] = args[i][key];
+            }
+          }
+        }
+        assignSymbols(target, args[i]);
+      }
+    }
+    return target;
+  };
 
-/**
- * Expose `assign`
- */
+  function isObject(val) {
+    return typeof val === 'function' || toString.call(val) === '[object Object]';
+  }
 
-var assignDeep = assign;
+  function isPrimitive(val) {
+    return typeof val === 'object' ? val === null : typeof val !== 'function';
+  }
+});
 
 const inBrowser = typeof window !== 'undefined' && window !== null;
 
@@ -571,7 +358,7 @@ const scrollParent = el => {
   return window;
 };
 
-function isObject$1(obj) {
+function isObject(obj) {
   return obj !== null && typeof obj === 'object';
 }
 
@@ -1270,7 +1057,7 @@ function Lazy(Vue) {
       let error = this.options.error;
 
       // value is object
-      if (isObject$1(value)) {
+      if (isObject(value)) {
         if (!value.src && !this.options.silent) console.error('Vue Lazyload warning: miss src with ' + value);
         src = value.src;
         loading = value.loading || this.options.loading;
@@ -1584,8 +1371,6 @@ var index = {
 
     const isVue2 = Vue.version.split('.')[0] === '2';
 
-    Vue.prototype.$Lazyload = lazy;
-
     if (options.lazyComponent) {
       Vue.component('lazy-component', LazyComponent(lazy));
     }
@@ -1595,6 +1380,7 @@ var index = {
     }
 
     if (isVue2) {
+      Vue.prototype.$Lazyload = lazy;
       Vue.directive('lazy', {
         bind: lazy.add.bind(lazy),
         update: lazy.update.bind(lazy),

@@ -17,8 +17,6 @@ export default {
 
     const isVue2 = Vue.version.split('.')[0] === '2'
 
-    Vue.prototype.$Lazyload = lazy
-
     if (options.lazyComponent) {
       Vue.component('lazy-component', LazyComponent(lazy))
     }
@@ -28,6 +26,7 @@ export default {
     }
 
     if (isVue2) {
+      Vue.prototype.$Lazyload = lazy
       Vue.directive('lazy', {
         bind: lazy.add.bind(lazy),
         update: lazy.update.bind(lazy),
@@ -40,6 +39,7 @@ export default {
         unbind: lazyContainer.unbind.bind(lazyContainer)
       })
     } else {
+      app.config.globalProperties.$Lazyload = lazy
       Vue.directive('lazy', {
         bind: lazy.lazyLoadHandler.bind(lazy),
         update (newValue, oldValue) {
