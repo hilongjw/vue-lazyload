@@ -420,9 +420,7 @@ export default function Lazy (Vue) {
         el.style[bindType] = 'url("' + src + '")'
       } else if (el.getAttribute('src') !== src) {
         el.setAttribute('src', src)
-        if (listener.descriptor === 'x') {
-          setElTransformScale(el, listener.baseValue)
-        }
+        setElTransformScale(el, listener.descriptor, listener.baseValue)
       }
 
       el.setAttribute('lazy', state)

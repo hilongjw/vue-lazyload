@@ -61,15 +61,18 @@ function some (arr, fn) {
   return has
 }
 
-function setElTransformScale (el, dpr) {
-  if (!(el.width || el.height || el.style.height || el.style.width)) {
-    if (dpr > 1) {
+function setElTransformScale (el, descriptor, dpr) {
+  const isPixelDensityDescriptor = descriptor === 'x'
+  const isFixedSize = Boolean(el.getAttribute('width') || el.getAttribute('height') || el.style.height || el.style.width)
+  const shouldAdjustScale = isPixelDensityDescriptor && dpr > 1
+  if (!isFixedSize) {
+    if (shouldAdjustScale) {
       const scale = (1 / dpr).toFixed(8)
       el.style.transform = `scale(${scale})`
       el.style.transformOrigin = '0 0'
     } else {
-      delete el.style.transform
-      delete el.style.transformOrigin
+      el.style.transform = ''
+      el.style.transformOrigin = ''
     }
   }
 }
