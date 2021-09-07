@@ -36,6 +36,8 @@ export interface VueReactiveListener {
   src: string;
   error: string;
   loading: string;
+  baseValue: number;
+  descriptor: 'w'|'x';
   bindType: string;
   attempt: number;
   naturalHeight: number;

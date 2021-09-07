@@ -142,8 +142,22 @@ function some(arr, fn) {
   return has;
 }
 
+function setElTransformScale(el, dpr) {
+  if (!(el.width || el.height || el.style.height || el.style.width)) {
+    if (dpr > 1) {
+      const scale = (1 / dpr).toFixed(8);
+      el.style.transform = `scale(${scale})`;
+      el.style.transformOrigin = '0 0';
+    } else {
+      delete el.style.transform;
+      delete el.style.transformOrigin;
+    }
+  }
+}
+
 function getBestSelectionFromSrcset(el, scale) {
-  if (el.tagName !== 'IMG' || !el.getAttribute('data-srcset')) return;
+  let metaData = { src: '', baseValue: 0, descriptor: null };
+  if (el.tagName !== 'IMG' || !el.getAttribute('data-srcset')) return metaData;
 
   let options = el.getAttribute('data-srcset');
   const result = [];
@@ -157,8 +171,9 @@ function getBestSelectionFromSrcset(el, scale) {
   options = options.trim().split(',');
 
   const lastOption = options[options.length - 1] || '';
-  const descriptor = lastOption.trim().split(' ')[1] || '';
-  const isPixelDensityDescriptor = descriptor.length > 0 && descriptor.length - 1 === descriptor.indexOf('x');
+  const descriptor = (lastOption.trim().split(' ')[1] || '').substr(-1);
+  const isPixelDensityDescriptor = descriptor === 'x';
+  metaData.descriptor = descriptor;
 
   options.map(item => {
     item = item.trim();
@@ -190,24 +205,26 @@ function getBestSelectionFromSrcset(el, scale) {
     }
     return 0;
   });
-  let bestSelectedSrc = '';
   let tmpOption;
-  let compareUnit = isPixelDensityDescriptor ? scale : containerWidth;
+  let compareValue = isPixelDensityDescriptor ? scale : containerWidth;
 
   for (let i = 0; i < result.length; i++) {
     tmpOption = result[i];
-    bestSelectedSrc = tmpOption[1];
+    metaData.baseValue = tmpOption[0];
+    metaData.src = tmpOption[1];
     const next = result[i + 1];
-    if (next && next[0] < compareUnit) {
-      bestSelectedSrc = tmpOption[1];
+    if (next && next[0] < compareValue) {
+      metaData.baseValue = tmpOption[0];
+      metaData.src = tmpOption[1];
       break;
     } else if (!next) {
-      bestSelectedSrc = tmpOption[1];
+      metaData.baseValue = tmpOption[0];
+      metaData.src = tmpOption[1];
       break;
     }
   }
 
-  return bestSelectedSrc;
+  return metaData;
 }
 
 function find(arr, fn) {
@@ -426,11 +443,13 @@ class ImageCache {
 // }
 
 class ReactiveListener {
-  constructor({ el, src, error, loading, bindType, $parent, options, cors, elRenderer, imageCache }) {
+  constructor({ el, src, error, loading, baseValue, descriptor, bindType, $parent, options, cors, elRenderer, imageCache }) {
     this.el = el;
     this.src = src;
     this.error = error;
     this.loading = loading;
+    this.baseValue = baseValue;
+    this.descriptor = descriptor;
     this.bindType = bindType;
     this.attempt = 0;
     this.cors = cors;
@@ -488,13 +507,17 @@ class ReactiveListener {
    * @param  {String} image uri
    * @param  {String} loading image uri
    * @param  {String} error image uri
+   * @param  {Number} baseValue image srcset best base value
+   * @param  {'w'|'x'} descriptor image srcset descriptor
    * @return
    */
-  update({ src, loading, error }) {
+  update({ src, loading, error, baseValue, descriptor }) {
     const oldSrc = this.src;
     this.src = src;
     this.loading = loading;
     this.error = error;
+    this.baseValue = baseValue;
+    this.descriptor = descriptor;
     this.filter();
     if (oldSrc !== this.src) {
       this.attempt = 0;
@@ -637,6 +660,8 @@ class ReactiveListener {
     this.src = null;
     this.error = null;
     this.loading = null;
+    this.baseValue = null;
+    this.descriptor = null;
     this.bindType = null;
     this.attempt = 0;
   }
@@ -737,7 +762,8 @@ function Lazy(Vue) {
       let { src, loading, error, cors } = this._valueFormatter(binding.value);
 
       Vue.nextTick(() => {
-        src = getBestSelectionFromSrcset(el, this.options.scale) || src;
+        const { src: bestSelectionSrc, baseValue, descriptor } = getBestSelectionFromSrcset(el, this.options.scale);
+        src = bestSelectionSrc || src;
         this._observer && this._observer.observe(el);
 
         const container = Object.keys(binding.modifiers)[0];
@@ -761,6 +787,8 @@ function Lazy(Vue) {
           error,
           src,
           cors,
+          baseValue,
+          descriptor,
           elRenderer: this._elRenderer.bind(this),
           options: this.options,
           imageCache: this._imageCache
@@ -786,7 +814,8 @@ function Lazy(Vue) {
     */
     update(el, binding, vnode) {
       let { src, loading, error } = this._valueFormatter(binding.value);
-      src = getBestSelectionFromSrcset(el, this.options.scale) || src;
+      const { src: bestSelectionSrc, baseValue, descriptor } = getBestSelectionFromSrcset(el, this.options.scale);
+      src = bestSelectionSrc || src;
 
       const exist = find(this.ListenerQueue, item => item.el === el);
       if (!exist) {
@@ -795,7 +824,9 @@ function Lazy(Vue) {
         exist.update({
           src,
           loading,
-          error
+          error,
+          baseValue,
+          descriptor
         });
       }
       if (this._observer) {
@@ -1036,6 +1067,9 @@ function Lazy(Vue) {
         el.style[bindType] = 'url("' + src + '")';
       } else if (el.getAttribute('src') !== src) {
         el.setAttribute('src', src);
+        if (listener.descriptor === 'x') {
+          setElTransformScale(el, listener.baseValue);
+        }
       }
 
       el.setAttribute('lazy', state);

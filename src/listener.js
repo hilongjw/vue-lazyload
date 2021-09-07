@@ -12,11 +12,13 @@ import {
 // }
 
 export default class ReactiveListener {
-  constructor ({ el, src, error, loading, bindType, $parent, options, cors, elRenderer, imageCache }) {
+  constructor ({ el, src, error, loading, baseValue, descriptor, bindType, $parent, options, cors, elRenderer, imageCache }) {
     this.el = el
     this.src = src
     this.error = error
     this.loading = loading
+    this.baseValue = baseValue
+    this.descriptor = descriptor
     this.bindType = bindType
     this.attempt = 0
     this.cors = cors
@@ -74,13 +76,17 @@ export default class ReactiveListener {
    * @param  {String} image uri
    * @param  {String} loading image uri
    * @param  {String} error image uri
+   * @param  {Number} baseValue image srcset best base value
+   * @param  {'w'|'x'} descriptor image srcset descriptor
    * @return
    */
-  update ({ src, loading, error }) {
+  update ({ src, loading, error, baseValue, descriptor }) {
     const oldSrc = this.src
     this.src = src
     this.loading = loading
     this.error = error
+    this.baseValue = baseValue
+    this.descriptor = descriptor
     this.filter()
     if (oldSrc !== this.src) {
       this.attempt = 0
@@ -224,6 +230,8 @@ export default class ReactiveListener {
     this.src = null
     this.error = null
     this.loading = null
+    this.baseValue = null
+    this.descriptor = null
     this.bindType = null
     this.attempt = 0
   }

@@ -61,8 +61,22 @@ function some (arr, fn) {
   return has
 }
 
+function setElTransformScale (el, dpr) {
+  if (!(el.width || el.height || el.style.height || el.style.width)) {
+    if (dpr > 1) {
+      const scale = (1 / dpr).toFixed(8)
+      el.style.transform = `scale(${scale})`
+      el.style.transformOrigin = '0 0'
+    } else {
+      delete el.style.transform
+      delete el.style.transformOrigin
+    }
+  }
+}
+
 function getBestSelectionFromSrcset (el, scale) {
-  if (el.tagName !== 'IMG' || !el.getAttribute('data-srcset')) return
+  let metaData = { src: '', baseValue: 0, descriptor: null }
+  if (el.tagName !== 'IMG' || !el.getAttribute('data-srcset')) return metaData
 
   let options = el.getAttribute('data-srcset')
   const result = []
@@ -76,8 +90,9 @@ function getBestSelectionFromSrcset (el, scale) {
   options = options.trim().split(',')
 
   const lastOption = options[options.length - 1] || ''
-  const descriptor = lastOption.trim().split(' ')[1] || ''
-  const isPixelDensityDescriptor = descriptor.length > 0 && descriptor.length - 1 === descriptor.indexOf('x')
+  const descriptor = (lastOption.trim().split(' ')[1] || '').substr(-1)
+  const isPixelDensityDescriptor = descriptor === 'x'
+  metaData.descriptor = descriptor
 
   options.map(item => {
     item = item.trim()
@@ -109,24 +124,26 @@ function getBestSelectionFromSrcset (el, scale) {
     }
     return 0
   })
-  let bestSelectedSrc = ''
   let tmpOption
-  let compareUnit = isPixelDensityDescriptor ? scale : containerWidth
+  let compareValue = isPixelDensityDescriptor ? scale : containerWidth
 
   for (let i = 0; i < result.length; i++) {
     tmpOption = result[i]
-    bestSelectedSrc = tmpOption[1]
+    metaData.baseValue = tmpOption[0]
+    metaData.src = tmpOption[1]
     const next = result[i + 1]
-    if (next && next[0] < compareUnit) {
-      bestSelectedSrc = tmpOption[1]
+    if (next && next[0] < compareValue) {
+      metaData.baseValue = tmpOption[0]
+      metaData.src = tmpOption[1]
       break
     } else if (!next) {
-      bestSelectedSrc = tmpOption[1]
+      metaData.baseValue = tmpOption[0]
+      metaData.src = tmpOption[1]
       break
     }
   }
 
-  return bestSelectedSrc
+  return metaData
 }
 
 function find (arr, fn) {
@@ -357,5 +374,6 @@ export {
   scrollParent,
   loadImageAsync,
   getBestSelectionFromSrcset,
+  setElTransformScale,
   ObjectKeys
 }

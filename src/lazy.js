@@ -10,6 +10,7 @@ import {
   getDPR,
   scrollParent,
   getBestSelectionFromSrcset,
+  setElTransformScale,
   assign,
   isObject,
   hasIntersectionObserver,
@@ -114,7 +115,8 @@ export default function Lazy (Vue) {
       let { src, loading, error, cors } = this._valueFormatter(binding.value)
 
       Vue.nextTick(() => {
-        src = getBestSelectionFromSrcset(el, this.options.scale) || src
+        const { src: bestSelectionSrc, baseValue, descriptor } = getBestSelectionFromSrcset(el, this.options.scale)
+        src = bestSelectionSrc || src
         this._observer && this._observer.observe(el)
 
         const container = Object.keys(binding.modifiers)[0]
@@ -138,6 +140,8 @@ export default function Lazy (Vue) {
           error,
           src,
           cors,
+          baseValue,
+          descriptor,
           elRenderer: this._elRenderer.bind(this),
           options: this.options,
           imageCache: this._imageCache
@@ -163,7 +167,8 @@ export default function Lazy (Vue) {
     */
     update (el, binding, vnode) {
       let { src, loading, error } = this._valueFormatter(binding.value)
-      src = getBestSelectionFromSrcset(el, this.options.scale) || src
+      const { src: bestSelectionSrc, baseValue, descriptor } = getBestSelectionFromSrcset(el, this.options.scale)
+      src = bestSelectionSrc || src
 
       const exist = find(this.ListenerQueue, item => item.el === el)
       if (!exist) {
@@ -172,7 +177,9 @@ export default function Lazy (Vue) {
         exist.update({
           src,
           loading,
-          error
+          error,
+          baseValue,
+          descriptor
         })
       }
       if (this._observer) {
@@ -413,6 +420,9 @@ export default function Lazy (Vue) {
         el.style[bindType] = 'url("' + src + '")'
       } else if (el.getAttribute('src') !== src) {
         el.setAttribute('src', src)
+        if (listener.descriptor === 'x') {
+          setElTransformScale(el, listener.baseValue)
+        }
       }
 
       el.setAttribute('lazy', state)
