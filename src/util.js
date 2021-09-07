@@ -71,21 +71,25 @@ function getBestSelectionFromSrcset (el, scale) {
 
   let spaceIndex
   let tmpSrc
-  let tmpWidth
+  let tmpUnitValue
 
   options = options.trim().split(',')
+
+  const lastOption = options[options.length - 1] || ''
+  const descriptor = lastOption.trim().split(' ')[1] || ''
+  const isPixelDensityDescriptor = descriptor.length > 0 && descriptor.length - 1 === descriptor.indexOf('x')
 
   options.map(item => {
     item = item.trim()
     spaceIndex = item.lastIndexOf(' ')
     if (spaceIndex === -1) {
       tmpSrc = item
-      tmpWidth = 999998
+      tmpUnitValue = isPixelDensityDescriptor ? 1 : 999998
     } else {
       tmpSrc = item.substr(0, spaceIndex)
-      tmpWidth = parseInt(item.substr(spaceIndex + 1, item.length - spaceIndex - 2), 10)
+      tmpUnitValue = parseInt(item.substr(spaceIndex + 1, item.length - spaceIndex - 2), 10)
     }
-    result.push([tmpWidth, tmpSrc])
+    result.push([tmpUnitValue, tmpSrc])
   })
 
   result.sort(function (a, b) {
@@ -107,12 +111,13 @@ function getBestSelectionFromSrcset (el, scale) {
   })
   let bestSelectedSrc = ''
   let tmpOption
+  let compareUnit = isPixelDensityDescriptor ? scale : containerWidth
 
   for (let i = 0; i < result.length; i++) {
     tmpOption = result[i]
     bestSelectedSrc = tmpOption[1]
     const next = result[i + 1]
-    if (next && next[0] < containerWidth) {
+    if (next && next[0] < compareUnit) {
       bestSelectedSrc = tmpOption[1]
       break
     } else if (!next) {

@@ -315,6 +315,9 @@ export default {
     <!-- srcset -->
     <img v-lazy="'img.400px.jpg'" data-srcset="img.400px.jpg 400w, img.800px.jpg 800w, img.1200px.jpg 1200w">
     <img v-lazy="imgUrl" :data-srcset="imgUrl' + '?size=400 400w, ' + imgUrl + ' ?size=800 800w, ' + imgUrl +'/1200.jpg 1200w'" />
+
+    <!-- srcset: Use density descriptors -->
+    <img v-lazy="'img.jpg'" data-srcset="img.jpg 1x, img@2x.jpg 2x, img@3x.jpg 3x" />
   </div>
 </template>
 ```
