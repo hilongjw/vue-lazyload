@@ -5,3 +5,4 @@ lib
 npm-debug.log
 package-lock.json
 .idea
+.history

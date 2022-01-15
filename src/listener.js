@@ -124,7 +124,8 @@ export default class ReactiveListener {
     this.state.loading = true
     loadImageAsync({
       src: this.loading,
-      cors: this.cors
+      cors: this.cors,
+      el: this.el
     }, data => {
       this.render('loading', false)
       this.state.loading = false
@@ -163,7 +164,8 @@ export default class ReactiveListener {
 
       loadImageAsync({
         src: this.src,
-        cors: this.cors
+        cors: this.cors,
+        el: this.el
       }, data => {
         this.naturalHeight = data.naturalHeight
         this.naturalWidth = data.naturalWidth
