@@ -7,8 +7,8 @@ import { createApp, inject } from 'vue'
 describe('VueLazyload.js Test Suite', function () {
   const App = {
     template: '<div></div>',
-    data() {
-      return  {
+    data () {
+      return {
         Lazyload: inject('Lazyload')
       }
     }

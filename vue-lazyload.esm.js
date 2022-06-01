@@ -1,6 +1,6 @@
 /*!
  * Vue-Lazyload.js v3.0.0-alpha.0
- * (c) 2021 Awe <hilongjw@gmail.com>
+ * (c) 2022 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
 
@@ -306,9 +306,6 @@ const scrollParent = el => {
     }
     return window;
 };
-function isObject(obj) {
-    return obj !== null && typeof obj === 'object';
-}
 function noop() {}
 class ImageCache {
     constructor(max) {
@@ -538,7 +535,7 @@ const DEFAULT_OBSERVER_OPTIONS = {
 };
 class Lazy {
     constructor({ preLoad, error, throttleWait, preLoadTop, dispatchEvent, loading, attempt, silent = true, scale, listenEvents, filter, adapter, observer, observerOptions }) {
-        this.version = '__VUE_LAZYLOAD_NEXT_VERSION__';
+        this.version = '"3.0.0-alpha.0"';
         this.lazyContainerMananger = null;
         this.mode = modeType.event;
         this.ListenerQueue = [];
@@ -565,14 +562,6 @@ class Lazy {
         this._imageCache = new ImageCache(200);
         this.lazyLoadHandler = throttle(this._lazyLoadHandler.bind(this), this.options.throttleWait);
         this.setMode(this.options.observer ? modeType.observer : modeType.event);
-    }
-    /**
-     * update config
-     * @param  {Object} config params
-     * @return
-     */
-    config(options = {}) {
-        assignDeep(this.options, options);
     }
     /**
      * output listener's load performance
@@ -630,8 +619,7 @@ class Lazy {
                 this._addListenerTarget(window);
                 this._addListenerTarget($parent);
             }
-            // this.lazyLoadHandler()
-            nextTick(() => this.lazyLoadHandler());
+            nextTick(this.lazyLoadHandler);
         });
     }
     /**
@@ -657,8 +645,7 @@ class Lazy {
             this._observer.unobserve(el);
             this._observer.observe(el);
         }
-        // this.lazyLoadHandler()
-        nextTick(() => this.lazyLoadHandler());
+        nextTick(this.lazyLoadHandler);
     }
     /**
     * remove listener form list
@@ -884,28 +871,21 @@ class Lazy {
             el.dispatchEvent(event);
         }
     }
-    /**
-    * generate loading loaded error image url
-    * @param {string} image's src
-    * @return {object} image's loading, loaded, error url
-    */
     _valueFormatter(value) {
-        let src = value;
-        let loading = this.options.loading;
-        let error = this.options.error;
-        let cors = this.options.cors;
-        // value is object
-        if (isObject(value)) {
-            if (!value.src && !this.options.silent) console.error('Vue Lazyload Next warning: miss src with ' + value);
-            src = value.src;
-            loading = value.loading || this.options.loading;
-            error = value.error || this.options.error;
+        if (typeof value === 'object') {
+            if (!value.src && !this.options.silent) console.error('Vue Lazyload warning: miss src with ' + value);
+            return {
+                src: value.src,
+                loading: value.loading || this.options.loading,
+                error: value.error || this.options.error,
+                cors: this.options.cors
+            };
         }
         return {
-            src,
-            loading,
-            error,
-            cors
+            src: value,
+            loading: this.options.loading,
+            error: this.options.error,
+            cors: this.options.cors
         };
     }
 }
@@ -935,7 +915,7 @@ var LazyComponent = (lazy => {
         },
         emits: ['show'],
         setup(props, { emit, slots }) {
-            const el = ref(null);
+            const el = ref();
             const state = reactive({
                 loaded: false,
                 error: false,
@@ -1039,15 +1019,8 @@ class LazyContainer {
 
 var LazyImage = (lazy => {
     return defineComponent({
-        props: {
-            src: [String, Object],
-            tag: {
-                type: String,
-                default: 'img'
-            }
-        },
         setup(props, { slots }) {
-            const el = ref(null);
+            const el = ref();
             const options = reactive({
                 src: '',
                 error: '',
@@ -1064,8 +1037,7 @@ var LazyImage = (lazy => {
             const load = (onFinish = noop) => {
                 if (state.attempt > options.attempt - 1 && state.error) {
                     if (!lazy.options.silent) console.log(`VueLazyload log: ${options.src} tried too more than ${options.attempt} times`);
-                    onFinish();
-                    return;
+                    return onFinish();
                 }
                 const src = options.src;
                 loadImageAsync({ src }, ({ src }) => {
@@ -1105,11 +1077,12 @@ var LazyImage = (lazy => {
                 init();
                 lazy.addLazyBox(vm.value);
                 lazy.lazyLoadHandler();
+            }, {
+                immediate: true
             });
-            init();
             return () => {
                 var _a;
-                return createVNode(props.tag, {
+                return createVNode(props.tag || 'img', {
                     src: renderSrc.value,
                     ref: el
                 }, [(_a = slots.default) === null || _a === void 0 ? void 0 : _a.call(slots)]);
@@ -1151,4 +1124,4 @@ var index = {
     }
 };
 
-export default index;
+export { index as default };
