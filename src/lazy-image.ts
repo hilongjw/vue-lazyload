@@ -2,7 +2,7 @@ import {
   loadImageAsync,
   noop
 } from './util'
-import Lazy from './lazy'
+import Lazy, { TvalueFormatterParam } from './lazy'
 import { useCheckInView } from './useCheckInView'
 import { loadImageAsyncOption } from '../types'
 
@@ -13,22 +13,17 @@ import {
   watch,
   onMounted,
   onUnmounted,
-  Ref,
   createVNode,
   computed
 } from 'vue'
 
 export default (lazy: Lazy) => {
-  return defineComponent({
-    props: {
-      src: [String, Object],
-      tag: {
-        type: String,
-        default: 'img'
-      }
-    },
+  return defineComponent<{
+    src: TvalueFormatterParam,
+    tag: string
+  }>({
     setup(props,{ slots }) {
-      const el: Ref = ref(null)
+      const el = ref<HTMLElement>()
       const options = reactive({
           src: '',
           error: '',
@@ -40,13 +35,12 @@ export default (lazy: Lazy) => {
         error: false,
         attempt: 0
       })
-      const {rect, checkInView } = useCheckInView(el, lazy.options.preLoad!)
-      const renderSrc: Ref = ref('')
+      const { rect, checkInView } = useCheckInView(el, lazy.options.preLoad!)
+      const renderSrc = ref<string>('')
       const load = (onFinish = noop) => {
         if ((state.attempt > options.attempt! - 1) && state.error) {
           if (!lazy.options.silent) console.log(`VueLazyload log: ${options.src} tried too more than ${options.attempt} times`)
-          onFinish()
-          return
+          return onFinish()
         }
         const src = options.src
         loadImageAsync({ src }, ({ src }: loadImageAsyncOption) => {
@@ -91,13 +85,14 @@ export default (lazy: Lazy) => {
           init()
           lazy.addLazyBox(vm.value)
           lazy.lazyLoadHandler()
+        },
+        {
+          immediate: true
         }
       )
 
-      init()
-
       return () => createVNode(
-        props.tag,
+        props.tag || 'img',
         {
           src: renderSrc.value,
           ref: el

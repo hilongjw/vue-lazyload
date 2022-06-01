@@ -4,7 +4,6 @@ import {
   onMounted,
   onUnmounted,
   ref,
-  Ref,
   reactive,
   computed,
   createVNode
@@ -21,7 +20,7 @@ export default (lazy: Lazy) => {
     },
     emits: ['show'],
     setup(props, { emit, slots }) {
-      const el: Ref = ref(null)
+      const el = ref<HTMLElement>()
       const state = reactive({
         loaded: false,
         error: false,

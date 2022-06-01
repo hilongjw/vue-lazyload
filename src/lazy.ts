@@ -47,6 +47,8 @@ type Tlistener = {
   load: () => void;
 }
 
+export type TvalueFormatterParam = string | Pick<VueLazyloadOptions, 'loading' | 'error'> & { src: string }
+
 
 class Lazy {
   version: string;
@@ -86,7 +88,7 @@ class Lazy {
     observer,
     observerOptions
   }:VueLazyloadOptions) {
-    this.version = '__VUE_LAZYLOAD_NEXT_VERSION__'
+    this.version = '__VUE_LAZYLOAD_VERSION__'
     this.lazyContainerMananger = null;
     this.mode = modeType.event
     this.ListenerQueue = []
@@ -114,15 +116,6 @@ class Lazy {
     this.lazyLoadHandler = throttle(this._lazyLoadHandler.bind(this), this.options.throttleWait!)
 
     this.setMode(this.options.observer ? modeType.observer : modeType.event)
-  }
-
-  /**
-   * update config
-   * @param  {Object} config params
-   * @return
-   */
-  config (options = {}) {
-    assign(this.options, options)
   }
 
   /**
@@ -205,8 +198,8 @@ class Lazy {
         this._addListenerTarget(window)
         this._addListenerTarget($parent)
       }
-      // this.lazyLoadHandler()
-      nextTick(() => this.lazyLoadHandler())
+
+      nextTick(this.lazyLoadHandler)
     })
   }
 
@@ -234,8 +227,8 @@ class Lazy {
       this._observer.unobserve(el)
       this._observer.observe(el)
     }
-    // this.lazyLoadHandler()
-    nextTick(() => this.lazyLoadHandler())
+
+    nextTick(this.lazyLoadHandler)
   }
 
   /**
@@ -486,29 +479,24 @@ class Lazy {
     }
   }
 
-  /**
-  * generate loading loaded error image url
-  * @param {string} image's src
-  * @return {object} image's loading, loaded, error url
-  */
-  _valueFormatter (value: any) {
-    let src = value
-    let loading = this.options.loading
-    let error = this.options.error
-    let cors = this.options.cors
-
-    // value is object
-    if (isObject(value)) {
-      if (!value.src && !this.options.silent) console.error('Vue Lazyload Next warning: miss src with ' + value)
-      src = value.src
-      loading = value.loading || this.options.loading
-      error = value.error || this.options.error
+  _valueFormatter (
+    value: TvalueFormatterParam
+  )
+  {
+    if (typeof value === 'object') {
+      if (!value.src && !this.options.silent) console.error('Vue Lazyload warning: miss src with ' + value)
+      return {
+        src: value.src,
+        loading: value.loading || this.options.loading,
+        error: value.error || this.options.error,
+        cors: this.options.cors
+      }
     }
     return {
-      src,
-      loading,
-      error,
-      cors
+      src: value,
+      loading: this.options.loading,
+      error: this.options.error,
+      cors: this.options.cors
     }
   }
 }
