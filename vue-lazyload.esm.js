@@ -1,5 +1,5 @@
 /*!
- * Vue-Lazyload.js v3.0.0-alpha.0
+ * Vue-Lazyload.js v3.0.0-rc.1
  * (c) 2022 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
@@ -535,7 +535,7 @@ const DEFAULT_OBSERVER_OPTIONS = {
 };
 class Lazy {
     constructor({ preLoad, error, throttleWait, preLoadTop, dispatchEvent, loading, attempt, silent = true, scale, listenEvents, filter, adapter, observer, observerOptions }) {
-        this.version = '"3.0.0-alpha.0"';
+        this.version = '"3.0.0-rc.1"';
         this.lazyContainerMananger = null;
         this.mode = modeType.event;
         this.ListenerQueue = [];
@@ -633,7 +633,9 @@ class Lazy {
         src = getBestSelectionFromSrcset(el, this.options.scale) || src;
         const exist = this.ListenerQueue.find(item => item.el === el);
         if (!exist) {
-            this.add(el, binding, vnode);
+            if (el.getAttribute('lazy') !== 'loaded' || el.dataset.src !== src) {
+                this.add(el, binding, vnode);
+            }
         } else {
             exist.update({
                 src,

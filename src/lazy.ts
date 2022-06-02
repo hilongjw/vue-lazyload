@@ -215,7 +215,10 @@ class Lazy {
 
     const exist = this.ListenerQueue.find(item => item.el === el)
     if (!exist) {
-      this.add(el, binding, vnode!)
+      // https://github.com/hilongjw/vue-lazyload/issues/374
+      if (el.getAttribute('lazy') !== 'loaded' || el.dataset.src !== src) {
+        this.add(el, binding, vnode!)
+      }
     } else {
       exist.update({
         src,
