@@ -14,7 +14,8 @@ Vue module for lazyloading images in your applications. Some of goals of this pr
 * Add loading class while image is loading
 * Supports both of Vue 1.0 and Vue 2.0
 
-
+# For Vue 3
+Please use vue-lazyload@3.x, see [here](https://github.com/hilongjw/vue-lazyload/tree/next)
 
 # Table of Contents
 
