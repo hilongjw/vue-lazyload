@@ -83,7 +83,7 @@ const LazyImage = (lazyManager) => {
           return
         }
         const src = this.options.src
-        loadImageAsync({ src }, ({ src }) => {
+        loadImageAsync({ src, el: this.$el }, ({ src }) => {
           this.renderSrc = src
           this.state.loaded = true
         }, e => {

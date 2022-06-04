@@ -218,12 +218,18 @@ const _ = {
 }
 
 const loadImageAsync = (item, resolve, reject) => {
+  const attributes = item.el.attributes
   let image = new Image()
   if (!item || !item.src) {
     const err = new Error('image src is required')
     return reject(err)
   }
-
+  // 将图片预配置的attributes赋值给image实例
+  for (let i = 0; i < attributes.length; i++) {
+    if (!['id', 'class', 'src'].includes(attributes[i].name)) {
+      image.setAttribute(attributes[i].name, attributes[i].value)
+    }
+  }
   image.src = item.src
   if (item.cors) {
     image.crossOrigin = item.cors
