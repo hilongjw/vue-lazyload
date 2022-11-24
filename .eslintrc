@@ -1,9 +1,20 @@
 {
-  "extends": "standard",
+  "extends": [
+    "standard",
+    "plugin:@typescript-eslint/recommended"
+  ],
   "env": {
     "browser": true,
     "es6": true,
     "jest": true,
     "mocha": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "rules": {
+    "@typescript-eslint/no-this-alias": 0,
+    "@typescript-eslint/ban-types": 0,
+    "prefer-rest-params": 0,
+    "@typescript-eslint/ban-ts-comment": 0,
+    "@typescript-eslint/no-empty-function": 0
   }
 }

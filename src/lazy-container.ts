@@ -7,6 +7,7 @@ import Lazy from './lazy'
 
 export default class LazyContainerMananger {
   lazy: Lazy;
+  // eslint-disable-next-line no-use-before-define
   _queue: Array<LazyContainer>;
   constructor (lazy: Lazy) {
     this.lazy = lazy

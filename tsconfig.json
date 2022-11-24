@@ -2,7 +2,8 @@
   "strict": true,
   "compilerOptions": {
     "target": "es6",
-    "module": "es2015",
+    "module": "ES2015",
+    "allowJs": true,
     "moduleResolution": "node",
     "lib": [
       "es5",

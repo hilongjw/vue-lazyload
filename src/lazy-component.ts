@@ -19,7 +19,7 @@ export default (lazy: Lazy) => {
       }
     },
     emits: ['show'],
-    setup(props, { emit, slots }) {
+    setup (props, { emit, slots }) {
       const el = ref<HTMLElement>()
       const state = reactive({
         loaded: false,
@@ -39,7 +39,7 @@ export default (lazy: Lazy) => {
           rect,
           checkInView,
           load,
-          state,
+          state
         }
       })
 
@@ -47,7 +47,7 @@ export default (lazy: Lazy) => {
         lazy.addLazyBox(vm.value)
         lazy.lazyLoadHandler()
       })
-      
+
       onUnmounted(() => {
         lazy.removeComponent(vm.value)
       })

@@ -1,7 +1,6 @@
 import { mount } from '@vue/test-utils'
 import VueLazyload from '../src'
-import genLazyCore from '../src/lazy'
-import assert from 'assert'
+import Lazy from '../src/lazy'
 import { createApp, inject } from 'vue'
 
 describe('VueLazyload.js Test Suite', function () {
@@ -21,16 +20,13 @@ describe('VueLazyload.js Test Suite', function () {
       }
     })
 
-    assert(wrapper.vm.Lazyload.mode, 'event')
+    expect(wrapper.vm.Lazyload.mode).toBe('event')
   })
 
   it('_valueFormatter', function () {
-    const app = createApp(App)
-    const LazyCore = genLazyCore(app)
-
-    const lazyload = new LazyCore({
-      error: 'error',
-      loading: 'loading'
+    const lazyload = new Lazy({
+      error: "error",
+      loading: "loading"
     })
 
     expect(lazyload._valueFormatter('src').src).toBe('src')
