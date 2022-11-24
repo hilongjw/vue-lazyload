@@ -5,7 +5,7 @@ const inBrowser = typeof window !== 'undefined' && window !== null
 
 export const hasIntersectionObserver = checkIntersectionObserver()
 
-function checkIntersectionObserver(): boolean {
+function checkIntersectionObserver (): boolean {
   if (inBrowser &&
     'IntersectionObserver' in window &&
     'IntersectionObserverEntry' in window &&
@@ -15,10 +15,10 @@ function checkIntersectionObserver(): boolean {
     if (!('isIntersecting' in window.IntersectionObserverEntry.prototype)) {
       Object.defineProperty(window.IntersectionObserverEntry.prototype,
         'isIntersecting', {
-        get: function () {
-          return this.intersectionRatio > 0
-        }
-      })
+          get: function () {
+            return this.intersectionRatio > 0
+          }
+        })
     }
     return true
   }
@@ -30,16 +30,16 @@ export const modeType = {
   observer: 'observer'
 }
 
-function remove(arr: Array<any>, item: any) {
+function remove (arr: Array<any>, item: any) {
   if (!arr.length) return
   const index = arr.indexOf(item)
   if (index > -1) return arr.splice(index, 1)
 }
 
-function getBestSelectionFromSrcset(el: Element, scale: number): string {
+function getBestSelectionFromSrcset (el: Element, scale: number): string {
   if (el.tagName !== 'IMG' || !el.getAttribute('data-srcset')) return ''
 
-  let options = el.getAttribute('data-srcset')!.trim().split(',')
+  const options = el.getAttribute('data-srcset')!.trim().split(',')
   const result: Array<[tmpWidth: number, tmpSrc: string]> = []
   const container = el.parentNode as HTMLElement
   const containerWidth = container.offsetWidth * scale
@@ -100,10 +100,10 @@ function getBestSelectionFromSrcset(el: Element, scale: number): string {
 const getDPR = (scale = 1): number => inBrowser ? (window.devicePixelRatio || scale) : scale
 
 // https://developers.google.com/speed/webp/faq#how_can_i_detect_browser_support_using_javascript
-function supportWebp() {
+function supportWebp () {
   if (!inBrowser) return false
 
-  let support: boolean = true
+  let support = true
 
   type TkTestImages = {
     lossy: string;
@@ -111,7 +111,7 @@ function supportWebp() {
     alpha: string;
     animation: string;
   }
-  function checkWebpFeature(feature: keyof TkTestImages , callback: Function) {
+  function checkWebpFeature (feature: keyof TkTestImages, callback: Function) {
     const kTestImages: TkTestImages = {
       lossy: 'UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA',
       lossless: 'UklGRhoAAABXRUJQVlA4TA0AAAAvAAAAEAcQERGIiP4HAA==',
@@ -138,7 +138,7 @@ function supportWebp() {
   return support
 }
 
-function throttle(action: Function, delay: number) {
+function throttle (action: Function, delay: number) {
   let timeout: any = null
   let lastRun = 0
   return function () {
@@ -162,7 +162,7 @@ function throttle(action: Function, delay: number) {
   }
 }
 
-function testSupportsPassive(): boolean {
+function testSupportsPassive (): boolean {
   if (!inBrowser) return false
   let support = false
   try {
@@ -179,7 +179,7 @@ function testSupportsPassive(): boolean {
 const supportsPassive = testSupportsPassive()
 
 const _ = {
-  on(el: Element, type: string, func: ()=>void, capture = false) {
+  on (el: Element, type: string, func: ()=>void, capture = false) {
     if (supportsPassive) {
       el.addEventListener(type, func, {
         capture: capture,
@@ -189,7 +189,7 @@ const _ = {
       el.addEventListener(type, func, capture)
     }
   },
-  off(el: Element, type: string, func: ()=>void, capture = false) {
+  off (el: Element, type: string, func: ()=>void, capture = false) {
     el.removeEventListener(type, func, capture)
   }
 }
@@ -263,11 +263,11 @@ const scrollParent = (el:HTMLElement) => {
   return window
 }
 
-function isObject(obj: any): boolean {
+function isObject (obj: any): boolean {
   return obj !== null && typeof obj === 'object'
 }
 
-function noop(): void { }
+function noop (): void { }
 
 class ImageCache {
   max: number;

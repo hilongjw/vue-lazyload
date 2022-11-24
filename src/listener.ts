@@ -30,12 +30,14 @@ export default class ReactiveListener {
     loadStart: number;
     loadEnd: number;
   };
+
   state!: {
     loading: boolean;
     error: boolean;
     loaded: boolean;
     rendered: boolean;
   };
+
   rect: DOMRect;
   _imageCache: ImageCache;
   constructor (
@@ -115,7 +117,7 @@ export default class ReactiveListener {
    */
   update (option: { src: string, loading: string, error: string }) {
     const oldSrc = this.src
-    this.src = option.src 
+    this.src = option.src
     this.loading = option.loading
     this.error = option.error
     this.filter()

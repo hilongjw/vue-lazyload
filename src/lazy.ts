@@ -7,8 +7,6 @@ import {
   getDPR,
   scrollParent,
   getBestSelectionFromSrcset,
-  assign,
-  isObject,
   hasIntersectionObserver,
   modeType,
   ImageCache
@@ -49,7 +47,6 @@ type Tlistener = {
 
 export type TvalueFormatterParam = string | Pick<VueLazyloadOptions, 'loading' | 'error'> & { src: string }
 
-
 class Lazy {
   version: string;
   mode: string;
@@ -68,6 +65,7 @@ class Lazy {
       error: Array<any>
     }
   };
+
   $on!: (event: TeventType, func: Function) => void;
   $once!: (event: TeventType, func: Function) => void
   $off!: (event: TeventType, func: Function) => void
@@ -89,7 +87,7 @@ class Lazy {
     observerOptions
   }:VueLazyloadOptions) {
     this.version = '__VUE_LAZYLOAD_VERSION__'
-    this.lazyContainerMananger = null;
+    this.lazyContainerMananger = null
     this.mode = modeType.event
     this.ListenerQueue = []
     this.TargetIndex = 0
@@ -256,7 +254,7 @@ class Lazy {
    * @param  {Vue} vm Vue instance
    * @return
    */
-    removeComponent (vm: Tlistener) {
+  removeComponent (vm: Tlistener) {
     if (!vm) return
     remove(this.ListenerQueue, vm)
     this._observer && this._observer.unobserve(vm.el)
@@ -484,8 +482,7 @@ class Lazy {
 
   _valueFormatter (
     value: TvalueFormatterParam
-  )
-  {
+  ) {
     if (typeof value === 'object') {
       if (!value.src && !this.options.silent) console.error('Vue Lazyload warning: miss src with ' + value)
       return {

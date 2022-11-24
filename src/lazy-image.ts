@@ -22,13 +22,13 @@ export default (lazy: Lazy) => {
     src: TvalueFormatterParam,
     tag: string
   }>({
-    setup(props,{ slots }) {
+    setup (props, { slots }) {
       const el = ref<HTMLElement>()
       const options = reactive({
-          src: '',
-          error: '',
-          loading: '',
-          attempt: lazy.options.attempt
+        src: '',
+        error: '',
+        loading: '',
+        attempt: lazy.options.attempt
       })
       const state = reactive({
         loaded: false,
@@ -58,7 +58,7 @@ export default (lazy: Lazy) => {
           rect,
           checkInView,
           load,
-          state,
+          state
         }
       })
 
@@ -80,7 +80,7 @@ export default (lazy: Lazy) => {
       }
 
       watch(
-        ()=> props.src,
+        () => props.src,
         () => {
           init()
           lazy.addLazyBox(vm.value)
