@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/node:18.12.1
+      - image: node:18.12
       
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -30,7 +30,7 @@ jobs:
           name: Workaround for GoogleChrome/puppeteer#290
           command: 'sh .circleci/setup_puppeteer.sh'
 
-      - run: yarn install
+      - run: npm install
 
       - save_cache:
           paths:
@@ -38,5 +38,5 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
         
       # run tests!
-      - run: yarn lint
-      - run: yarn test
+      - run: npm run lint
+      - run: npm run test
