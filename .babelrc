@@ -1,0 +1,14 @@
+{
+    "presets": [
+        ["env", {
+            "modules": false
+        }]
+    ],
+    "plugins": [
+        "syntax-dynamic-import",
+        "external-helpers"
+    ],
+    "ignore": [
+        "dist/*.js"
+    ]
+}
