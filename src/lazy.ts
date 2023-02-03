@@ -486,7 +486,7 @@ class Lazy {
     value: TvalueFormatterParam
   )
   {
-    if (typeof value === 'object') {
+    if (isObject(value)) {
       if (!value.src && !this.options.silent) console.error('Vue Lazyload warning: miss src with ' + value)
       return {
         src: value.src,
