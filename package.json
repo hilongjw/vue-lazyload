@@ -1,6 +1,6 @@
 {
   "name": "vue-lazyload",
-  "version": "3.0.0-rc.2",
+  "version": "3.0.0",
   "description": "Vue module for lazy-loading images in your vue.js applications.",
   "main": "vue-lazyload.js",
   "module": "vue-lazyload.esm.js",
@@ -29,7 +29,8 @@
   "browserslist": [
     "> 1%",
     "last 2 versions",
-    "not ie < 11"
+    "not ie",
+    "not chrome < 49"
   ],
   "license": "MIT",
   "jest": {

@@ -1,6 +1,6 @@
 /*!
- * Vue-Lazyload.js v3.0.0-rc.1
- * (c) 2022 Awe <hilongjw@gmail.com>
+ * Vue-Lazyload.js v3.0.0
+ * (c) 2023 Awe <hilongjw@gmail.com>
  * Released under the MIT License.
  */
 
@@ -306,6 +306,9 @@ const scrollParent = el => {
     }
     return window;
 };
+function isObject(obj) {
+    return obj !== null && typeof obj === 'object';
+}
 function noop() {}
 class ImageCache {
     constructor(max) {
@@ -535,7 +538,7 @@ const DEFAULT_OBSERVER_OPTIONS = {
 };
 class Lazy {
     constructor({ preLoad, error, throttleWait, preLoadTop, dispatchEvent, loading, attempt, silent = true, scale, listenEvents, filter, adapter, observer, observerOptions }) {
-        this.version = '"3.0.0-rc.1"';
+        this.version = '"3.0.0"';
         this.lazyContainerMananger = null;
         this.mode = modeType.event;
         this.ListenerQueue = [];
@@ -633,6 +636,7 @@ class Lazy {
         src = getBestSelectionFromSrcset(el, this.options.scale) || src;
         const exist = this.ListenerQueue.find(item => item.el === el);
         if (!exist) {
+            // https://github.com/hilongjw/vue-lazyload/issues/374
             if (el.getAttribute('lazy') !== 'loaded' || el.dataset.src !== src) {
                 this.add(el, binding, vnode);
             }
@@ -874,7 +878,7 @@ class Lazy {
         }
     }
     _valueFormatter(value) {
-        if (typeof value === 'object') {
+        if (isObject(value)) {
             if (!value.src && !this.options.silent) console.error('Vue Lazyload warning: miss src with ' + value);
             return {
                 src: value.src,
