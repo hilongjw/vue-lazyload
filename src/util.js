@@ -229,7 +229,7 @@ const loadImageAsync = (item, resolve, reject) => {
     image.crossOrigin = item.cors
   }
 
-  image.onload = function () {
+  function onLoad () {
     resolve({
       naturalHeight: image.naturalHeight,
       naturalWidth: image.naturalWidth,
@@ -237,8 +237,15 @@ const loadImageAsync = (item, resolve, reject) => {
     })
   }
 
-  image.onerror = function (e) {
+  function onError (e) {
     reject(e)
+  }
+
+  if (typeof image.decode === 'function') {
+    image.decode().then(onLoad, onError)
+  } else {
+    image.onload = onLoad
+    image.onerror = onError
   }
 }
 
