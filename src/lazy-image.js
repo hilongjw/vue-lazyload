@@ -58,6 +58,9 @@ const LazyImage = (lazyManager) => {
     beforeDestroy () {
       lazyManager.removeComponent(this)
     },
+    getSSRProps() {
+      return {}
+    },
     methods: {
       init () {
         const { src, loading, error } = lazyManager._valueFormatter(this.src)

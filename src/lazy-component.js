@@ -27,6 +27,9 @@ const LazyComponent = (lazy) => {
       lazy.addLazyBox(this)
       lazy.lazyLoadHandler()
     },
+    getSSRProps () {
+      return {}
+    },
     beforeDestroy () {
       lazy.removeComponent(this)
     },
